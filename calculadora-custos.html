@@ -1,1 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Custos de Transação - KC ImobTech Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d0d0d;
+            color: #e0e0e0;
+        }
+        .gradient-button {
+            background-image: linear-gradient(to right, #4a00e0, #8e2de2);
+            transition: all 0.3s ease;
+        }
+        .gradient-button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+        .card-bg {
+            background-color: #1a1a1a;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-3xl card-bg rounded-lg shadow-xl p-6 md:p-8 space-y-6">
+        <h1 class="text-3xl md:text-4xl font-bold text-center text-white mb-6">Calculadora de Custos de Transação</h1>
 
+        <!-- Campo para Valor do Imóvel -->
+        <div>
+            <label for="property-value" class="block text-gray-300 text-lg font-medium mb-2">Valor do Imóvel (R$):</label>
+            <input type="number" id="property-value" value="0" min="0" step="1000"
+                   class="w-full p-3 md:p-4 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                   placeholder="Ex: 500000">
+        </div>
+
+        <!-- Campo para ITBI (%) - Exemplo para São Paulo, pode variar -->
+        <div>
+            <label for="itbi-rate" class="block text-gray-300 text-lg font-medium mb-2">Taxa ITBI (%):</label>
+            <input type="number" id="itbi-rate" value="3" min="0" max="10" step="0.1"
+                   class="w-full p-3 md:p-4 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-600">
+            <p class="text-sm text-gray-400 mt-1">Geralmente 2-3% do valor do imóvel (varia por município).</p>
+        </div>
+
+        <!-- Campo para Custos de Cartório (%) - Exemplo -->
+        <div>
+            <label for="registry-costs-rate" class="block text-gray-300 text-lg font-medium mb-2">Custos de Cartório (%):</label>
+            <input type="number" id="registry-costs-rate" value="1.5" min="0" max="5" step="0.1"
+                   class="w-full p-3 md:p-4 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-600">
+            <p class="text-sm text-gray-400 mt-1">Estimativa para taxas de registro e escritura (varia).</p>
+        </div>
+
+        <!-- Botão para calcular -->
+        <button id="calculate-button"
+                class="gradient-button w-full py-3 md:py-4 rounded-lg text-white font-semibold text-lg uppercase tracking-wide shadow-lg">
+            Calcular Custos
+        </button>
+
+        <!-- Área para exibir o resultado -->
+        <div id="result-section" class="mt-8 pt-6 border-t border-gray-700 hidden">
+            <h2 class="text-2xl md:text-3xl font-semibold text-white mb-4 text-center">Resumo dos Custos:</h2>
+            <div class="space-y-3">
+                <p class="flex justify-between items-center text-lg md:text-xl">
+                    <span class="text-gray-300">Valor do Imóvel:</span>
+                    <span id="display-property-value" class="text-white font-semibold">R$ 0,00</span>
+                </p>
+                <p class="flex justify-between items-center text-lg md:text-xl">
+                    <span class="text-gray-300">ITBI:</span>
+                    <span id="display-itbi" class="text-white font-semibold">R$ 0,00</span>
+                </p>
+                <p class="flex justify-between items-center text-lg md:text-xl">
+                    <span class="text-gray-300">Custos de Cartório:</span>
+                    <span id="display-registry-costs" class="text-white font-semibold">R$ 0,00</span>
+                </p>
+                <p class="flex justify-between items-center text-2xl md:text-3xl font-bold text-purple-400 pt-4 border-t border-gray-700">
+                    <span>Total Estimado:</span>
+                    <span id="display-total-costs">R$ 0,00</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Botão Voltar para o Dashboard -->
+        <div class="mt-8 text-center">
+            <a href="index.html" class="text-purple-400 hover:text-purple-600 transition duration-300 ease-in-out text-lg font-medium">
+                &larr; Voltar para o Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script type="module">
+        const calculateButton = document.getElementById('calculate-button');
+        const propertyValueInput = document.getElementById('property-value');
+        const itbiRateInput = document.getElementById('itbi-rate');
+        const registryCostsRateInput = document.getElementById('registry-costs-rate');
+
+        const resultSection = document.getElementById('result-section');
+        const displayPropertyValue = document.getElementById('display-property-value');
+        const displayItbi = document.getElementById('display-itbi');
+        const displayRegistryCosts = document.getElementById('display-registry-costs');
+        const displayTotalCosts = document.getElementById('display-total-costs');
+
+        calculateButton.addEventListener('click', () => {
+            const propertyValue = parseFloat(propertyValueInput.value);
+            const itbiRate = parseFloat(itbiRateInput.value);
+            const registryCostsRate = parseFloat(registryCostsRateInput.value);
+
+            if (isNaN(propertyValue) || propertyValue <= 0) {
+                alert('Por favor, insira um valor válido para o imóvel.');
+                return;
+            }
+
+            // Cálculo ITBI
+            const itbiValue = propertyValue * (itbiRate / 100);
+
+            // Cálculo Custos de Cartório (estimativa)
+            const registryCostsValue = propertyValue * (registryCostsRate / 100);
+
+            // Total estimado
+            const totalEstimatedCosts = itbiValue + registryCostsValue;
+
+            // Exibir resultados
+            displayPropertyValue.textContent = `R$ ${propertyValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            displayItbi.textContent = `R$ ${itbiValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            displayRegistryCosts.textContent = `R$ ${registryCostsValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            displayTotalCosts.textContent = `R$ ${totalEstimatedCosts.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+            resultSection.classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
