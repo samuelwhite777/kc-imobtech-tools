@@ -1,1 +1,567 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Valorização Imobiliária</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a2e; /* Dark background for 'Black Premium Platinum' */
+            color: #e0e0e0; /* Light gray text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #2a2a4a; /* Slightly lighter dark background for container */
+            border-radius: 1.5rem; /* More rounded corners */
+            padding: 2rem;
+            max-width: 90%; /* Responsive max-width */
+            width: 100%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        h1 {
+            color: #fdd835; /* Gold/Platinum color for headings */
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            font-size: 2.25rem; /* Larger heading */
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #d1d5db; /* Light gray label */
+        }
+        input[type="number"],
+        input[type="text"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #4a4a6e; /* Darker border */
+            border-radius: 0.75rem; /* Rounded input fields */
+            background-color: #3a3a5e; /* Darker input background */
+            color: #e0e0e0;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input[type="number"]:focus,
+        input[type="text"]:focus {
+            border-color: #fdd835; /* Gold/Platinum focus */
+            box-shadow: 0 0 0 2px rgba(253, 216, 53, 0.3);
+        }
+        input[type="number"]:disabled {
+            background-color: #2a2a4a; /* Darker disabled background */
+            color: #a0a0a0;
+            cursor: not-allowed;
+        }
+        button {
+            width: 100%;
+            padding: 0.85rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .btn-primary {
+            background-image: linear-gradient(to right, #fdd835, #ffeb3b); /* Gold gradient */
+            color: #1a1a2e; /* Dark text on gold */
+            box-shadow: 0 4px 10px rgba(253, 216, 53, 0.4);
+        }
+        .btn-primary:hover:not(:disabled) {
+            background-image: linear-gradient(to right, #ffeb3b, #fdd835);
+        }
+        .btn-whatsapp {
+            background-color: #25d366; /* WhatsApp green */
+            color: white;
+            box-shadow: 0 4px 10px rgba(37, 211, 102, 0.4);
+        }
+        .btn-whatsapp:hover:not(:disabled) {
+            background-color: #1da851;
+        }
+        .result-panel {
+            background-color: #3a3a5e; /* Darker background for result */
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fdd835;
+            margin-top: 1.5rem;
+            box-shadow: inset 0 0 10px rgba(253, 216, 53, 0.3);
+        }
+        .chart-container {
+            position: relative;
+            height: 400px; /* Fixed height for chart, adjusts width */
+            width: 100%;
+            background-color: #ffffff; /* White background for chart canvas */
+            border-radius: 1rem;
+            padding: 1rem;
+        }
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+                max-width: 1200px; /* Larger max-width for desktop */
+            }
+            .input-section, .output-section {
+                flex: 1;
+                padding: 1rem;
+            }
+            .input-section {
+                border-right: 1px solid #4a4a6e; /* Separator line for desktop */
+                padding-right: 2rem;
+            }
+            .output-section {
+                padding-left: 2rem;
+            }
+        }
 
+        /* Custom Message Box Styles */
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #3a3a5e;
+            color: #e0e0e0;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+            display: none; /* Hidden by default */
+            border: 2px solid;
+        }
+        .message-box.error {
+            border-color: #ef4444; /* Red border for error */
+        }
+        .message-box.success {
+            border-color: #25d366; /* Green border for success */
+        }
+        .message-box-close {
+            background: none;
+            border: none;
+            color: #fdd835;
+            font-size: 1.5rem;
+            position: absolute;
+            top: 0.5rem;
+            right: 0.75rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="input-section">
+            <h1 class="mb-6 text-xl md:text-3xl">Simulador de Valorização Imobiliária</h1>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-group col-span-2">
+                    <label for="valorInicialImovel">Valor Inicial do Imóvel (R$)</label>
+                    <input type="number" id="valorInicialImovel" class="w-full" placeholder="Ex: 500000" min="1" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label for="taxaValorizacaoImovel">Taxa de Valorização Anual Média do Imóvel (%)</label>
+                    <input type="number" id="taxaValorizacaoImovel" class="w-full" value="18" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label for="periodoAnalise">Período de Análise (Anos)</label>
+                    <input type="number" id="periodoAnalise" class="w-full" value="10" min="1" max="50">
+                </div>
+
+                <div class="form-group">
+                    <label for="taxaCDI">Taxa CDI (Base 2025 - %)</label>
+                    <input type="number" id="taxaCDI" class="w-full" value="14.65" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label for="taxaSelic">Taxa Selic (Base 2025 - %)</label>
+                    <input type="number" id="taxaSelic" class="w-full" value="14.75" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label for="taxaIPCA">Taxa IPCA (Base 2025 - %)</label>
+                    <input type="number" id="taxaIPCA" class="w-full" value="5.50" step="0.01">
+                </div>
+
+                <div class="form-group col-span-2">
+                    <label for="whatsappCliente">WhatsApp do Cliente (Opcional)</label>
+                    <input type="text" id="whatsappCliente" class="w-full" placeholder="Ex: +5547997082022 (com código do país e DDD)">
+                </div>
+            </div>
+
+            <button id="simularBtn" class="btn-primary mt-6">
+                Simular Valorização
+            </button>
+        </div>
+
+        <div class="output-section">
+            <div class="result-panel mt-6 md:mt-0">
+                Valor Final Estimado do Imóvel: <span id="valorFinalImovel">R$ 0,00</span>
+            </div>
+
+            <div class="chart-container mt-6">
+                <canvas id="myChart"></canvas>
+            </div>
+
+            <button id="whatsappBtn" class="btn-whatsapp mt-6" disabled>
+                Enviar Projeção para WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <!-- Custom Message Box HTML -->
+    <div id="messageBox" class="message-box">
+        <button class="message-box-close" onclick="hideMessage()">×</button>
+        <p id="messageText"></p>
+    </div>
+
+    <script>
+        // Referências aos elementos do DOM
+        const valorInicialImovelInput = document.getElementById('valorInicialImovel');
+        const taxaValorizacaoImovelInput = document.getElementById('taxaValorizacaoImovel');
+        const periodoAnaliseInput = document.getElementById('periodoAnalise');
+        const taxaCDIInput = document.getElementById('taxaCDI');
+        const taxaSelicInput = document.getElementById('taxaSelic');
+        const taxaIPCAInput = document.getElementById('taxaIPCA');
+        const whatsappClienteInput = document.getElementById('whatsappCliente');
+        const simularBtn = document.getElementById('simularBtn');
+        const whatsappBtn = document.getElementById('whatsappBtn');
+        const valorFinalImovelSpan = document.getElementById('valorFinalImovel');
+        const myChartCanvas = document.getElementById('myChart');
+
+        // Referências para o Message Box
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+
+        let myChart; // Variável para armazenar a instância do Chart.js
+
+        // Valores padrão (para 2025 e fixos da Kevillen Costa)
+        const KEVILLEN_COSTA_WHATSAPP = '+5547997082022';
+        const PROPERTY_APPRECIATION_RATE = 0.18; // 18% fixa
+
+        // Arrays para armazenar os dados do gráfico
+        let cachedPropertyValues = [];
+        let cachedCdiValues = [];
+        let cachedSelicValues = [];
+        let cachedIpcaValues = [];
+        let cachedYears = [];
+
+        // --- Funções Utilitárias ---
+
+        /**
+         * Formata um número para o formato de moeda BRL (Real Brasileiro).
+         * @param {number} value - O valor a ser formatado.
+         * @returns {string} O valor formatado como R$.
+         */
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value);
+        }
+
+        /**
+         * Exibe uma mensagem em um box personalizado (substituto do alert()).
+         * @param {string} message - A mensagem a ser exibida.
+         * @param {string} type - O tipo da mensagem ('error' ou 'success').
+         */
+        function showMessage(message, type = 'error') {
+            messageText.textContent = message;
+            messageBox.className = `message-box ${type}`; // Adiciona classe de tipo
+            messageBox.style.display = 'block';
+        }
+
+        /**
+         * Oculta o message box.
+         */
+        function hideMessage() {
+            messageBox.style.display = 'none';
+        }
+
+        // --- Lógica Principal do Simulador ---
+
+        /**
+         * Realiza a simulação da valorização do imóvel e dos comparativos.
+         */
+        function simulateAppreciation() {
+            // Limpa os dados anteriores e desabilita o botão do WhatsApp
+            cachedPropertyValues = [];
+            cachedCdiValues = [];
+            cachedSelicValues = [];
+            cachedIpcaValues = [];
+            cachedYears = [];
+            whatsappBtn.disabled = true;
+
+            const initialPropertyValue = parseFloat(valorInicialImovelInput.value);
+            const analysisPeriod = parseInt(periodoAnaliseInput.value);
+            const cdiRate = parseFloat(taxaCDIInput.value) / 100;
+            const selicRate = parseFloat(taxaSelicInput.value) / 100;
+            const ipcaRate = parseFloat(taxaIPCAInput.value) / 100;
+
+            // Validação dos dados de entrada
+            if (isNaN(initialPropertyValue) || initialPropertyValue <= 0) {
+                showMessage('Por favor, insira um Valor Inicial do Imóvel válido (maior que zero).');
+                return;
+            }
+            if (isNaN(analysisPeriod) || analysisPeriod <= 0 || analysisPeriod > 50) {
+                showMessage('Por favor, insira um Período de Análise válido (entre 1 e 50 anos).');
+                return;
+            }
+            if (isNaN(cdiRate) || isNaN(selicRate) || isNaN(ipcaRate)) {
+                showMessage('Por favor, insira taxas de comparativo válidas.');
+                return;
+            }
+
+            let currentPropertyValue = initialPropertyValue;
+            let currentCdiValue = initialPropertyValue;
+            let currentSelicValue = initialPropertyValue;
+            let currentIpcaValue = initialPropertyValue; // Representa o poder de compra corrigido
+
+            // Adiciona o valor inicial para o ano 0 no gráfico
+            cachedYears.push(0);
+            cachedPropertyValues.push(initialPropertyValue);
+            cachedCdiValues.push(initialPropertyValue);
+            cachedSelicValues.push(initialPropertyValue);
+            cachedIpcaValues.push(initialPropertyValue);
+
+            // Loop de cálculo ano a ano
+            for (let year = 1; year <= analysisPeriod; year++) {
+                currentPropertyValue *= (1 + PROPERTY_APPRECIATION_RATE);
+                currentCdiValue *= (1 + cdiRate);
+                currentSelicValue *= (1 + selicRate);
+                currentIpcaValue *= (1 + ipcaRate); // IPCA para correção do poder de compra
+
+                cachedYears.push(year);
+                cachedPropertyValues.push(currentPropertyValue);
+                cachedCdiValues.push(currentCdiValue);
+                cachedSelicValues.push(currentSelicValue);
+                cachedIpcaValues.push(currentIpcaValue);
+            }
+
+            // Exibe o valor final do imóvel
+            valorFinalImovelSpan.textContent = formatCurrency(currentPropertyValue);
+
+            // Desenha o gráfico
+            drawChart();
+
+            // Habilita o botão do WhatsApp
+            whatsappBtn.disabled = false;
+        }
+
+        /**
+         * Desenha ou atualiza o gráfico de linhas com os dados da simulação.
+         */
+        function drawChart() {
+            if (myChart) {
+                myChart.destroy(); // Destrói o gráfico anterior se existir
+            }
+
+            const ctx = myChartCanvas.getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: cachedYears,
+                    datasets: [
+                        {
+                            label: 'Valorização do Imóvel (18% a.a.)',
+                            data: cachedPropertyValues,
+                            borderColor: '#fdd835', // Gold/Platinum for property
+                            backgroundColor: 'rgba(253, 216, 53, 0.2)',
+                            tension: 0.3,
+                            fill: false,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#fdd835',
+                        },
+                        {
+                            label: 'Rendimento CDI',
+                            data: cachedCdiValues,
+                            borderColor: '#81c784', // Greenish for CDI
+                            backgroundColor: 'rgba(129, 199, 132, 0.2)',
+                            tension: 0.3,
+                            fill: false,
+                            pointRadius: 2,
+                            pointBackgroundColor: '#81c784',
+                            borderDash: [5, 5] // Dotted line
+                        },
+                        {
+                            label: 'Rendimento Selic',
+                            data: cachedSelicValues,
+                            borderColor: '#64b5f6', // Bluish for Selic
+                            backgroundColor: 'rgba(100, 181, 246, 0.2)',
+                            tension: 0.3,
+                            fill: false,
+                            pointRadius: 2,
+                            pointBackgroundColor: '#64b5f6',
+                            borderDash: [5, 5]
+                        },
+                        {
+                            label: 'Poder de Compra (IPCA)',
+                            data: cachedIpcaValues,
+                            borderColor: '#e57373', // Reddish for IPCA (inflation)
+                            backgroundColor: 'rgba(229, 115, 115, 0.2)',
+                            tension: 0.3,
+                            fill: false,
+                            pointRadius: 2,
+                            pointBackgroundColor: '#e57373',
+                            borderDash: [2, 2] // More dotted line
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // Permite que o gráfico preencha o container
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Ano',
+                                color: '#d1d5db'
+                            },
+                            ticks: {
+                                color: '#d1d5db'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.08)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Valor (R$)',
+                                color: '#d1d5db'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                },
+                                color: '#d1d5db'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.08)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatCurrency(context.parsed.y);
+                                }
+                            }
+                        },
+                        legend: {
+                            labels: {
+                                color: '#d1d5db'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        /**
+         * Gera e envia a mensagem da projeção para o WhatsApp.
+         */
+        function sendToWhatsApp() {
+            const initialPropertyValue = parseFloat(valorInicialImovelInput.value);
+            const finalPropertyValue = cachedPropertyValues[cachedPropertyValues.length - 1];
+            const finalCdiValue = cachedCdiValues[cachedCdiValues.length - 1];
+            const finalSelicValue = cachedSelicValues[cachedSelicValues.length - 1];
+            const finalIpcaValue = cachedIpcaValues[cachedIpcaValues.length - 1];
+            const analysisPeriod = parseInt(periodoAnaliseInput.value);
+
+            // Verifica se a simulação foi executada
+            if (cachedPropertyValues.length === 0) {
+                showMessage('Por favor, execute a simulação antes de enviar para o WhatsApp.', 'error');
+                return;
+            }
+
+            const clientWhatsapp = whatsappClienteInput.value.trim();
+            const targetWhatsapp = clientWhatsapp === '' ? KEVILLEN_COSTA_WHATSAPP : clientWhatsapp;
+
+            // Formata os valores para a mensagem
+            const formattedInitialValue = formatCurrency(initialPropertyValue);
+            const formattedFinalPropertyValue = formatCurrency(finalPropertyValue);
+            const formattedFinalCdi = formatCurrency(finalCdiValue);
+            const formattedFinalSelic = formatCurrency(finalSelicValue);
+            const formattedFinalIpca = formatCurrency(finalIpcaValue);
+
+            const message = `
+Olá! 👋 Tenho uma projeção de valorização imobiliária incrível para você!
+
+📈 *Seu investimento no imóvel de ${formattedInitialValue} em ${analysisPeriod} anos pode chegar a incríveis ${formattedFinalPropertyValue}!*
+
+Compare com outros investimentos no mesmo período:
+📊 *CDI:* ${formattedFinalCdi}
+💰 *Selic:* ${formattedFinalSelic}
+📉 *Poder de Compra (IPCA):* ${formattedFinalIpca}
+
+O investimento em imóveis se mostra a opção mais segura e lucrativa, com uma valorização média de 18% ao ano.
+
+Quer simular outros valores ou tirar dúvidas? Acesse nosso simulador completo:
+🔗 https://kc-imobtech-tools.vercel.app/simulador.html
+
+Fale com a gente para mais informações e comece a valorizar seu patrimônio!
+Att,
+Kevillen Costa e Equipe 🚀
+            `.trim(); // Remove espaços em branco extras do início/fim da string
+
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${targetWhatsapp}&text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // --- Event Listeners ---
+        simularBtn.addEventListener('click', simulateAppreciation);
+        whatsappBtn.addEventListener('click', sendToWhatsApp);
+
+        // --- Inicialização ao Carregar a Página ---
+        window.onload = function() {
+            // Define valores padrão nos inputs para 2025
+            taxaCDIInput.value = '14.65';
+            taxaSelicInput.value = '14.75';
+            taxaIPCAInput.value = '5.50';
+            taxaValorizacaoImovelInput.value = '18'; // Já fixo, mas reforçando
+            periodoAnaliseInput.value = '10'; // Período padrão
+            valorInicialImovelInput.value = '500000'; // Valor inicial de exemplo
+
+            // Exibe o valor inicial formatado no painel
+            valorFinalImovelSpan.textContent = formatCurrency(0);
+
+            // Chamada inicial para desenhar o gráfico vazio ou com valores padrão
+            // (pode-se optar por simular automaticamente ou aguardar a ação do usuário)
+            // simulateAppreciation(); // Descomente para simular ao carregar
+        };
+    </script>
+</body>
+</html>
