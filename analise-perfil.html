@@ -1,1 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Perfil de Cliente - KC ImobTech Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d0d0d;
+            color: #e0e0e0;
+        }
+        .gradient-button {
+            background-image: linear-gradient(to right, #4a00e0, #8e2de2);
+            transition: all 0.3s ease;
+        }
+        .gradient-button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+        .card-bg {
+            background-color: #1a1a1a;
+        }
+        #loading-indicator {
+            display: none;
+        }
+        #generated-output {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-3xl card-bg rounded-lg shadow-xl p-6 md:p-8 space-y-6">
+        <h1 class="text-3xl md:text-4xl font-bold text-center text-white mb-6">Análise de Perfil de Cliente e Sugestão de Imóveis</h1>
 
+        <!-- Campo de entrada para o perfil do cliente -->
+        <div>
+            <label for="client-profile" class="block text-gray-300 text-lg font-medium mb-2">Descreva o perfil do cliente:</label>
+            <textarea id="client-profile" rows="6"
+                      class="w-full p-3 md:p-4 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-600 resize-y"
+                      placeholder="Ex: Família com 2 filhos, busca apartamento 3 quartos, área de lazer completa, orçamento de R$ 800.000, preferência por escolas na região sul."></textarea>
+            <p class="text-sm text-gray-400 mt-2">Dica: Inclua orçamento, número de quartos, localização preferida, estilo de vida, etc.</p>
+        </div>
+
+        <!-- Botão para analisar -->
+        <button id="analyze-button"
+                class="gradient-button w-full py-3 md:py-4 rounded-lg text-white font-semibold text-lg uppercase tracking-wide shadow-lg">
+            Analisar Perfil e Sugerir
+        </button>
+
+        <!-- Indicador de carregamento -->
+        <div id="loading-indicator" class="text-center text-purple-400 font-medium text-lg mt-4">
+            Analisando... Por favor, aguarde.
+        </div>
+
+        <!-- Área para exibir o resultado -->
+        <div id="result-section" class="mt-8 pt-6 border-t border-gray-700 hidden">
+            <h2 class="text-2xl md:text-3xl font-semibold text-white mb-4 text-center">Sugestões:</h2>
+            <div id="generated-output"
+                 class="p-4 md:p-6 bg-gray-800 rounded-md border border-gray-700 text-gray-200 text-base md:text-lg">
+                <!-- O texto gerado pela IA será inserido aqui -->
+            </div>
+            <button id="copy-button"
+                    class="gradient-button w-full mt-4 py-2 md:py-3 rounded-lg text-white font-semibold text-md uppercase tracking-wide shadow-md">
+                Copiar Texto
+            </button>
+            <p id="copy-feedback" class="text-center text-sm text-green-400 mt-2 hidden">Copiado!</p>
+        </div>
+
+        <!-- Botão Voltar para o Dashboard -->
+        <div class="mt-8 text-center">
+            <a href="index.html" class="text-purple-400 hover:text-purple-600 transition duration-300 ease-in-out text-lg font-medium">
+                &larr; Voltar para o Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script type="module">
+        const analyzeButton = document.getElementById('analyze-button');
+        const clientProfileInput = document.getElementById('client-profile');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const resultSection = document.getElementById('result-section');
+        const generatedOutput = document.getElementById('generated-output');
+        const copyButton = document.getElementById('copy-button');
+        const copyFeedback = document.getElementById('copy-feedback');
+
+        async function callGeminiAPI(promptText) {
+            loadingIndicator.style.display = 'block';
+            resultSection.classList.add('hidden');
+
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: promptText }] });
+
+            const payload = { contents: chatHistory };
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Erro da API: ${errorData.error.message || response.statusText}`);
+                }
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                } else {
+                    console.error("Estrutura de resposta inesperada da API Gemini:", result);
+                    return "Não foi possível gerar a sugestão. Tente novamente.";
+                }
+            } catch (error) {
+                console.error("Erro ao chamar a API Gemini:", error);
+                return `Ocorreu um erro ao gerar a sugestão: ${error.message}.`;
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        analyzeButton.addEventListener('click', async () => {
+            const profile = clientProfileInput.value.trim();
+
+            if (profile === '') {
+                alert('Por favor, descreva o perfil do cliente.');
+                return;
+            }
+
+            const prompt = `Analise o seguinte perfil de cliente para um corretor de imóveis e sugira tipos de imóveis ideais, bairros ou regiões (se aplicável), e abordagens de vendas eficazes. Inclua também possíveis objeções e como superá-las.
+            Perfil do cliente: "${profile}"`;
+
+            const generatedText = await callGeminiAPI(prompt);
+            generatedOutput.textContent = generatedText;
+            resultSection.classList.remove('hidden');
+        });
+
+        copyButton.addEventListener('click', () => {
+            const textToCopy = generatedOutput.textContent;
+            if (textToCopy) {
+                const textArea = document.createElement('textarea');
+                textArea.value = textToCopy;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    copyFeedback.classList.remove('hidden');
+                    setTimeout(() => {
+                        copyFeedback.classList.add('hidden');
+                    }, 2000);
+                } catch (err) {
+                    console.error('Falha ao copiar o texto: ', err);
+                }
+                document.body.removeChild(textArea);
+            }
+        });
+    </script>
+</body>
+</html>
