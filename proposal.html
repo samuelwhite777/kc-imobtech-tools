@@ -1,1 +1,429 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Proposta de Pagamento | Kevillen Costa</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'custom-bg-dark': '#0A0A0A',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- React & ReactDOM CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel CDN for JSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* Custom scrollbar for a sleek look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a4a4a;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5a5a5a;
+            cursor: grab;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            background: #4a4a4a;
+            border-radius: 5px;
+            outline: none;
+            transition: opacity .2s;
+            @apply shadow-inner; /* Add inner shadow for depth */
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #3B82F6; /* Blue-600 */
+            border-radius: 50%;
+            cursor: grab;
+            transition: background .2s, transform .2s;
+            @apply shadow-md; /* Add shadow to thumb */
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #2563EB; /* Blue-700 */
+            transform: scale(1.1);
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #3B82F6; /* Blue-600 */
+            border-radius: 50%;
+            cursor: grab;
+            transition: background .2s, transform .2s;
+            @apply shadow-md;
+        }
+        input[type="range"]::-moz-range-thumb:hover {
+            background: #2563EB; /* Blue-700 */
+            transform: scale(1.1);
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-custom-bg-dark text-gray-100 font-sans min-h-screen flex flex-col justify-center items-center py-8 px-4 sm:px-6 lg:px-8">
 
+    <div id="root" class="w-full max-w-4xl"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useCallback, useRef } = React;
+        const { createRoot } = ReactDOM;
+
+        // Função utilitária para converter para número, tratando entradas inválidas como 0
+        const parseToNumber = (value) => {
+            const num = parseFloat(String(value).replace(',', '.')); // Handle comma as decimal separator
+            return isNaN(num) ? 0 : num;
+        };
+
+        // Função utilitária para formatar valores monetários em BRL
+        const formatCurrency = (value) => {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(value);
+        };
+
+        // Componente Slider Personalizado
+        const CustomSlider = ({ label, value, onChange, min, max, step, displayValue, unit = '' }) => {
+            const display = displayValue !== undefined ? displayValue : value;
+            return (
+                <div className="mb-6">
+                    <label className="block text-gray-300 text-sm font-semibold mb-2">
+                        {label}: <span className="text-blue-400 font-bold">{display}{unit}</span>
+                    </label>
+                    <input
+                        type="range"
+                        min={min}
+                        max={max}
+                        step={step}
+                        value={value}
+                        onChange={onChange}
+                        className="w-full"
+                    />
+                </div>
+            );
+        };
+
+        // Componente Card de Informação para Resultados
+        const InfoCard = ({ label, value, type = 'blue' }) => {
+            const bgColor = type === 'blue' ? 'bg-blue-900/20 border-blue-600' : 'bg-amber-900/20 border-amber-600';
+            const textColor = type === 'blue' ? 'text-blue-300' : 'text-amber-300';
+            return (
+                <div className={`p-4 rounded-lg border ${bgColor} shadow-md`}>
+                    <p className="text-sm text-gray-400">{label}</p>
+                    <p className={`text-xl font-bold ${textColor}`}>{value}</p>
+                </div>
+            );
+        };
+
+        // Componente Principal do Gerador de Proposta
+        const App = () => {
+            // Estados para os parâmetros de entrada
+            const [valorImovel, setValorImovel] = useState(500000);
+            const [entradaPercentual, setEntradaPercentual] = useState(20);
+            const [mesesObra, setMesesObra] = useState(24);
+            const [valorReforcoAnual, setValorReforcoAnual] = useState(15000);
+            const [numeroTotalReforcosAnuais, setNumeroTotalReforcosAnuais] = useState(2); // Padrão dinâmico, ajustado no useEffect
+            const [mesesTotaisFluxo, setMesesTotaisFluxo] = useState(180);
+            const [valorNasChaves, setValorNasChaves] = useState(0);
+
+            // Estados para os resultados calculados
+            const [parcelasObraMensal, setParcelasObraMensal] = useState(0);
+            const [totalPagoObra, setTotalPagoObra] = useState(0);
+            const [mesesFinanciamentoPosObra, setMesesFinanciamentoPosObra] = useState(0);
+            const [parcelaMensalPosObra, setParcelaMensalPosObra] = useState(0);
+            const [saldoTotalFinanciarPosObra, setSaldoTotalFinanciarPosObra] = useState(0);
+
+
+            // Efeito para ajustar o número de reforços anuais com base nos meses de obra
+            useEffect(() => {
+                const anosObra = Math.floor(mesesObra / 12);
+                // Define o número total de reforços, garantindo que seja pelo menos 1 se houver obra
+                setNumeroTotalReforcosAnuais(Math.max(1, anosObra));
+            }, [mesesObra]);
+
+            // Função de cálculo principal
+            const calculateProposal = useCallback(() => {
+                const valImovel = parseToNumber(valorImovel);
+                const entPerc = parseToNumber(entradaPercentual);
+                const mesObra = parseToNumber(mesesObra);
+                const valReforcoAnual = parseToNumber(valorReforcoAnual);
+                const numTotalReforcosAnuais = parseToNumber(numeroTotalReforcosAnuais);
+                const mesTotaisFluxo = parseToNumber(mesesTotaisFluxo);
+                const valChaves = parseToNumber(valorNasChaves);
+
+                // Evitar cálculos com valorImovel zerado para não gerar NaN/Infinity
+                if (valImovel === 0) {
+                    setParcelasObraMensal(0);
+                    setTotalPagoObra(0);
+                    setMesesFinanciamentoPosObra(0);
+                    setParcelaMensalPosObra(0);
+                    setSaldoTotalFinanciarPosObra(0);
+                    return;
+                }
+
+                // 1. Cálculo da Entrada
+                const valorEntrada = (valImovel * entPerc) / 100;
+
+                // 2. Cálculo dos Reforços Anuais durante a Obra
+                // Calcula quantos reforços cairão no período da obra
+                const reforcosDuranteObra = Math.min(numTotalReforcosAnuais, Math.floor(mesObra / 12));
+                const totalReforcosObra = reforcosDuranteObra * valReforcoAnual;
+
+                // 3. Saldo remanescente após entrada e reforços durante a obra
+                let saldoAposEntradaEReforcos = valImovel - valorEntrada - totalReforcosObra;
+                // Garante que o saldo não seja negativo
+                if (saldoAposEntradaEReforcos < 0) saldoAposEntradaEReforcos = 0;
+
+
+                // 4. Parcelas Mensais Durante a Obra (Assumindo que 50% do SALDO REMANESCENTE APÓS ENTRADA E REFORÇOS DA OBRA é pago na obra)
+                // O problema original diz "50% do valor do imóvel seja pago durante os meses de obra, considerando a entrada e os reforços anuais nesse período."
+                // Isso pode ser interpretado de algumas formas. A mais comum é que 50% do valor total do imóvel (não do saldo) seja pago por parcelas + entrada + reforços.
+                // Vamos recalcular:
+                // Target: 50% do valor do imóvel é o total a ser pago até o fim da obra (via entrada, reforços e parcelas de obra)
+                const targetPagamentoNaObra = valImovel * 0.50;
+                let valorAPagarPorParcelasObra = targetPagamentoNaObra - valorEntrada - totalReforcosObra;
+
+                // Se o valor a pagar por parcelas durante a obra for negativo, significa que entrada + reforços já pagaram mais que 50%
+                if (valorAPagarPorParcelasObra < 0) {
+                    valorAPagarPorParcelasObra = 0; // Não há parcelas durante a obra
+                }
+
+                let parcelasMensaisObraCalculado = 0;
+                if (mesObra > 0) {
+                    parcelasMensaisObraCalculado = valorAPagarPorParcelasObra / mesObra;
+                }
+                setParcelasObraMensal(parcelasMensaisObraCalculado);
+
+                // 5. Total Pago Durante a Obra
+                const totalPagoObraCalculado = valorEntrada + totalReforcosObra + (parcelasMensaisObraCalculado * mesObra);
+                setTotalPagoObra(totalPagoObraCalculado);
+
+                // 6. Cálculo do Saldo Remanescente Pós-Obra (a ser financiado)
+                // Saldo inicial - tudo que foi pago na obra - valor nas chaves
+                let saldoTotalFinanciar = valImovel - totalPagoObraCalculado - valChaves;
+                 // Garante que o saldo não seja negativo
+                if (saldoTotalFinanciar < 0) saldoTotalFinanciar = 0;
+                setSaldoTotalFinanciarPosObra(saldoTotalFinanciar);
+
+                // 7. Meses de Financiamento Pós-Obra
+                const mesesFinancPosObra = Math.max(0, mesTotaisFluxo - mesObra);
+                setMesesFinanciamentoPosObra(mesesFinancPosObra);
+
+                // 8. Valor da Parcela Mensal Pós-Obra
+                let parcelaMensalPosObraCalculado = 0;
+                if (mesesFinancPosObra > 0) {
+                    parcelaMensalPosObraCalculado = saldoTotalFinanciar / mesesFinancPosObra;
+                }
+                setParcelaMensalPosObra(parcelaMensalPosObraCalculado);
+
+            }, [valorImovel, entradaPercentual, mesesObra, valorReforcoAnual, numeroTotalReforcosAnuais, mesesTotaisFluxo, valorNasChaves]);
+
+            // Chamar a função de cálculo sempre que um estado de entrada mudar
+            useEffect(() => {
+                calculateProposal();
+            }, [calculateProposal]);
+
+
+            // Função para enviar os dados via WhatsApp
+            const sendToWhatsApp = () => {
+                const message = `
+*PROPOSTA DE PAGAMENTO - KEVILLEN COSTA*
+---------------------------------------
+*Imóvel:* ${formatCurrency(parseToNumber(valorImovel))}
+*Entrada:* ${formatCurrency((parseToNumber(valorImovel) * parseToNumber(entradaPercentual)) / 100)} (${entradaPercentual}%)
+*Meses de Obra:* ${mesesObra} meses
+
+*Durante a Obra:*
+  - *Parcelas Mensais:* ${formatCurrency(parcelasObraMensal)} (x ${mesesObra})
+  - *Reforços Anuais:* ${formatCurrency(valorReforcoAnual)} (x ${numeroTotalReforcosAnuais} reforços no período da obra)
+  - *Total Pago na Obra:* ${formatCurrency(totalPagoObra)}
+
+*Nas Chaves:* ${formatCurrency(valorNasChaves)}
+
+*Após a Obra (Financiamento):*
+  - *Saldo a Financiar:* ${formatCurrency(saldoTotalFinanciarPosObra)}
+  - *Meses de Financiamento:* ${mesesFinanciamentoPosObra} meses
+  - *Parcela Mensal Pós-Obra:* ${formatCurrency(parcelaMensalPosObra)}
+
+*Fluxo Total:* ${mesesTotaisFluxo} meses
+---------------------------------------
+Acesse nossa página: https://www.reddit.com/r/webdev/comments/1ccxsla/deploying_to_vercel_without_linking_a_repository/
+`;
+
+                const whatsappLink = `https://wa.me/5547997082022?text=${encodeURIComponent(message)}`;
+                window.open(whatsappLink, '_blank');
+            };
+
+            return (
+                <div className="flex flex-col items-center justify-center p-4 w-full">
+                    <h1 className="text-3xl sm:text-4xl font-bold text-center text-blue-400 mb-8 sm:mb-10">Gerador de Proposta de Pagamento</h1>
+
+                    <div className="bg-gray-800 rounded-xl p-6 sm:p-8 shadow-lg border border-gray-700 w-full mb-8">
+                        <h2 className="text-xl sm:text-2xl font-semibold text-gray-50 mb-6 border-b border-gray-700 pb-4">Parâmetros da Proposta</h2>
+
+                        {/* Valor do Imóvel */}
+                        <div className="mb-6">
+                            <label className="block text-gray-300 text-sm font-semibold mb-2" htmlFor="valorImovel">
+                                Valor do Imóvel (R$)
+                            </label>
+                            <input
+                                type="number"
+                                id="valorImovel"
+                                value={valorImovel}
+                                onChange={(e) => setValorImovel(parseToNumber(e.target.value))}
+                                className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all duration-200"
+                                placeholder="Ex: 500000"
+                            />
+                        </div>
+
+                        {/* Entrada (%) */}
+                        <CustomSlider
+                            label="Entrada (%)"
+                            value={entradaPercentual}
+                            onChange={(e) => setEntradaPercentual(parseToNumber(e.target.value))}
+                            min={0}
+                            max={100}
+                            step={1}
+                            unit="%"
+                        />
+
+                        {/* Meses de Obra */}
+                        <CustomSlider
+                            label="Meses de Obra"
+                            value={mesesObra}
+                            onChange={(e) => setMesesObra(parseToNumber(e.target.value))}
+                            min={0}
+                            max={48}
+                            step={1}
+                            unit=" meses"
+                        />
+
+                        {/* Valor Reforço Anual (R$) */}
+                        <CustomSlider
+                            label="Valor Reforço Anual (R$)"
+                            value={valorReforcoAnual}
+                            onChange={(e) => setValorReforcoAnual(parseToNumber(e.target.value))}
+                            min={0}
+                            max={50000} // Ajustado para permitir maior flexibilidade
+                            step={1000}
+                            displayValue={formatCurrency(valorReforcoAnual)}
+                        />
+
+                        {/* Número Total de Reforços Anuais (visíveis) */}
+                        {/* Nota: O cálculo de quantos reforços "cairão" na obra é feito internamente.
+                            Este slider controla o número TOTAL de reforços planejados para o fluxo completo. */}
+                        <CustomSlider
+                            label="Número Total de Reforços Anuais"
+                            value={numeroTotalReforcosAnuais}
+                            onChange={(e) => setNumeroTotalReforcosAnuais(parseToNumber(e.target.value))}
+                            min={0}
+                            max={20} // Ajustado para um range mais flexível
+                            step={1}
+                        />
+
+                        {/* Meses Totais do Fluxo */}
+                        <CustomSlider
+                            label="Meses Totais do Fluxo"
+                            value={mesesTotaisFluxo}
+                            onChange={(e) => setMesesTotaisFluxo(parseToNumber(e.target.value))}
+                            min={mesesObra + 1} // Min 1 mês a mais que a obra, para garantir financiamento pós-obra
+                            max={360} // Teto de 30 anos (360 meses)
+                            step={1}
+                            unit=" meses"
+                        />
+                        {mesesTotaisFluxo <= mesesObra && (
+                            <p className="text-red-400 text-sm mt-1">O fluxo total deve ser maior que os meses de obra.</p>
+                        )}
+
+
+                        {/* Valor nas Chaves (R$) */}
+                        <CustomSlider
+                            label="Valor nas Chaves (R$)"
+                            value={valorNasChaves}
+                            onChange={(e) => setValorNasChaves(parseToNumber(e.target.value))}
+                            min={0}
+                            max={valorImovel * 0.3} // Até 30% do valor do imóvel, por exemplo
+                            step={1000}
+                            displayValue={formatCurrency(valorNasChaves)}
+                        />
+
+                    </div>
+
+                    {/* Resultados Calculados */}
+                    <div className="bg-gray-800 rounded-xl p-6 sm:p-8 shadow-lg border border-blue-600 w-full mb-8">
+                        <h2 className="text-xl sm:text-2xl font-semibold text-blue-300 mb-6 border-b border-gray-700 pb-4">Resultados da Proposta</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <InfoCard label="Parcelas Mensais Durante a Obra" value={formatCurrency(parcelasObraMensal)} />
+                            <InfoCard label="Total Pago Durante a Obra" value={formatCurrency(totalPagoObra)} />
+                            <InfoCard label="Meses de Financiamento Pós-Obra" value={`${mesesFinanciamentoPosObra} meses`} />
+                            <InfoCard label="Saldo a Financiar Pós-Obra" value={formatCurrency(saldoTotalFinanciarPosObra)} />
+                            <InfoCard label="Parcela Mensal Pós-Obra" value={formatCurrency(parcelaMensalPosObra)} />
+                        </div>
+                    </div>
+
+                    {/* Botões de Ação */}
+                    <div className="flex flex-col sm:flex-row justify-center items-center gap-4 w-full">
+                        <button
+                            onClick={sendToWhatsApp}
+                            className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75 w-full sm:w-auto"
+                        >
+                            Enviar Proposta via WhatsApp
+                        </button>
+                        <a
+                            href="index.html"
+                            className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75 w-full sm:w-auto text-center"
+                        >
+                            Voltar
+                        </a>
+                    </div>
+
+                    <footer className="w-full text-center text-gray-500 text-sm mt-12 pt-8 border-t border-gray-700">
+                        © {new Date().getFullYear()} Kevillen Costa.
+                    </footer>
+                </div>
+            );
+        };
+
+        const container = document.getElementById('root');
+        const root = createRoot(container);
+        root.render(<App />);
+    </script>
+</body>
+</html>
