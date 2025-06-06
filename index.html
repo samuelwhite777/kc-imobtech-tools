@@ -1,1 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kevillen Costa | Ferramentas Imobiliárias</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'custom-bg-dark': '#0A0A0A',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- React & ReactDOM CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel CDN for JSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for a sleek look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a4a4a;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5a5a5a;
+        }
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-custom-bg-dark text-gray-100 font-sans min-h-screen flex flex-col justify-center items-center py-8 px-4 sm:px-6 lg:px-8">
 
+    <div id="root" class="w-full max-w-4xl"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const { createRoot } = ReactDOM;
+
+        // Componente para aparição gradual ao rolar
+        const FadeInSection = ({ children }) => {
+            const domRef = useRef();
+            const [isVisible, setVisible] = useState(false);
+
+            useEffect(() => {
+                const observer = new IntersectionObserver(entries => {
+                    if (entries[0].isIntersecting) {
+                        setVisible(true);
+                        observer.unobserve(domRef.current);
+                    }
+                }, { threshold: 0.1 }); // Trigger when 10% of element is visible
+
+                if (domRef.current) {
+                    observer.observe(domRef.current);
+                }
+
+                return () => {
+                    if (domRef.current) {
+                        observer.unobserve(domRef.current);
+                    }
+                };
+            }, []);
+
+            return (
+                <div
+                    className={`fade-in-section ${isVisible ? 'is-visible' : ''}`}
+                    ref={domRef}
+                >
+                    {children}
+                </div>
+            );
+        };
+
+        // Componente Card da Ferramenta
+        const ToolCard = ({ title, description, link, icon }) => (
+            <a href={link} className="block group">
+                <div className="bg-gray-800 rounded-xl p-6 flex flex-col items-center text-center shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-gray-700 hover:border-blue-600">
+                    {icon && (
+                        <div className="mb-4 text-blue-400 group-hover:text-blue-500 transition-colors duration-300">
+                            {icon}
+                        </div>
+                    )}
+                    <h3 className="text-xl font-semibold text-gray-50 group-hover:text-blue-200 transition-colors duration-300 mb-2">{title}</h3>
+                    <p className="text-gray-400 text-sm mb-4 flex-grow">{description}</p>
+                    <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 transform group-hover:-translate-y-0.5 shadow-md group-hover:shadow-lg">
+                        Acessar Ferramenta
+                    </button>
+                </div>
+            </a>
+        );
+
+        // Componente Principal do Aplicativo
+        const App = () => {
+            const tools = [
+                {
+                    title: "Simulador de Valorização e Rentabilidade",
+                    description: "Analise o potencial de investimento de um imóvel ao longo do tempo, comparando com outras aplicações financeiras.",
+                    link: "simulador.html", // Caminho para a nova página do simulador
+                    icon: (
+                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V9m0 3v2m0 3v2m0-8a9 9 0 110 18 9 9 0 010-18z"></path></svg>
+                    )
+                },
+                {
+                    title: "Gerador de Proposta de Pagamento",
+                    description: "Crie e personalize fluxos de pagamento detalhados para seus clientes, com valores e prazos ajustáveis.",
+                    link: "proposal.html",
+                    icon: (
+                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                    )
+                },
+                {
+                    title: "Gerador de Copys para Anúncios (IA)",
+                    description: "Utilize a IA Gemini para criar descrições e copys persuasivas para anúncios de imóveis e redes sociais.",
+                    link: "gerador-copy.html",
+                    icon: (
+                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    )
+                },
+                {
+                    title: "Quebra de Objeções e Argumentos (IA)",
+                    description: "Gere argumentos inteligentes e respostas eficazes para superar objeções de clientes com o auxílio da IA.",
+                    link: "gerador-argumentos.html",
+                    icon: (
+                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    )
+                },
+                {
+                    title: "Roteiros para Vídeos Curtos (IA)",
+                    description: "Crie ideias e roteiros dinâmicos para seus vídeos de imóveis no Instagram Reels, TikTok e WhatsApp Status.",
+                    link: "gerador-roteiros.html",
+                    icon: (
+                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    )
+                },
+                {
+                    title: "Análise de Perfil de Cliente (IA)",
+                    description: "Obtenha sugestões de imóveis e abordagens de venda com base no perfil do seu cliente, otimizando a compatibilidade.",
+                    link: "analise-perfil.html",
+                    icon: (
+                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H2v-2a3 3 0 015.356-1.857M9 20v-2m3-2v2m-3-4h.01M17 12h.01M12 12h.01M12 10V6a2 2 0 00-2-2H6a2 2 0 00-2 2v10a2 2 0 002 2h4l2 2v-6z"></path></svg>
+                    )
+                },
+                {
+                    title: "Calculadora de Custos de Transação",
+                    description: "Calcule de forma rápida e transparente todos os custos adicionais (ITBI, registro, escritura) de uma transação imobiliária.",
+                    link: "calculadora-custos.html",
+                    icon: (
+                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 7h6m0 10v4m0 0H8m0 0l3-3m-3 3l3-3m-3 0h6m0 0H9m0 0l3-3m-3 3v4"></path></svg>
+                    )
+                },
+                {
+                    title: "Mini Agendador de Visitas",
+                    description: "Organize seus agendamentos de visitas de forma simples e mantenha o controle da sua agenda diária.",
+                    link: "agendador.html",
+                    icon: (
+                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h.01M7 16h.01M13 16h.01M17 16h.01M21 12h.01M12 21h.01M6 12H3m18 0h3m-9 9v-8M7 7h10a2 2 0 012 2v10a2 2 0 01-2 2H7a2 2 0 01-2-2V9a2 2 0 012-2z"></path></svg>
+                    )
+                }
+            ];
+
+            return (
+                <div className="flex flex-col items-center justify-center p-4">
+                    {/* Seção de Apresentação da Kevillen Costa */}
+                    <FadeInSection>
+                        <section className="bg-gray-800 rounded-xl p-8 mb-12 w-full shadow-lg border border-blue-600 text-center relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-br from-blue-900 to-custom-bg-dark opacity-20 rounded-xl"></div>
+                            <div className="relative z-10">
+                                <img
+                                    src="https://placehold.co/150x150/1C3C5B/FFFFFF?text=KC"
+                                    alt="Kevillen Costa Profile"
+                                    className="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-amber-600 shadow-md object-cover"
+                                />
+                                <h1 className="text-4xl sm:text-5xl font-extrabold text-blue-300 mb-3 leading-tight">Kevillen Costa</h1>
+                                <p className="text-xl text-amber-300 font-semibold mb-4">Sua Gerente de Vendas Imobiliárias</p>
+                                <p className="text-gray-300 text-md sm:text-lg max-w-2xl mx-auto mb-6">
+                                    Com anos de experiência e um olhar apurado para as melhores oportunidades, sou sua parceira estratégica no mercado imobiliário. Minha missão é capacitar você, corretor parceiro, com as ferramentas e o suporte necessários para alcançar novos patamares de sucesso e garantir a melhor experiência para seus clientes.
+                                </p>
+                                <div className="flex justify-center space-x-6">
+                                    <a href="https://wa.me/5521999999999" target="_blank" rel="noopener noreferrer" className="text-gray-200 hover:text-green-500 transition-colors duration-300 flex items-center text-lg">
+                                        <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.6-3.879-1.6-6.055C.144 6.907 6.94 0 15.013 0h.01c8.073 0 14.614 6.907 14.614 15.485 0 8.578-6.541 15.485-14.614 15.485-2.529 0-4.9-.766-6.95-2.105l-6.216 1.624zm6.598-3.807l-.427-.253c-1.895-1.124-3.085-3.064-3.085-5.187 0-4.305 3.702-7.393 8.018-7.393h.01c4.316 0 7.828 3.088 7.828 7.393 0 4.305-3.512 7.393-7.828 7.393-1.464 0-2.865-.398-4.062-1.096l-.375-.224-3.864 1.007zm14.908-1.554c-.113-.061-.715-.353-.829-.395-.113-.042-.246-.062-.359.062s-.413.504-.504.609c-.09.105-.18.117-.333.042-.153-.062-.644-.238-1.22-.756-.452-.403-.762-.676-1.011-.908-.249-.232-.279-.199-.393-.113-.113.085-.246.25-.336.341-.09.091-.18.105-.333.042-.153-.062-.403-.149-.609-.238-.205-.09-.359-.131-.413-.153-.054-.021-.113-.062-.594-.298-.48-.238-1.144-.529-1.65-.968-.504-.44-.849-.738-1.127-.998-.279-.26-.251-.238-.113-.473.137-.235.452-.559.565-.758.113-.199.153-.253.226-.403.073-.153.03-.28-.015-.395-.042-.113-.359-.861-.497-1.171-.131-.309-.265-.253-.359-.253h-.238c-.131 0-.359.062-.559.253-.205.19-.77.756-.77 1.838s.786 2.138.899 2.292c.113.153 1.557 2.388 3.784 3.328 2.228.939 2.684.927 3.548.784.864-.142 1.487-.905 1.705-1.277.218-.372.246-.69.172-.828z" /></svg>
+                                        WhatsApp
+                                    </a>
+                                    <a href="https://www.instagram.com/kevillencosta/" target="_blank" rel="noopener noreferrer" className="text-gray-200 hover:text-pink-500 transition-colors duration-300 flex items-center text-lg">
+                                        <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07c3.252.148 4.773 1.666 4.921 4.919.058 1.265.069 1.645.069 4.849 0 3.204-.012 3.584-.07 4.85-1.004 3.252-4.774-1.666-4.919-4.922-1.266-.058-1.645-.069-4.849-.069-3.204 0-3.584-.012-4.85-.07-3.252-1.004-4.774-1.666-4.921-4.919-.058-1.266-.069-1.645-.069-4.849 0-3.204.012-3.584.07-4.85 1.004-3.252 1.666-4.774 4.919-4.921 1.266-.058 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.35 0-6.735 2.385-6.735 6.735 0 1.28.018 1.688.072 4.947.058 3.259.148 3.667 2.385 6.735 1.28.058 1.688.072 4.947.072 3.259 0 3.667-.014 4.947-.072 4.35-.058 6.735-2.385 6.735-6.735 0-1.28-.018-1.688-.072-4.947-.058-3.259-.148-3.667-2.385-6.735-1.28-.058-1.688-.072-4.947-.072zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zm0 2a4.162 4.162 0 110 8.324 4.162 4.162 0 010-8.324zm6.914-3.149a.952.952 0 100 1.904.952.952 0 000-1.904z"/></svg>
+                                        Instagram
+                                    </a>
+                                </div>
+                            </div>
+                        </section>
+                    </FadeInSection>
+
+                    {/* Seção de Ferramentas */}
+                    <FadeInSection>
+                        <section className="w-full mb-12">
+                            <h2 className="text-3xl sm:text-4xl font-bold text-center text-blue-400 mb-8 sm:mb-10">Nossas Ferramentas Essenciais</h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {tools.map((tool, index) => (
+                                    <ToolCard key={index} {...tool} />
+                                ))}
+                            </div>
+                        </section>
+                    </FadeInSection>
+
+                    {/* Rodapé Opcional */}
+                    <footer className="w-full text-center text-gray-500 text-sm mt-12 pt-8 border-t border-gray-700">
+                        © {new Date().getFullYear()} Kevillen Costa. Todas as ferramentas para o seu sucesso imobiliário.
+                    </footer>
+                </div>
+            );
+        };
+
+        const container = document.getElementById('root');
+        const root = createRoot(container);
+        root.render(<App />);
+    </script>
+</body>
+</html>
