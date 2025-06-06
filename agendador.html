@@ -1,1 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Agendador de Visitas - KC ImobTech Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d0d0d;
+            color: #e0e0e0;
+        }
+        .gradient-button {
+            background-image: linear-gradient(to right, #4a00e0, #8e2de2);
+            transition: all 0.3s ease;
+        }
+        .gradient-button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+        .card-bg {
+            background-color: #1a1a1a;
+        }
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: #2a2a2a;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .delete-button {
+            background-color: #e20000;
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .delete-button:hover {
+            background-color: #b30000;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-3xl card-bg rounded-lg shadow-xl p-6 md:p-8 space-y-6">
+        <h1 class="text-3xl md:text-4xl font-bold text-center text-white mb-6">Mini Agendador de Visitas</h1>
 
+        <!-- Formulário para adicionar nova visita -->
+        <div class="space-y-4">
+            <div>
+                <label for="client-name" class="block text-gray-300 text-lg font-medium mb-2">Nome do Cliente:</label>
+                <input type="text" id="client-name"
+                       class="w-full p-3 md:p-4 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                       placeholder="Ex: João Silva">
+            </div>
+            <div>
+                <label for="property-address" class="block text-gray-300 text-lg font-medium mb-2">Endereço do Imóvel:</label>
+                <input type="text" id="property-address"
+                       class="w-full p-3 md:p-4 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                       placeholder="Ex: Rua das Flores, 123 - Apt 456">
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="visit-date" class="block text-gray-300 text-lg font-medium mb-2">Data da Visita:</label>
+                    <input type="date" id="visit-date"
+                           class="w-full p-3 md:p-4 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-600">
+                </div>
+                <div>
+                    <label for="visit-time" class="block text-gray-300 text-lg font-medium mb-2">Hora da Visita:</label>
+                    <input type="time" id="visit-time"
+                           class="w-full p-3 md:p-4 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-600">
+                </div>
+            </div>
+            <button id="add-visit-button"
+                    class="gradient-button w-full py-3 md:py-4 rounded-lg text-white font-semibold text-lg uppercase tracking-wide shadow-lg">
+                Agendar Visita
+            </button>
+        </div>
+
+        <!-- Lista de visitas agendadas -->
+        <div class="mt-8 pt-6 border-t border-gray-700">
+            <h2 class="text-2xl md:text-3xl font-semibold text-white mb-4 text-center">Visitas Agendadas:</h2>
+            <div id="visits-list">
+                <!-- Visitas serão carregadas aqui -->
+                <p id="no-visits-message" class="text-center text-gray-400">Nenhuma visita agendada ainda.</p>
+            </div>
+        </div>
+
+        <!-- Botão Voltar para o Dashboard -->
+        <div class="mt-8 text-center">
+            <a href="index.html" class="text-purple-400 hover:text-purple-600 transition duration-300 ease-in-out text-lg font-medium">
+                &larr; Voltar para o Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script type="module">
+        const clientNameInput = document.getElementById('client-name');
+        const propertyAddressInput = document.getElementById('property-address');
+        const visitDateInput = document.getElementById('visit-date');
+        const visitTimeInput = document.getElementById('visit-time');
+        const addVisitButton = document.getElementById('add-visit-button');
+        const visitsList = document.getElementById('visits-list');
+        const noVisitsMessage = document.getElementById('no-visits-message');
+
+        const LOCAL_STORAGE_KEY = 'kc_imobtech_visits';
+
+        // Carrega visitas do localStorage
+        function loadVisits() {
+            const visits = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+            visitsList.innerHTML = ''; // Limpa a lista existente
+            if (visits.length === 0) {
+                noVisitsMessage.classList.remove('hidden');
+            } else {
+                noVisitsMessage.classList.add('hidden');
+                visits.sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
+                visits.forEach((visit, index) => renderVisit(visit, index));
+            }
+        }
+
+        // Salva visitas no localStorage
+        function saveVisits(visits) {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(visits));
+        }
+
+        // Renderiza uma única visita na lista
+        function renderVisit(visit, index) {
+            const visitElement = document.createElement('div');
+            visitElement.classList.add('list-item');
+            visitElement.innerHTML = `
+                <div>
+                    <p class="text-xl font-semibold text-white">${visit.clientName}</p>
+                    <p class="text-gray-300 text-sm">${visit.address}</p>
+                    <p class="text-purple-300 text-md mt-1">${formatDate(visit.date)} às ${visit.time}</p>
+                </div>
+                <button class="delete-button" data-index="${index}">Remover</button>
+            `;
+            visitsList.appendChild(visitElement);
+        }
+
+        // Formata a data para exibição
+        function formatDate(dateString) {
+            const [year, month, day] = dateString.split('-');
+            return `${day}/${month}/${year}`;
+        }
+
+        // Adiciona uma nova visita
+        addVisitButton.addEventListener('click', () => {
+            const clientName = clientNameInput.value.trim();
+            const address = propertyAddressInput.value.trim();
+            const date = visitDateInput.value;
+            const time = visitTimeInput.value;
+
+            if (!clientName || !address || !date || !time) {
+                alert('Por favor, preencha todos os campos.');
+                return;
+            }
+
+            const newVisit = { clientName, address, date, time };
+            const visits = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+            visits.push(newVisit);
+            saveVisits(visits);
+            loadVisits(); // Recarrega a lista para mostrar a nova visita e ordenar
+
+            // Limpa os campos
+            clientNameInput.value = '';
+            propertyAddressInput.value = '';
+            visitDateInput.value = '';
+            visitTimeInput.value = '';
+        });
+
+        // Remove uma visita
+        visitsList.addEventListener('click', (event) => {
+            if (event.target.classList.contains('delete-button')) {
+                const indexToRemove = parseInt(event.target.dataset.index);
+                let visits = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+                
+                // Para remover corretamente após a ordenação, precisamos encontrar o item real pelo conteúdo
+                const clickedClientName = event.target.closest('.list-item').querySelector('.text-xl').textContent;
+                const clickedAddress = event.target.closest('.list-item').querySelector('.text-gray-300').textContent;
+                const clickedTime = event.target.closest('.list-item').querySelector('.text-purple-300').textContent.split('às ')[1];
+
+                visits = visits.filter(visit =>
+                    !(visit.clientName === clickedClientName &&
+                      visit.address === clickedAddress &&
+                      visit.time === clickedTime)
+                );
+
+                saveVisits(visits);
+                loadVisits();
+            }
+        });
+
+        // Carrega as visitas ao iniciar
+        window.onload = loadVisits;
+    </script>
+</body>
+</html>
