@@ -363,7 +363,7 @@
                 return null;
             }
 
-            let prompt = `Analise o perfil de um cliente para o mercado imobiliário com as seguintes informações. Retorne APENAS a análise e as sugestões, sem introduções ou comentários adicionais. O tom da análise deve ser "${tone}".\n\n`;
+            let prompt = `Analise o perfil de um cliente para o mercado imobiliário com as seguintes informações. Retorne APENAS a análise e as sugestões solicitadas, sem introduções, saudações, comentários adicionais ou notas. O tom da análise deve ser "${tone}".\n\n`;
             
             prompt += `Dados Demográficos: ${demographics}.\n`;
             prompt += `Estilo de Vida e Hobbies: ${lifestyle}.\n`;
@@ -382,13 +382,14 @@
                  // Note: If we had a property database, we'd integrate that here. For now, it suggests types/features.
                 prompt += `\n- Sugestões de tipos de imóveis ou características que seriam um bom 'match' para este perfil.`;
             }
-            if (focus === "Ambos") {
+            if (focus === "Ambos") { // This option implies all three sub-points from the prompt
                 prompt += `\n- Necessidades e desejos implícitos do cliente.`;
                 prompt += `\n- Uma sugestão de abordagem de vendas personalizada.`;
                 prompt += `\n- Sugestões de tipos de imóveis ou características ideais.`;
             }
 
-            prompt += `\nOrganize a resposta de forma clara e objetiva.`;
+            prompt += `\nOrganize a resposta de forma clara e objetiva, em tópicos se for apropriado.`;
+
 
             return prompt;
         }
@@ -403,7 +404,8 @@
             chatHistory.push({ role: "user", parts: [{ text: prompt }] });
 
             const payload = { contents: chatHistory };
-            const apiKey = ""; // Canvas will automatically provide the API key at runtime
+            // A chave de API do Google Gemini é fornecida diretamente aqui.
+            const apiKey = "AIzaSyCAdsR2LQb2SCTG1y5JYCrA4XVy0i-96NM"; 
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
@@ -416,8 +418,8 @@
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    console.error('API Error:', errorData);
-                    throw new Error(`API Error: ${errorData.error.message || response.statusText}`);
+                    console.error('API Error details:', errorData); // Log full error for debugging
+                    throw new Error(`Erro na API: ${errorData.error.message || response.statusText}. Verifique a sua chave de API ou as cotas de uso.`);
                 }
 
                 const result = await response.json();
@@ -427,12 +429,12 @@
                     result.candidates[0].content.parts.length > 0) {
                     return result.candidates[0].content.parts[0].text;
                 } else {
-                    console.warn('Estrutura de resposta inesperada:', result);
-                    throw new Error('Não foi possível gerar o conteúdo. Resposta da IA vazia ou inválida.');
+                    console.warn('Estrutura de resposta inesperada da IA:', result);
+                    throw new Error('Não foi possível gerar o conteúdo. A resposta da IA estava vazia ou em formato inválido. Tente ser mais específico nos inputs.');
                 }
             } catch (error) {
                 console.error('Erro ao chamar a API do Gemini:', error);
-                throw new Error(`Falha na comunicação com a IA: ${error.message}`);
+                throw new Error(`Falha na comunicação com a IA: ${error.message}.`);
             }
         }
 
@@ -455,7 +457,7 @@
                 sendWhatsappBtn.disabled = false;
             } catch (error) {
                 generatedTextOutput.textContent = 'Erro ao gerar análise.';
-                showMessage(`Erro: ${error.message}. Por favor, tente novamente ou ajuste os dados.`, 'error');
+                showMessage(`Erro: ${error.message}`, 'error'); // Display error message
             } finally {
                 loadingIndicator.classList.add('hidden');
                 generateBtn.disabled = false;
