@@ -312,7 +312,7 @@
     </div>
 
     <script>
-        // API Key for Gemini
+        // API Key para o Gemini
         const GEMINI_API_KEY = "AIzaSyCAdsR2LQb2SCTG1y5JYCrA4XVy0i-96NM";
 
         // Referências aos elementos do DOM
@@ -382,6 +382,23 @@
             return /^\+\d{10,15}$/.test(number);
         }
 
+        /**
+         * Atualiza o estado do botão de WhatsApp (habilitado/desabilitado).
+         * Ele é habilitado apenas se há texto gerado e um número de WhatsApp válido.
+         */
+        function updateWhatsappButtonState() {
+            const currentText = generatedTextOutput.textContent.trim();
+            const isTextGenerated = currentText && 
+                                    currentText !== 'A análise detalhada do perfil do cliente e sugestões personalizadas aparecerão aqui.' &&
+                                    currentText !== 'Gerando análise...' &&
+                                    currentText !== 'Erro ao gerar análise. Por favor, tente novamente.' &&
+                                    currentText !== 'Ocorreu um erro ao gerar a análise.' &&
+                                    currentText !== 'Erro: Resposta inesperada da IA.';
+
+            const isWhatsappNumberValid = isValidWhatsappNumber(whatsappNumberInput.value.trim());
+            sendWhatsappBtn.disabled = !(isTextGenerated && isWhatsappNumberValid);
+        }
+
         // --- Lógica de Geração da IA ---
 
         /**
@@ -445,15 +462,15 @@
         async function generateAnalysis() {
             const prompt = buildPromptForAI();
             if (!prompt) {
-                return; // Sai se a validação falhar
+                return; // Sai se a validação falhar (mensagem já exibida)
             }
 
             // Exibir indicador de carregamento e desabilitar botões
             loadingIndicator.classList.remove('hidden');
             generateBtn.disabled = true;
-            sendWhatsappBtn.disabled = true;
+            sendWhatsappBtn.disabled = true; // Desabilita o WhatsApp button
             copyBtn.classList.add('hidden'); // Oculta o botão de copiar durante o carregamento
-            generatedTextOutput.textContent = ''; // Limpa o texto anterior
+            generatedTextOutput.textContent = 'Gerando análise...'; // Feedback imediato para o usuário
 
             try {
                 let chatHistory = [];
@@ -469,30 +486,39 @@
                     body: JSON.stringify(payload)
                 });
 
+                // Verifica se a resposta HTTP foi bem-sucedida (status 2xx)
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('API Error Response:', errorData);
+                    // Lança um erro com a mensagem da API, se disponível, ou o status text
+                    throw new Error(`Erro da API: ${response.status} - ${errorData.error?.message || response.statusText}`);
+                }
+
                 const result = await response.json();
 
+                // Verifica a estrutura esperada da resposta do Gemini
                 if (result.candidates && result.candidates.length > 0 &&
                     result.candidates[0].content && result.candidates[0].content.parts &&
                     result.candidates[0].content.parts.length > 0) {
                     const text = result.candidates[0].content.parts[0].text;
                     generatedTextOutput.textContent = text;
                     copyBtn.classList.remove('hidden'); // Mostra o botão de copiar
-                    // Habilita o botão de WhatsApp se houver texto gerado e número válido
-                    if (whatsappNumberInput.value.trim() && isValidWhatsappNumber(whatsappNumberInput.value.trim())) {
-                        sendWhatsappBtn.disabled = false;
-                    }
+                    showMessage('Análise gerada com sucesso!', 'success');
                 } else {
-                    showMessage('Não foi possível gerar a análise. Tente novamente.', 'error');
-                    generatedTextOutput.textContent = 'Erro ao gerar análise. Por favor, tente novamente.';
+                    console.error('Estrutura de resposta inesperada da API Gemini:', result);
+                    showMessage('Não foi possível gerar a análise: Estrutura de resposta inesperada da IA.', 'error');
+                    generatedTextOutput.textContent = 'Erro: Resposta inesperada da IA.';
                 }
             } catch (error) {
-                console.error('Erro ao chamar a API do Gemini:', error);
-                showMessage('Ocorreu um erro na comunicação com a IA. Verifique sua conexão ou tente mais tarde.', 'error');
+                console.error('Erro durante a geração da análise:', error);
+                // Exibe uma mensagem de erro mais detalhada para o usuário
+                showMessage(`Ocorreu um erro: ${error.message || 'Verifique sua conexão ou tente mais tarde.'}`, 'error');
                 generatedTextOutput.textContent = 'Ocorreu um erro ao gerar a análise.';
             } finally {
                 // Ocultar indicador de carregamento e reabilitar botões
                 loadingIndicator.classList.add('hidden');
                 generateBtn.disabled = false;
+                updateWhatsappButtonState(); // Atualiza o estado do botão WhatsApp no final
             }
         }
 
@@ -513,8 +539,11 @@
                 return;
             }
 
-            if (!analysisText || analysisText === 'A análise detalhada do perfil do cliente e sugestões personalizadas aparecerão aqui.' || analysisText === 'Erro ao gerar análise. Por favor, tente novamente.' || analysisText === 'Ocorreu um erro ao gerar a análise.') {
-                showMessage('Nenhuma análise foi gerada para enviar via WhatsApp.', 'error');
+            // Garante que não estamos enviando texto de erro ou placeholder
+            if (!analysisText || analysisText === 'A análise detalhada do perfil do cliente e sugestões personalizadas aparecerão aqui.' || 
+                analysisText.startsWith('Erro') || analysisText.startsWith('Ocorreu um erro') || 
+                analysisText === 'Gerando análise...') {
+                showMessage('Nenhuma análise válida foi gerada para enviar via WhatsApp.', 'error');
                 return;
             }
 
@@ -524,11 +553,11 @@
             showMessage('Análise pronta para ser enviada via WhatsApp!', 'success');
         });
 
-        whatsappNumberInput.addEventListener('input', () => {
-            // Habilita ou desabilita o botão do WhatsApp com base na validade do número e se há texto gerado
-            const isTextGenerated = generatedTextOutput.textContent.trim() && generatedTextOutput.textContent.trim() !== 'A análise detalhada do perfil do cliente e sugestões personalizadas aparecerão aqui.' && generatedTextOutput.textContent.trim() !== 'Erro ao gerar análise. Por favor, tente novamente.' && generatedTextOutput.textContent.trim() !== 'Ocorreu um erro ao gerar a análise.';
-            sendWhatsappBtn.disabled = !(isValidWhatsappNumber(whatsappNumberInput.value.trim()) && isTextGenerated);
-        });
+        // Event listener para o input do WhatsApp para atualizar o estado do botão
+        whatsappNumberInput.addEventListener('input', updateWhatsappButtonState);
+
+        // Define o estado inicial do botão do WhatsApp na carga da página
+        window.addEventListener('load', updateWhatsappButtonState);
     </script>
 </body>
 </html>
