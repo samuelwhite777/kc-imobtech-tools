@@ -15,6 +15,15 @@
                     },
                     colors: {
                         'custom-bg-dark': '#0A0A0A',
+                        'dark-card-bg': '#1a1a1a', /* Slightly lighter dark for card backgrounds */
+                        'purple-accent-light': '#8B5CF6', /* Purple-400 for highlights */
+                        'purple-accent-dark': '#5B21B6',  /* Purple-800 for deeper accents */
+                        'golden-light': '#FFD700', /* Gold */
+                        'golden-dark': '#DAA520',  /* Goldenrod */
+                    },
+                    boxShadow: {
+                        'golden-glow': '0 0 15px rgba(255, 215, 0, 0.5)', /* Custom golden glow effect - adjusted */
+                        'xl-purple': '0 10px 15px -3px rgba(139, 92, 246, 0.2), 0 4px 6px -2px rgba(139, 92, 246, 0.1)', /* Adjusted shadow for cards */
                     }
                 }
             }
@@ -28,6 +37,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            overflow-x: hidden; /* Prevent horizontal scroll issues */
         }
         /* Custom scrollbar for a sleek look */
         ::-webkit-scrollbar {
@@ -44,20 +54,48 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #5a5a5a;
         }
+        /* Fade-in animation for sections */
         .fade-in-section {
             opacity: 0;
             transform: translateY(20px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out; /* Slightly longer transition */
         }
         .fade-in-section.is-visible {
             opacity: 1;
             transform: translateY(0);
         }
+
+        /* Custom glow effect for the profile section border */
+        .profile-section-glow::before {
+            content: '';
+            position: absolute;
+            inset: -2px; /* Slightly outside the border */
+            border-radius: 1.5rem; /* Match parent border-radius */
+            padding: 2px;
+            background: linear-gradient(45deg, #FFD700, #DAA520, #EC4899); /* Dynamic gradient border with gold */
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            filter: blur(5px); /* Soft glow - adjusted */
+            opacity: 0.5; /* Adjusted */
+            z-index: 0;
+            animation: pulse-glow 4s infinite alternate; /* Slower pulse animation */
+        }
+
+        @keyframes pulse-glow {
+            0% { opacity: 0.4; filter: blur(4px); } /* Adjusted */
+            100% { opacity: 0.6; filter: blur(8px); } /* Adjusted */
+        }
+
+        /* Subtle text shadow for headings */
+        .text-glow {
+            text-shadow: 0px 0px 6px rgba(255, 215, 0, 0.4); /* Golden glow - adjusted */
+        }
     </style>
 </head>
 <body class="bg-custom-bg-dark text-gray-100 font-sans min-h-screen flex flex-col justify-center items-center py-8 px-4 sm:px-6 lg:px-8">
 
-    <div id="root" class="w-full max-w-4xl"></div>
+    <div id="root" class="w-full max-w-7xl"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
@@ -70,8 +108,10 @@
 
             useEffect(() => {
                 const observer = new IntersectionObserver(entries => {
-                    if (entries[0].isIntersecting) {
+                    // Check if the target element is intersecting and if it's not already visible
+                    if (entries[0].isIntersecting && !isVisible) {
                         setVisible(true);
+                        // Disconnect observer once visible to avoid re-triggering
                         observer.unobserve(domRef.current);
                     }
                 }, { threshold: 0.1 }); // Trigger when 10% of element is visible
@@ -80,12 +120,13 @@
                     observer.observe(domRef.current);
                 }
 
+                // Cleanup observer on component unmount
                 return () => {
                     if (domRef.current) {
                         observer.unobserve(domRef.current);
                     }
                 };
-            }, []);
+            }, [isVisible]); // Depend on isVisible to ensure observer is only removed once
 
             return (
                 <div
@@ -99,18 +140,22 @@
 
         // Componente Card da Ferramenta
         const ToolCard = ({ title, description, link, icon }) => (
-            <a href={link} className="block group">
-                <div className="bg-gray-800 rounded-xl p-6 flex flex-col items-center text-center shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-gray-700 hover:border-blue-600">
-                    {icon && (
-                        <div className="mb-4 text-blue-400 group-hover:text-blue-500 transition-colors duration-300">
-                            {icon}
-                        </div>
-                    )}
-                    <h3 className="text-xl font-semibold text-gray-50 group-hover:text-blue-200 transition-colors duration-300 mb-2">{title}</h3>
-                    <p className="text-gray-400 text-sm mb-4 flex-grow">{description}</p>
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 transform group-hover:-translate-y-0.5 shadow-md group-hover:shadow-lg">
-                        Acessar Ferramenta
-                    </button>
+            <a href={link} className="block group rounded-xl">
+                <div className="relative bg-dark-card-bg rounded-xl p-6 flex flex-col items-center text-center shadow-lg transition-all duration-500 transform hover:scale-105 border border-gray-700 hover:border-purple-accent-light hover:shadow-xl-purple overflow-hidden">
+                    {/* Background gradient on hover - adjusted opacity */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-15 transition-opacity duration-300 bg-gradient-to-br from-purple-700 to-indigo-800 rounded-xl"></div>
+                    <div className="relative z-10">
+                        {icon && (
+                            <div className="mb-4 text-purple-accent-light group-hover:text-purple-accent-light transition-colors duration-300 p-3 bg-gray-700 rounded-full inline-flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:bg-purple-accent-dark">
+                                {icon}
+                            </div>
+                        )}
+                        <h3 className="text-xl font-semibold text-gray-50 group-hover:text-purple-accent-light transition-colors duration-300 mb-2">{title}</h3>
+                        <p className="text-gray-400 text-sm mb-4 flex-grow">{description}</p>
+                        <button className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 transform group-hover:-translate-y-0.5 shadow-md group-hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75">
+                            Acessar Ferramenta
+                        </button>
+                    </div>
                 </div>
             </a>
         );
@@ -123,7 +168,7 @@
                     description: "Analise o potencial de investimento de um imóvel ao longo do tempo, comparando com outras aplicações financeiras.",
                     link: "simulador.html", // Caminho para a nova página do simulador
                     icon: (
-                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V9m0 3v2m0 3v2m0-8a9 9 0 110 18 9 9 0 010-18z"></path></svg>
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10v10h18V10M7 15l4-4 4 4 6-6"></path></svg>
                     )
                 },
                 {
@@ -131,7 +176,7 @@
                     description: "Crie e personalize fluxos de pagamento detalhados para seus clientes, com valores e prazos ajustáveis.",
                     link: "proposal.html",
                     icon: (
-                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     )
                 },
                 {
@@ -139,7 +184,7 @@
                     description: "Utilize a IA Gemini para criar descrições e copys persuasivas para anúncios de imóveis e redes sociais.",
                     link: "gerador-copy.html",
                     icon: (
-                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673L12 21l-2.337-4zm-.18-11.82A2.001 2.001 0 0116 8v7a2 2 0 01-2 2h-4a2 2 0 01-2-2V8a2 2 0 011.82-1.996zm.18-2.18A4.001 4.001 0 008 8v7a4 4 0 004 4h0a4.001 4.001 0 004-4V8a4 4 0 00-4-4z"></path></svg>
                     )
                 },
                 {
@@ -147,7 +192,7 @@
                     description: "Gere argumentos inteligentes e respostas eficazes para superar objeções de clientes com o auxílio da IA.",
                     link: "gerador-argumentos.html",
                     icon: (
-                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M3 15h18l-3-6H6l-3 6z"></path></svg>
                     )
                 },
                 {
@@ -155,7 +200,7 @@
                     description: "Crie ideias e roteiros dinâmicos para seus vídeos de imóveis no Instagram Reels, TikTok e WhatsApp Status.",
                     link: "gerador-roteiros.html",
                     icon: (
-                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     )
                 },
                 {
@@ -163,7 +208,7 @@
                     description: "Obtenha sugestões de imóveis e abordagens de venda com base no perfil do seu cliente, otimizando a compatibilidade.",
                     link: "analise-perfil.html",
                     icon: (
-                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H2v-2a3 3 0 015.356-1.857M9 20v-2m3-2v2m-3-4h.01M17 12h.01M12 12h.01M12 10V6a2 2 0 00-2-2H6a2 2 0 00-2 2v10a2 2 0 002 2h4l2 2v-6z"></path></svg>
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9a3 3 0 100-6 3 3 0 000 6zM3 4h18M3 8h18m-9 6a9 9 0 00-9 9h18a9 9 0 00-9-9z"></path></svg>
                     )
                 },
                 {
@@ -171,7 +216,12 @@
                     description: "Calcule de forma rápida e transparente todos os custos adicionais (ITBI, registro, escritura) de uma transação imobiliária.",
                     link: "calculadora-custos.html",
                     icon: (
-                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 7h6m0 10v4m0 0H8m0 0l3-3m-3 3l3-3m-3 0h6m0 0H9m0 0l3-3m-3 3v4"></path></svg>
+                        <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12" y2="8"></line>
+                            <path d="M16.24 7.76a6 6 0 0 1 0 8.48m-8.48 0a6 6 0 0 1 0-8.48"></path>
+                        </svg>
                     )
                 },
                 {
@@ -179,7 +229,18 @@
                     description: "Organize seus agendamentos de visitas de forma simples e mantenha o controle da sua agenda diária.",
                     link: "agendador.html",
                     icon: (
-                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h.01M7 16h.01M13 16h.01M17 16h.01M21 12h.01M12 21h.01M6 12H3m18 0h3m-9 9v-8M7 7h10a2 2 0 012 2v10a2 2 0 01-2 2H7a2 2 0 01-2-2V9a2 2 0 012-2z"></path></svg>
+                        <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                            <path d="M8 14h.01"></path>
+                            <path d="M12 14h.01"></path>
+                            <path d="M16 14h.01"></path>
+                            <path d="M8 18h.01"></path>
+                            <path d="M12 18h.01"></path>
+                            <path d="M16 18h.01"></path>
+                        </svg>
                     )
                 }
             ];
@@ -193,26 +254,32 @@
                 <div className="flex flex-col items-center justify-center p-4">
                     {/* Seção de Apresentação da Kevillen Costa */}
                     <FadeInSection>
-                        <section className="bg-gray-800 rounded-xl p-8 mb-12 w-full shadow-lg border border-blue-600 text-center relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-br from-blue-900 to-custom-bg-dark opacity-20 rounded-xl"></div>
+                        <section className="bg-dark-card-bg rounded-3xl p-8 mb-12 w-full shadow-2xl border border-purple-accent-light text-center relative overflow-hidden profile-section-glow">
+                            <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-custom-bg-dark opacity-30 rounded-3xl"></div>
                             <div className="relative z-10">
                                 <img
-                                    src="https://placehold.co/150x150/1C3C5B/FFFFFF?text=KC"
+                                    src="https://placehold.co/150x150/1a1a1a/FFD700?text=KC"
                                     alt="Kevillen Costa Profile"
-                                    className="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-amber-600 shadow-md object-cover"
+                                    className="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-golden-light shadow-xl shadow-golden-dark/50 object-cover transition-all duration-300 hover:scale-105 hover:shadow-golden-glow"
                                 />
-                                <h1 className="text-4xl sm:text-5xl font-extrabold text-blue-300 mb-3 leading-tight">Kevillen Costa</h1>
-                                <p className="text-xl text-amber-300 font-semibold mb-4">Sua Gerente de Vendas Imobiliárias</p>
+                                <h1 className="text-4xl sm:text-5xl font-extrabold text-purple-accent-light mb-3 leading-tight text-glow">Kevillen Costa</h1>
+                                <p className="text-xl text-golden-light font-semibold mb-4">Sua Especialista e Parceira no mercado imobiliário de Santa Catarina</p>
                                 <p className="text-gray-300 text-md sm:text-lg max-w-2xl mx-auto mb-6">
                                     Com anos de experiência e um olhar apurado para as melhores oportunidades, sou sua parceira estratégica no mercado imobiliário. Minha missão é capacitar você, corretor parceiro, com as ferramentas e o suporte necessários para alcançar novos patamares de sucesso e garantir a melhor experiência para seus clientes.
                                 </p>
                                 <div className="flex justify-center space-x-6">
-                                    <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="text-gray-200 hover:text-green-500 transition-colors duration-300 flex items-center text-lg">
-                                        <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.6-3.879-1.6-6.055C.144 6.907 6.94 0 15.013 0h.01c8.073 0 14.614 6.907 14.614 15.485 0 8.578-6.541 15.485-14.614 15.485-2.529 0-4.9-.766-6.95-2.105l-6.216 1.624zm6.598-3.807l-.427-.253c-1.895-1.124-3.085-3.064-3.085-5.187 0-4.305 3.702-7.393 8.018-7.393h.01c4.316 0 7.828 3.088 7.828 7.393 0 4.305-3.512 7.393-7.828 7.393-1.464 0-2.865-.398-4.062-1.096l-.375-.224-3.864 1.007zm14.908-1.554c-.113-.061-.715-.353-.829-.395-.113-.042-.246-.062-.359.062s-.413.504-.504.609c-.09.105-.18.117-.333.042-.153-.062-.644-.238-1.22-.756-.452-.403-.762-.676-1.011-.908-.249-.232-.279-.199-.393-.113-.113.085-.246.25-.336.341-.09.091-.18.105-.333.042-.153-.062-.403-.149-.609-.238-.205-.09-.359-.131-.413-.153-.054-.021-.113-.062-.594-.298-.48-.238-1.144-.529-1.65-.968-.504-.44-.849-.738-1.127-.998-.279-.26-.251-.238-.113-.473.137-.235.452-.559.565-.758.113-.199.153-.253.226-.403.073-.153.03-.28-.015-.395-.042-.113-.359-.861-.497-1.171-.131-.309-.265-.253-.359-.253h-.238c-.131 0-.359.062-.559.253-.205.19-.77.756-.77 1.838s.786 2.138.899 2.292c.113.153 1.557 2.388 3.784 3.328 2.228.939 2.684.927 3.548.784.864-.142 1.487-.905 1.705-1.277.218-.372.246-.69.172-.828z" /></svg>
+                                    <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="text-gray-200 hover:text-green-500 transition-colors duration-300 flex items-center text-lg p-2 rounded-lg hover:bg-gray-700">
+                                        {/* Updated WhatsApp Icon */}
+                                        <svg className="w-6 h-6 mr-2" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12.0007 2C6.47829 2 2.00073 6.47754 2.00073 12C2.00073 14.1804 2.69466 16.3134 3.97127 18.1062L2.00073 22L5.89531 20.0494C7.51139 20.9128 9.28186 21.3995 11.0007 21.637L11.0007 21.6372C11.3283 21.6811 11.6611 21.7032 12.0007 21.7032C17.5228 21.7032 22.0007 17.2257 22.0007 11.7032C22.0007 6.18076 17.5228 1.70323 12.0007 1.70323V2ZM17.0007 15.7032C16.8183 15.9189 16.5923 15.9754 16.3213 15.9754C16.0503 15.9754 15.8244 15.9189 15.642 15.7032C15.4596 15.4876 15.0007 15.0007 15.0007 14.7032C15.0007 14.4057 14.0007 13.5007 13.0007 12.5007C12.0007 11.5007 11.0007 10.7032 10.0007 9.70322C9.00073 8.70322 8.00073 7.70322 8.00073 7.40322C8.00073 7.10322 8.00073 6.60322 8.50073 6.10322C8.70073 5.90322 8.91833 5.80322 9.09993 5.80322C9.28153 5.80322 9.45333 5.80322 9.60073 5.80322C9.74813 5.80322 10.0007 5.70322 10.2007 5.90322C10.4007 6.10322 10.6007 6.50322 10.7007 6.70322C10.8007 6.90322 10.9007 7.00322 10.9007 7.20322C10.9007 7.40322 10.8007 7.50322 10.6007 7.70322C10.4007 7.90322 9.90073 8.40322 9.70073 8.60322C9.50073 8.80322 9.40073 8.90322 9.40073 9.10322C9.40073 9.30322 9.70073 9.80322 10.2007 10.3032C10.7007 10.8032 11.0007 11.2032 11.5007 11.7032C12.0007 12.2032 12.4007 12.5032 12.9007 13.0032C13.4007 13.5032 13.8007 13.8032 14.0007 14.0032C14.2007 14.2032 14.4007 14.3032 14.6007 14.4032C14.8007 14.5032 15.2007 14.8032 15.4007 14.9032C15.6007 15.0032 15.8007 15.1032 15.8007 15.3032C15.8007 15.5032 15.7007 15.7032 15.6007 15.8032L17.0007 15.7032Z"/>
+                                        </svg>
                                         WhatsApp
                                     </a>
-                                    <a href={instagramLink} target="_blank" rel="noopener noreferrer" className="text-gray-200 hover:text-pink-500 transition-colors duration-300 flex items-center text-lg">
-                                        <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07c3.252.148 4.773 1.666 4.921 4.919.058 1.265.069 1.645.069 4.849 0 3.204-.012 3.584-.07 4.85-1.004 3.252-4.774-1.666-4.919-4.922-1.266-.058-1.645-.069-4.849-.069-3.204 0-3.584-.012-4.85-.07-3.252-1.004-4.774-1.666-4.921-4.919-.058-1.266-.069-1.645-.069-4.849 0-3.204.012-3.584.07-4.85 1.004-3.252 1.666-4.774 4.919-4.921 1.266-.058 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.35 0-6.735 2.385-6.735 6.735 0 1.28.018 1.688.072 4.947.058 3.259.148 3.667 2.385 6.735 1.28.058 1.688.072 4.947.072 3.259 0 3.667-.014 4.947-.072 4.35-.058 6.735-2.385 6.735-6.735 0-1.28-.018-1.688-.072-4.947-.058-3.259-.148-3.667-2.385-6.735-1.28-.058-1.688-.072-4.947-.072zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zm0 2a4.162 4.162 0 110 8.324 4.162 4.162 0 010-8.324zm6.914-3.149a.952.952 0 100 1.904.952.952 0 000-1.904z"/></svg>
+                                    <a href={instagramLink} target="_blank" rel="noopener noreferrer" className="text-gray-200 hover:text-pink-500 transition-colors duration-300 flex items-center text-lg p-2 rounded-lg hover:bg-gray-700">
+                                        {/* Updated Instagram Icon */}
+                                        <svg className="w-6 h-6 mr-2" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 2C8.68 2 8.35 2.01 7.23 2.06C6.1 2.12 5.08 2.31 4.18 2.69C3.26 3.06 2.5 3.65 1.89 4.26C1.28 4.87 0.69 5.63 0.31 6.53C-0.07 7.43 0.12 8.45 0.18 9.57C0.24 10.69 0.25 11.02 0.25 12C0.25 12.98 0.24 13.31 0.18 14.43C0.12 15.55 0.07 16.57 0.07 17.69C0.12 18.82 0.31 19.84 0.69 20.74C1.06 21.64 1.65 22.4 2.26 23.01C2.87 23.62 3.63 24.21 4.53 24.59C5.43 24.97 6.45 25.16 7.57 25.22C8.69 25.28 9.02 25.29 10 25.29C10.98 25.29 11.31 25.28 12.43 25.22C13.55 25.16 14.57 24.97 15.47 24.59C16.37 24.21 17.13 23.62 17.74 23.01C18.35 22.4 18.94 21.64 19.32 20.74C19.7 19.84 19.89 18.82 19.95 17.69C20.01 16.57 20.02 16.24 20.02 15.26C20.02 14.28 20.01 13.95 19.95 12.83C19.89 11.71 19.7 10.69 19.32 9.79C18.94 8.89 18.35 8.13 17.74 7.52C17.13 6.91 16.37 6.32 15.47 5.94C14.57 5.56 13.55 5.37 12.43 5.31C11.31 5.25 10.98 5.24 10 5.24C9.02 5.24 8.69 5.25 7.57 5.31C6.45 5.37 5.43 5.56 4.53 5.94C3.63 6.32 2.87 6.91 2.26 7.52C1.65 8.13 1.06 8.89 0.69 9.79C0.31 10.69 0.12 11.71 0.18 12.83C0.24 13.95 0.25 14.28 0.25 15.26C0.25 16.24 0.24 16.57 0.18 17.69C0.12 18.82 0.07 19.84 0.07 20.74C0.07 21.64 0.31 22.4 0.69 23.01C1.06 23.62 1.65 24.21 2.26 24.59C2.87 24.97 3.63 25.16 4.53 25.22C5.43 25.28 6.45 25.29 7.57 25.29H12C15.32 25.29 16.89 25.28 17.79 25.22C18.7 25.16 19.66 24.97 20.56 24.59C21.46 24.21 22.22 23.62 22.83 23.01C23.44 22.4 24.03 21.64 24.41 20.74C24.79 19.84 24.98 18.82 25.04 17.69C25.1 16.57 25.11 16.24 25.11 15.26C25.11 14.28 25.1 13.95 25.04 12.83C24.98 11.71 24.79 10.69 24.41 9.79C24.03 8.89 23.44 8.13 22.83 7.52C22.22 6.91 21.46 6.32 20.56 5.94C19.66 5.56 18.7 5.37 17.79 5.31C16.89 5.25 15.32 5.24 12 5.24V2Z"/>
+                                        </svg>
                                         Instagram
                                     </a>
                                 </div>
@@ -223,8 +290,8 @@
                     {/* Seção de Ferramentas */}
                     <FadeInSection>
                         <section className="w-full mb-12">
-                            <h2 className="text-3xl sm:text-4xl font-bold text-center text-blue-400 mb-8 sm:mb-10">Nossas Ferramentas Essenciais</h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                            <h2 className="text-3xl sm:text-4xl font-bold text-center text-purple-accent-light mb-8 sm:mb-10 text-glow">Nossas Ferramentas Essenciais</h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
                                 {tools.map((tool, index) => (
                                     <ToolCard key={index} {...tool} />
                                 ))}
@@ -246,3 +313,4 @@
     </script>
 </body>
 </html>
+
