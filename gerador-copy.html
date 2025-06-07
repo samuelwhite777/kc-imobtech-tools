@@ -281,7 +281,7 @@
             </div>
             
             <div class="form-group mt-4">
-                <label for="clientWhatsappNumber">WhatsApp do Cliente (Com código do país e DDD)</label>
+                <label for="clientWhatsappNumber">WhatsApp (Com código do país e DDD)</label>
                 <input type="text" id="clientWhatsappNumber" placeholder="Ex: +5547997082022">
             </div>
 
@@ -388,7 +388,7 @@
             if (uniqueFeatures) prompt += `Características únicas/acabamentos: ${uniqueFeatures}.\n`;
             if (infrastructure) prompt += `Infraestrutura do condomínio/bairro: ${infrastructure}.\n`;
 
-            prompt += `\nINSTRUÇÕES CRÍTICAS: Retorne APENAS a descrição. NÃO inclua saudações, introduções, comentários adicionais, notas, ou qualquer texto que não faça parte da descrição final. Mantenha o foco no conteúdo persuasivo para o cliente. Se for para redes sociais, inclua emojis e hashtags relevantes, mas sem excessos.`;
+            prompt += `\nINSTRUÇÕES CRÍTICAS: Retorne APENAS a descrição. NÃO inclua saudações, introduções, comentários adicionais, notas, ou qualquer texto que não faça parte da descrição final. Mantenha o foco no conteúdo persuasivo para o cliente. Se for para redes sociais, inclua emojis e hashtags relevantes.`;
 
             return prompt;
         }
@@ -403,7 +403,8 @@
             chatHistory.push({ role: "user", parts: [{ text: prompt }] });
 
             const payload = { contents: chatHistory };
-            const apiKey = ""; // Canvas will automatically provide the API key at runtime
+            // A chave de API do Google Gemini é fornecida diretamente aqui.
+            const apiKey = "AIzaSyCAdsR2LQb2SCTG1y5JYCrA4XVy0i-96NM"; 
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
@@ -416,8 +417,8 @@
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    console.error('API Error:', errorData);
-                    throw new Error(`Erro na API: ${errorData.error.message || response.statusText}`);
+                    console.error('API Error details:', errorData); // Log full error for debugging
+                    throw new Error(`Erro na API: ${errorData.error.message || response.statusText}. Verifique a sua chave de API ou as cotas de uso.`);
                 }
 
                 const result = await response.json();
@@ -425,15 +426,14 @@
                 if (result.candidates && result.candidates.length > 0 &&
                     result.candidates[0].content && result.candidates[0].content.parts &&
                     result.candidates[0].content.parts.length > 0) {
-                    // The prompt is designed to filter the content, so we return it directly.
                     return result.candidates[0].content.parts[0].text;
                 } else {
-                    console.warn('Estrutura de resposta inesperada:', result);
-                    throw new Error('Não foi possível gerar o conteúdo. Resposta da IA vazia ou inválida.');
+                    console.warn('Estrutura de resposta inesperada da IA:', result);
+                    throw new Error('Não foi possível gerar o conteúdo. A resposta da IA estava vazia ou em formato inválido. Tente ser mais específico nos inputs.');
                 }
             } catch (error) {
                 console.error('Erro ao chamar a API do Gemini:', error);
-                throw new Error(`Falha na comunicação com a IA: ${error.message}`);
+                throw new Error(`Falha na comunicação com a IA: ${error.message}.`);
             }
         }
 
@@ -441,6 +441,8 @@
 
         generateBtn.addEventListener('click', async () => {
             const prompt = buildPrompt();
+            if (!prompt) return; // Stop if prompt building failed validation
+
             generatedTextOutput.textContent = 'Gerando...';
             copyBtn.classList.add('hidden'); // Hide copy button during generation
             sendWhatsappBtn.disabled = true; // Disable WhatsApp button
@@ -454,7 +456,7 @@
                 sendWhatsappBtn.disabled = false; // Enable WhatsApp button
             } catch (error) {
                 generatedTextOutput.textContent = 'Erro ao gerar descrição.';
-                showMessage(`Erro: ${error.message}. Por favor, tente novamente ou ajuste os dados.`, 'error');
+                showMessage(`Erro: ${error.message}`, 'error'); // Display error message
             } finally {
                 loadingIndicator.classList.add('hidden');
                 generateBtn.disabled = false;
@@ -469,4 +471,32 @@
             const message = generatedTextOutput.textContent;
             const whatsappNumber = clientWhatsappNumberInput.value.trim();
 
-            if (!message || message === 'Seu texto gerado aparecerá aqui.' || message === 'Gerando...' || 
+            if (!message || message === 'Seu texto gerado aparecerá aqui.' || message === 'Gerando...' || message === 'Erro ao gerar descrição.') {
+                showMessage('Por favor, gere uma descrição antes de enviar via WhatsApp.', 'error');
+                return;
+            }
+
+            if (whatsappNumber === '') {
+                showMessage('Por favor, insira o número de WhatsApp.', 'error');
+                return;
+            }
+
+            if (!isValidWhatsappNumber(whatsappNumber)) {
+                showMessage('O número de WhatsApp não é válido. Por favor, inclua o código do país e DDD (Ex: +5547997082022).', 'error');
+                return;
+            }
+
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        });
+
+
+        // Initialize with a placeholder or empty text
+        document.addEventListener('DOMContentLoaded', () => {
+            generatedTextOutput.textContent = 'Preencha os detalhes do imóvel e clique em "Gerar Descrição" para começar.';
+            sendWhatsappBtn.disabled = true; // Ensure WhatsApp button is disabled on load
+        });
+    </script>
+</body>
+</html>
+
