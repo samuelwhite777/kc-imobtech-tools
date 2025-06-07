@@ -3,100 +3,408 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análise de Perfil de Cliente - KC ImobTech Tools</title>
+    <title>Análise de Perfil de Cliente</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome CDN for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" xintegrity="sha512-Fo3rlrpQ4R+jQ7o0E5D5I0f1w5bUuK7zY6w2j3ZpG/o/P6+y80w7A7Z+t4+b3z2i1/w2/f6+y95m2X6X9k7l9A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0d0d0d;
+            background-color: #1a1a2e; /* Dark background for 'Black Premium Platinum' */
+            color: #e0e0e0; /* Light gray text */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 1rem;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .container {
+            background-color: #2a2a4a; /* Slightly lighter dark background */
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        h1 {
+            color: #fdd835; /* Gold/Platinum color */
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            line-height: 1.2;
+        }
+        h2 {
+            color: #fdd835;
+            font-weight: 600;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #d1d5db;
+        }
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #4a4a6e;
+            border-radius: 0.75rem;
+            background-color: #3a3a5e;
             color: #e0e0e0;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-appearance: none; /* For consistent styling on iOS */
         }
-        .gradient-button {
-            background-image: linear-gradient(to right, #4a00e0, #8e2de2);
-            transition: all 0.3s ease;
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #fdd835;
+            box-shadow: 0 0 0 2px rgba(253, 216, 53, 0.3);
         }
-        .gradient-button:hover {
-            opacity: 0.9;
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        button {
+            width: 100%;
+            padding: 0.85rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            -webkit-tap-highlight-color: transparent;
+        }
+        button:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
-        .card-bg {
-            background-color: #1a1a1a;
+        button:active:not(:disabled) {
+            transform: translateY(0);
         }
-        #loading-indicator {
-            display: none;
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
-        #generated-output {
-            white-space: pre-wrap;
-            word-wrap: break-word;
+        .btn-primary {
+            background-image: linear-gradient(to right, #fdd835, #ffeb3b);
+            color: #1a1a2e;
+            box-shadow: 0 4px 10px rgba(253, 216, 53, 0.4);
+        }
+        .btn-primary:hover:not(:disabled) {
+            background-image: linear-gradient(to right, #ffeb3b, #fdd835);
+        }
+        .btn-whatsapp { /* Style for WhatsApp button */
+            background-color: #25d366;
+            color: white;
+            box-shadow: 0 4px 10px rgba(37, 211, 102, 0.4);
+        }
+        .btn-whatsapp:hover:not(:disabled) {
+            background-color: #1da851;
+        }
+        .output-area {
+            background-color: #3a3a5e;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            min-height: 150px;
+            white-space: pre-wrap; /* Preserve whitespace and line breaks */
+            word-wrap: break-word; /* Break long words */
+            font-size: 1rem;
+            color: #e0e0e0;
+            position: relative; /* For copy button positioning */
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background-color: #4a4a6e;
+            color: #e0e0e0;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .copy-btn:hover {
+            background-color: #5a5a7e;
+        }
+        .loading-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            color: #fdd835;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #fdd835;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Custom Message Box Styles */
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #3a3a5e;
+            color: #e0e0e0;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            text-align: center;
+            max-width: 90%;
+            width: 350px;
+            display: none; /* Hidden by default */
+            border: 2px solid;
+            font-size: 0.95rem;
+        }
+        .message-box p {
+            margin-bottom: 0; /* Remove default paragraph margin */
+        }
+        .message-box.error {
+            border-color: #ef4444;
+        }
+        .message-box.success {
+            border-color: #25d366;
+        }
+        .message-box-close {
+            background: none;
+            border: none;
+            color: #fdd835;
+            font-size: 1.5rem;
+            position: absolute;
+            top: 0.5rem;
+            right: 0.75rem;
+            cursor: pointer;
         }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen p-4">
-    <div class="w-full max-w-3xl card-bg rounded-lg shadow-xl p-6 md:p-8 space-y-6">
-        <h1 class="text-3xl md:text-4xl font-bold text-center text-white mb-6">Análise de Perfil de Cliente e Sugestão de Imóveis</h1>
+<body>
+    <div class="container">
+        <h1>Análise de Perfil de Cliente <br>e Sugestão de Imóveis<br> <span class="text-xl font-normal text-gray-400">Potencializado por IA Gemini</span></h1>
 
-        <!-- Campo de entrada para o perfil do cliente -->
-        <div>
-            <label for="client-profile" class="block text-gray-300 text-lg font-medium mb-2">Descreva o perfil do cliente:</label>
-            <textarea id="client-profile" rows="6"
-                      class="w-full p-3 md:p-4 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-600 resize-y"
-                      placeholder="Ex: Família com 2 filhos, busca apartamento 3 quartos, área de lazer completa, orçamento de R$ 800.000, preferência por escolas na região sul."></textarea>
-            <p class="text-sm text-gray-400 mt-2">Dica: Inclua orçamento, número de quartos, localização preferida, estilo de vida, etc.</p>
+        <div class="input-section grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-group col-span-2">
+                <label for="clientDemographics">Dados Demográficos do Cliente (idade, profissão, família, etc.)</label>
+                <textarea id="clientDemographics" placeholder="Ex: Casal, 30-35 anos, com 1 filho pequeno (2 anos), ele é engenheiro, ela é designer gráfica."></textarea>
+            </div>
+            <div class="form-group col-span-2">
+                <label for="clientLifestyle">Estilo de Vida e Hobbies do Cliente</label>
+                <textarea id="clientLifestyle" placeholder="Ex: Gostam de cozinhar, praticam exercícios ao ar livre, valorizam segurança e praticidade, gostam de receber amigos."></textarea>
+            </div>
+            <div class="form-group col-span-2">
+                <label for="currentHousingSituation">Situação Atual da Moradia (opcional)</label>
+                <textarea id="currentHousingSituation" placeholder="Ex: Moram em apartamento alugado pequeno, buscam algo maior e próprio, com mais espaço para o filho."></textarea>
+            </div>
+            <div class="form-group col-span-2">
+                <label for="statedPreferences">Preferências Declaradas do Cliente (quartos, localização, orçamento, etc.)</label>
+                <textarea id="statedPreferences" placeholder="Ex: 3 quartos, 2 vagas, orçamento até R$ 800 mil, perto de parques, com lazer completo."></textarea>
+            </div>
+            <div class="form-group col-span-2">
+                <label for="propertyLikesDislikes">Interesses/Desinteresses em Imóveis (opcional)</label>
+                <textarea id="propertyLikesDislikes" placeholder="Ex: Não gostam de casas geminadas, preferem andar alto, gostam de varanda gourmet."></textarea>
+            </div>
+            <div class="form-group col-span-1">
+                <label for="analysisFocus">Foco da Análise</label>
+                <select id="analysisFocus" class="w-full">
+                    <option value="Necessidades Implícitas e Sugestão de Imóveis">Necessidades Implícitas e Sugestão de Imóveis</option>
+                    <option value="Abordagem de Vendas Personalizada">Abordagem de Vendas Personalizada</option>
+                    <option value="Ambos">Ambos</option>
+                </select>
+            </div>
+            <div class="form-group col-span-1">
+                <label for="tone">Tom da Análise/Sugestão</label>
+                <select id="tone" class="w-full">
+                    <option value="Analítico e Direto">Analítico e Direto</option>
+                    <option value="Empático e Consultivo">Empático e Consultivo</option>
+                    <option value="Persuasivo">Persuasivo</option>
+                </select>
+            </div>
         </div>
 
-        <!-- Botão para analisar -->
-        <button id="analyze-button"
-                class="gradient-button w-full py-3 md:py-4 rounded-lg text-white font-semibold text-lg uppercase tracking-wide shadow-lg">
-            Analisar Perfil e Sugerir
+        <button id="generateBtn" class="btn-primary mt-4">
+            <i class="fas fa-user-check"></i> Analisar Perfil
         </button>
 
-        <!-- Indicador de carregamento -->
-        <div id="loading-indicator" class="text-center text-purple-400 font-medium text-lg mt-4">
-            Analisando... Por favor, aguarde.
+        <div id="loadingIndicator" class="loading-indicator hidden">
+            <div class="spinner"></div>
+            <span class="ml-3">Analisando perfil, por favor aguarde...</span>
         </div>
 
-        <!-- Área para exibir o resultado -->
-        <div id="result-section" class="mt-8 pt-6 border-t border-gray-700 hidden">
-            <h2 class="text-2xl md:text-3xl font-semibold text-white mb-4 text-center">Sugestões:</h2>
-            <div id="generated-output"
-                 class="p-4 md:p-6 bg-gray-800 rounded-md border border-gray-700 text-gray-200 text-base md:text-lg">
-                <!-- O texto gerado pela IA será inserido aqui -->
+        <div class="output-section mt-4">
+            <h2>Análise Gerada:</h2>
+            <div id="generatedText" class="output-area">
+                A análise do perfil do cliente e sugestões de imóveis/abordagem aparecerão aqui.
+                <button id="copyBtn" class="copy-btn hidden"><i class="fas fa-copy"></i> Copiar</button>
             </div>
-            <button id="copy-button"
-                    class="gradient-button w-full mt-4 py-2 md:py-3 rounded-lg text-white font-semibold text-md uppercase tracking-wide shadow-md">
-                Copiar Texto
-            </button>
-            <p id="copy-feedback" class="text-center text-sm text-green-400 mt-2 hidden">Copiado!</p>
-        </div>
+            
+            <div class="form-group mt-4">
+                <label for="whatsappNumber">WhatsApp (Com código do país e DDD)</label>
+                <input type="text" id="whatsappNumber" placeholder="Ex: +5547997082022">
+            </div>
 
-        <!-- Botão Voltar para o Dashboard -->
-        <div class="mt-8 text-center">
-            <a href="index.html" class="text-purple-400 hover:text-purple-600 transition duration-300 ease-in-out text-lg font-medium">
-                &larr; Voltar para o Dashboard
-            </a>
+            <button id="sendWhatsappBtn" class="btn-whatsapp mt-4" disabled>
+                <i class="fab fa-whatsapp"></i> Salvar análise enviando via WhatsApp
+            </button>
         </div>
     </div>
 
-    <script type="module">
-        const analyzeButton = document.getElementById('analyze-button');
-        const clientProfileInput = document.getElementById('client-profile');
-        const loadingIndicator = document.getElementById('loading-indicator');
-        const resultSection = document.getElementById('result-section');
-        const generatedOutput = document.getElementById('generated-output');
-        const copyButton = document.getElementById('copy-button');
-        const copyFeedback = document.getElementById('copy-feedback');
+    <!-- Custom Message Box HTML -->
+    <div id="messageBox" class="message-box">
+        <button class="message-box-close" onclick="hideMessage()">×</button>
+        <p id="messageText"></p>
+    </div>
 
-        async function callGeminiAPI(promptText) {
-            loadingIndicator.style.display = 'block';
-            resultSection.classList.add('hidden');
+    <script>
+        // Referências aos elementos do DOM
+        const clientDemographics = document.getElementById('clientDemographics');
+        const clientLifestyle = document.getElementById('clientLifestyle');
+        const currentHousingSituation = document.getElementById('currentHousingSituation');
+        const statedPreferences = document.getElementById('statedPreferences');
+        const propertyLikesDislikes = document.getElementById('propertyLikesDislikes');
+        const analysisFocus = document.getElementById('analysisFocus');
+        const toneSelect = document.getElementById('tone');
+        const generateBtn = document.getElementById('generateBtn');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const generatedTextOutput = document.getElementById('generatedText');
+        const copyBtn = document.getElementById('copyBtn');
+        const whatsappNumberInput = document.getElementById('whatsappNumber');
+        const sendWhatsappBtn = document.getElementById('sendWhatsappBtn');
 
+        // Referências para o Message Box
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+
+        // --- Funções Utilitárias ---
+
+        /**
+         * Exibe uma mensagem em um box personalizado.
+         * @param {string} message - A mensagem a ser exibida.
+         * @param {string} type - O tipo da mensagem ('error' ou 'success').
+         */
+        function showMessage(message, type = 'error') {
+            messageText.innerHTML = message;
+            messageBox.className = `message-box ${type}`;
+            messageBox.style.display = 'block';
+        }
+
+        /**
+         * Oculta o message box.
+         */
+        function hideMessage() {
+            messageBox.style.display = 'none';
+        }
+
+        /**
+         * Copia o texto para a área de transferência.
+         * @param {string} text - O texto a ser copiado.
+         */
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showMessage('Análise copiada para a área de transferência!', 'success');
+        }
+
+        /**
+         * Valida o formato de um número de WhatsApp.
+         * @param {string} number - O número a ser validado.
+         * @returns {boolean} True se o número for válido, false caso contrário.
+         */
+        function isValidWhatsappNumber(number) {
+            return /^\+\d{10,15}$/.test(number);
+        }
+
+        // --- Lógica de Geração da IA ---
+
+        /**
+         * Constrói o prompt para a API do Gemini.
+         * @returns {string} O prompt formatado.
+         */
+        function buildPrompt() {
+            const demographics = clientDemographics.value.trim();
+            const lifestyle = clientLifestyle.value.trim();
+            const currentHousing = currentHousingSituation.value.trim();
+            const preferences = statedPreferences.value.trim();
+            const likesDislikes = propertyLikesDislikes.value.trim();
+            const focus = analysisFocus.value;
+            const tone = toneSelect.value;
+
+            if (!demographics || !lifestyle || !preferences) {
+                showMessage('Por favor, preencha os campos essenciais: Dados Demográficos, Estilo de Vida e Preferências Declaradas.', 'error');
+                return null;
+            }
+
+            let prompt = `Analise o perfil de um cliente para o mercado imobiliário com as seguintes informações. Retorne APENAS a análise e as sugestões, sem introduções ou comentários adicionais. O tom da análise deve ser "${tone}".\n\n`;
+            
+            prompt += `Dados Demográficos: ${demographics}.\n`;
+            prompt += `Estilo de Vida e Hobbies: ${lifestyle}.\n`;
+            if (currentHousing) prompt += `Situação Atual da Moradia: ${currentHousing}.\n`;
+            prompt += `Preferências Declaradas do Cliente: ${preferences}.\n`;
+            if (likesDislikes) prompt += `Interesses/Desinteresses em Imóveis: ${likesDislikes}.\n`;
+
+            prompt += `\nCom base nisso, gere:`;
+            if (focus.includes("Necessidades Implícitas")) {
+                prompt += `\n- Necessidades e desejos implícitos do cliente (o que ele pode não ter dito explicitamente, mas é relevante).`;
+            }
+            if (focus.includes("Abordagem de Vendas")) {
+                prompt += `\n- Uma sugestão de abordagem de vendas personalizada para este cliente, incluindo quais benefícios destacar e como se comunicar.`;
+            }
+            if (focus.includes("Sugestão de Imóveis")) {
+                 // Note: If we had a property database, we'd integrate that here. For now, it suggests types/features.
+                prompt += `\n- Sugestões de tipos de imóveis ou características que seriam um bom 'match' para este perfil.`;
+            }
+            if (focus === "Ambos") {
+                prompt += `\n- Necessidades e desejos implícitos do cliente.`;
+                prompt += `\n- Uma sugestão de abordagem de vendas personalizada.`;
+                prompt += `\n- Sugestões de tipos de imóveis ou características ideais.`;
+            }
+
+            prompt += `\nOrganize a resposta de forma clara e objetiva.`;
+
+            return prompt;
+        }
+
+        /**
+         * Faz a chamada à API do Google Gemini para gerar o texto.
+         * @param {string} prompt - O prompt a ser enviado para a IA.
+         * @returns {Promise<string>} A resposta gerada pela IA.
+         */
+        async function generateTextWithGemini(prompt) {
             let chatHistory = [];
-            chatHistory.push({ role: "user", parts: [{ text: promptText }] });
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
 
             const payload = { contents: chatHistory };
-            const apiKey = "";
+            const apiKey = ""; // Canvas will automatically provide the API key at runtime
+
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
             try {
@@ -108,7 +416,8 @@
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(`Erro da API: ${errorData.error.message || response.statusText}`);
+                    console.error('API Error:', errorData);
+                    throw new Error(`API Error: ${errorData.error.message || response.statusText}`);
                 }
 
                 const result = await response.json();
@@ -118,52 +427,74 @@
                     result.candidates[0].content.parts.length > 0) {
                     return result.candidates[0].content.parts[0].text;
                 } else {
-                    console.error("Estrutura de resposta inesperada da API Gemini:", result);
-                    return "Não foi possível gerar a sugestão. Tente novamente.";
+                    console.warn('Estrutura de resposta inesperada:', result);
+                    throw new Error('Não foi possível gerar o conteúdo. Resposta da IA vazia ou inválida.');
                 }
             } catch (error) {
-                console.error("Erro ao chamar a API Gemini:", error);
-                return `Ocorreu um erro ao gerar a sugestão: ${error.message}.`;
-            } finally {
-                loadingIndicator.style.display = 'none';
+                console.error('Erro ao chamar a API do Gemini:', error);
+                throw new Error(`Falha na comunicação com a IA: ${error.message}`);
             }
         }
 
-        analyzeButton.addEventListener('click', async () => {
-            const profile = clientProfileInput.value.trim();
+        // --- Event Listeners ---
 
-            if (profile === '') {
-                alert('Por favor, descreva o perfil do cliente.');
+        generateBtn.addEventListener('click', async () => {
+            const prompt = buildPrompt();
+            if (!prompt) return;
+
+            generatedTextOutput.textContent = 'Analisando...';
+            copyBtn.classList.add('hidden');
+            sendWhatsappBtn.disabled = true;
+            loadingIndicator.classList.remove('hidden');
+            generateBtn.disabled = true;
+
+            try {
+                const generatedContent = await generateTextWithGemini(prompt);
+                generatedTextOutput.textContent = generatedContent;
+                copyBtn.classList.remove('hidden');
+                sendWhatsappBtn.disabled = false;
+            } catch (error) {
+                generatedTextOutput.textContent = 'Erro ao gerar análise.';
+                showMessage(`Erro: ${error.message}. Por favor, tente novamente ou ajuste os dados.`, 'error');
+            } finally {
+                loadingIndicator.classList.add('hidden');
+                generateBtn.disabled = false;
+            }
+        });
+
+        copyBtn.addEventListener('click', () => {
+            copyToClipboard(generatedTextOutput.textContent);
+        });
+
+        sendWhatsappBtn.addEventListener('click', () => {
+            const message = generatedTextOutput.textContent;
+            const whatsappNumber = whatsappNumberInput.value.trim();
+
+            if (!message || message === 'A análise do perfil do cliente e sugestões de imóveis/abordagem aparecerão aqui.' || message === 'Analisando...' || message === 'Erro ao gerar análise.') {
+                showMessage('Por favor, gere uma análise antes de enviar via WhatsApp.', 'error');
                 return;
             }
 
-            const prompt = `Analise o seguinte perfil de cliente para um corretor de imóveis e sugira tipos de imóveis ideais, bairros ou regiões (se aplicável), e abordagens de vendas eficazes. Inclua também possíveis objeções e como superá-las.
-            Perfil do cliente: "${profile}"`;
+            if (whatsappNumber === '') {
+                showMessage('Por favor, insira o número de WhatsApp.', 'error');
+                return;
+            }
 
-            const generatedText = await callGeminiAPI(prompt);
-            generatedOutput.textContent = generatedText;
-            resultSection.classList.remove('hidden');
+            if (!isValidWhatsappNumber(whatsappNumber)) {
+                showMessage('O número de WhatsApp não é válido. Por favor, inclua o código do país e DDD (Ex: +5547997082022).', 'error');
+                return;
+            }
+
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
         });
 
-        copyButton.addEventListener('click', () => {
-            const textToCopy = generatedOutput.textContent;
-            if (textToCopy) {
-                const textArea = document.createElement('textarea');
-                textArea.value = textToCopy;
-                document.body.appendChild(textArea);
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    copyFeedback.classList.remove('hidden');
-                    setTimeout(() => {
-                        copyFeedback.classList.add('hidden');
-                    }, 2000);
-                } catch (err) {
-                    console.error('Falha ao copiar o texto: ', err);
-                }
-                document.body.removeChild(textArea);
-            }
+        // Initialize with a placeholder or empty text
+        document.addEventListener('DOMContentLoaded', () => {
+            generatedTextOutput.textContent = 'Preencha os detalhes do cliente e clique em "Analisar Perfil" para gerar a análise.';
+            sendWhatsappBtn.disabled = true;
         });
     </script>
 </body>
 </html>
+
