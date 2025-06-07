@@ -3,141 +3,600 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Custos de Transação - KC ImobTech Tools</title>
+    <title>Calculadora de Custos de Transação Imobiliária</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome CDN for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" xintegrity="sha512-Fo3rlrpQ4R+jQ7o0E5D5I0f1w5bUuK7zY6w2j3ZpG/o/P6+y80w7A7Z+t4+b3z2i1/w2/f6+y95m2X6X9k7l9A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0d0d0d;
+            background-color: #1a1a2e; /* Dark background for 'Black Premium Platinum' */
+            color: #e0e0e0; /* Light gray text */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 1rem;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .container {
+            background-color: #2a2a4a; /* Slightly lighter dark background */
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        h1 {
+            color: #fdd835; /* Gold/Platinum color */
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            line-height: 1.2;
+        }
+        h2 {
+            color: #fdd835;
+            font-weight: 600;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #d1d5db;
+        }
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #4a4a6e;
+            border-radius: 0.75rem;
+            background-color: #3a3a5e;
+            color: #e0e0e0;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-appearance: none; /* For consistent styling on iOS */
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #fdd835;
+            box-shadow: 0 0 0 2px rgba(253, 216, 53, 0.3);
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        button {
+            width: 100%;
+            padding: 0.85rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            -webkit-tap-highlight-color: transparent;
+        }
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .btn-primary {
+            background-image: linear-gradient(to right, #fdd835, #ffeb3b);
+            color: #1a1a2e;
+            box-shadow: 0 4px 10px rgba(253, 216, 53, 0.4);
+        }
+        .btn-primary:hover:not(:disabled) {
+            background-image: linear-gradient(to right, #ffeb3b, #fdd835);
+        }
+        .btn-whatsapp { /* Style for WhatsApp button */
+            background-color: #25d366;
+            color: white;
+            box-shadow: 0 4px 10px rgba(37, 211, 102, 0.4);
+        }
+        .btn-whatsapp:hover:not(:disabled) {
+            background-color: #1da851;
+        }
+        .output-area {
+            background-color: #3a3a5e;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            min-height: 150px;
+            white-space: pre-wrap; /* Preserve whitespace and line breaks */
+            word-wrap: break-word; /* Break long words */
+            font-size: 1rem;
+            color: #e0e0e0;
+            position: relative; /* For copy button positioning */
+        }
+        .output-cost-summary {
+            background-color: #3a3a5e;
+            border-radius: 0.75rem;
+            padding: 1rem;
             color: #e0e0e0;
         }
-        .gradient-button {
-            background-image: linear-gradient(to right, #4a00e0, #8e2de2);
-            transition: all 0.3s ease;
+        .output-cost-summary p {
+            margin-bottom: 0.5rem;
         }
-        .gradient-button:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        .output-cost-summary p strong {
+            color: #fdd835;
         }
-        .card-bg {
-            background-color: #1a1a1a;
+        .copy-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background-color: #4a4a6e;
+            color: #e0e0e0;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
+        .copy-btn:hover {
+            background-color: #5a5a7e;
         }
-        input[type="number"] {
-            -moz-appearance: textfield;
+        .loading-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            color: #fdd835;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #fdd835;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Custom Message Box Styles */
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #3a3a5e;
+            color: #e0e0e0;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            text-align: center;
+            max-width: 90%;
+            width: 350px;
+            display: none; /* Hidden by default */
+            border: 2px solid;
+            font-size: 0.95rem;
+        }
+        .message-box p {
+            margin-bottom: 0; /* Remove default paragraph margin */
+        }
+        .message-box.error {
+            border-color: #ef4444;
+        }
+        .message-box.success {
+            border-color: #25d366;
+        }
+        .message-box-close {
+            background: none;
+            border: none;
+            color: #fdd835;
+            font-size: 1.5rem;
+            position: absolute;
+            top: 0.5rem;
+            right: 0.75rem;
+            cursor: pointer;
         }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen p-4">
-    <div class="w-full max-w-3xl card-bg rounded-lg shadow-xl p-6 md:p-8 space-y-6">
-        <h1 class="text-3xl md:text-4xl font-bold text-center text-white mb-6">Calculadora de Custos de Transação</h1>
+<body>
+    <div class="container">
+        <h1>Calculadora de Custos de Transação Imobiliária <br> <span class="text-xl font-normal text-gray-400">Potencializado por IA Gemini</span></h1>
 
-        <!-- Campo para Valor do Imóvel -->
-        <div>
-            <label for="property-value" class="block text-gray-300 text-lg font-medium mb-2">Valor do Imóvel (R$):</label>
-            <input type="number" id="property-value" value="0" min="0" step="1000"
-                   class="w-full p-3 md:p-4 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-600"
-                   placeholder="Ex: 500000">
-        </div>
-
-        <!-- Campo para ITBI (%) - Exemplo para São Paulo, pode variar -->
-        <div>
-            <label for="itbi-rate" class="block text-gray-300 text-lg font-medium mb-2">Taxa ITBI (%):</label>
-            <input type="number" id="itbi-rate" value="3" min="0" max="10" step="0.1"
-                   class="w-full p-3 md:p-4 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-600">
-            <p class="text-sm text-gray-400 mt-1">Geralmente 2-3% do valor do imóvel (varia por município).</p>
-        </div>
-
-        <!-- Campo para Custos de Cartório (%) - Exemplo -->
-        <div>
-            <label for="registry-costs-rate" class="block text-gray-300 text-lg font-medium mb-2">Custos de Cartório (%):</label>
-            <input type="number" id="registry-costs-rate" value="1.5" min="0" max="5" step="0.1"
-                   class="w-full p-3 md:p-4 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-600">
-            <p class="text-sm text-gray-400 mt-1">Estimativa para taxas de registro e escritura (varia).</p>
-        </div>
-
-        <!-- Botão para calcular -->
-        <button id="calculate-button"
-                class="gradient-button w-full py-3 md:py-4 rounded-lg text-white font-semibold text-lg uppercase tracking-wide shadow-lg">
-            Calcular Custos
-        </button>
-
-        <!-- Área para exibir o resultado -->
-        <div id="result-section" class="mt-8 pt-6 border-t border-gray-700 hidden">
-            <h2 class="text-2xl md:text-3xl font-semibold text-white mb-4 text-center">Resumo dos Custos:</h2>
-            <div class="space-y-3">
-                <p class="flex justify-between items-center text-lg md:text-xl">
-                    <span class="text-gray-300">Valor do Imóvel:</span>
-                    <span id="display-property-value" class="text-white font-semibold">R$ 0,00</span>
-                </p>
-                <p class="flex justify-between items-center text-lg md:text-xl">
-                    <span class="text-gray-300">ITBI:</span>
-                    <span id="display-itbi" class="text-white font-semibold">R$ 0,00</span>
-                </p>
-                <p class="flex justify-between items-center text-lg md:text-xl">
-                    <span class="text-gray-300">Custos de Cartório:</span>
-                    <span id="display-registry-costs" class="text-white font-semibold">R$ 0,00</span>
-                </p>
-                <p class="flex justify-between items-center text-2xl md:text-3xl font-bold text-purple-400 pt-4 border-t border-gray-700">
-                    <span>Total Estimado:</span>
-                    <span id="display-total-costs">R$ 0,00</span>
-                </p>
+        <div class="input-section grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-group col-span-2">
+                <label for="propertyValue">Valor de Transação do Imóvel (R$)</label>
+                <input type="number" id="propertyValue" placeholder="Ex: 500000" min="1" step="0.01">
+            </div>
+            <div class="form-group col-span-1">
+                <label for="propertyType">Tipo de Imóvel</label>
+                <select id="propertyType" class="w-full">
+                    <option value="Residencial (Apartamento/Casa)">Residencial (Apartamento/Casa)</option>
+                    <option value="Terreno">Terreno</option>
+                    <option value="Comercial">Comercial</option>
+                </select>
+            </div>
+            <div class="form-group col-span-1">
+                <label for="isFirstProperty">É Primeiro Imóvel?</label>
+                <select id="isFirstProperty" class="w-full">
+                    <option value="Não">Não</option>
+                    <option value="Sim">Sim</option>
+                </select>
+            </div>
+            <div class="form-group col-span-2">
+                <label for="municipalityState">Município e Estado da Transação (Ex: Curitiba, PR)</label>
+                <input type="text" id="municipalityState" placeholder="Ex: São Paulo, SP">
+            </div>
+            <div class="form-group col-span-2">
+                <label for="additionalNotes">Observações Adicionais (opcional)</label>
+                <textarea id="additionalNotes" placeholder="Ex: Imóvel financiado, comprador PJ, etc."></textarea>
             </div>
         </div>
 
-        <!-- Botão Voltar para o Dashboard -->
-        <div class="mt-8 text-center">
-            <a href="index.html" class="text-purple-400 hover:text-purple-600 transition duration-300 ease-in-out text-lg font-medium">
-                &larr; Voltar para o Dashboard
-            </a>
+        <button id="calculateBtn" class="btn-primary mt-4">
+            <i class="fas fa-calculator"></i> Calcular e Analisar Custos
+        </button>
+
+        <div id="loadingIndicator" class="loading-indicator hidden">
+            <div class="spinner"></div>
+            <span class="ml-3">Calculando e analisando custos, por favor aguarde...</span>
+        </div>
+
+        <div class="output-section mt-4">
+            <h2>Resumo dos Custos Estimados:</h2>
+            <div id="costSummary" class="output-cost-summary">
+                <p><strong>ITBI (Imposto de Transmissão de Bens Imóveis):</strong> <span id="itbiValue">R$ 0,00</span></p>
+                <p><strong>Registro do Imóvel:</strong> <span id="registroValue">R$ 0,00</span></p>
+                <p><strong>Escritura Pública:</strong> <span id="escrituraValue">R$ 0,00</span></p>
+                <p><strong>Outros Impostos/Taxas (Exemplo):</strong> <span id="outrosValue">R$ 0,00</span></p>
+                <p class="mt-4 text-lg"><strong>Custo Total Estimado:</strong> <span id="totalCostValue">R$ 0,00</span></p>
+            </div>
+
+            <h2 class="mt-4">Análise da IA Gemini:</h2>
+            <div id="geminiAnalysis" class="output-area">
+                A análise da IA Gemini sobre os custos de transação aparecerá aqui.
+                <button id="copyBtn" class="copy-btn hidden"><i class="fas fa-copy"></i> Copiar</button>
+            </div>
+            
+            <div class="form-group mt-4">
+                <label for="whatsappNumber">WhatsApp (Com código do país e DDD)</label>
+                <input type="text" id="whatsappNumber" placeholder="Ex: +5547997082022">
+            </div>
+
+            <button id="sendWhatsappBtn" class="btn-whatsapp mt-4" disabled>
+                <i class="fab fa-whatsapp"></i> Enviar Análise para WhatsApp
+            </button>
         </div>
     </div>
 
-    <script type="module">
-        const calculateButton = document.getElementById('calculate-button');
-        const propertyValueInput = document.getElementById('property-value');
-        const itbiRateInput = document.getElementById('itbi-rate');
-        const registryCostsRateInput = document.getElementById('registry-costs-rate');
+    <!-- Custom Message Box HTML -->
+    <div id="messageBox" class="message-box">
+        <button class="message-box-close" onclick="hideMessage()">×</button>
+        <p id="messageText"></p>
+    </div>
 
-        const resultSection = document.getElementById('result-section');
-        const displayPropertyValue = document.getElementById('display-property-value');
-        const displayItbi = document.getElementById('display-itbi');
-        const displayRegistryCosts = document.getElementById('display-registry-costs');
-        const displayTotalCosts = document.getElementById('display-total-costs');
+    <script>
+        // API Key for Gemini (replace with your actual key)
+        const GEMINI_API_KEY = "AIzaSyCAdsR2LQb2SCTG1y5JYCrA4XVy0i-96NM";
 
-        calculateButton.addEventListener('click', () => {
+        // Referências aos elementos do DOM
+        const propertyValueInput = document.getElementById('propertyValue');
+        const propertyTypeSelect = document.getElementById('propertyType');
+        const isFirstPropertySelect = document.getElementById('isFirstProperty');
+        const municipalityStateInput = document.getElementById('municipalityState');
+        const additionalNotesInput = document.getElementById('additionalNotes');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const costSummary = document.getElementById('costSummary');
+        const itbiValueSpan = document.getElementById('itbiValue');
+        const registroValueSpan = document.getElementById('registroValue');
+        const escrituraValueSpan = document.getElementById('escrituraValue');
+        const outrosValueSpan = document.getElementById('outrosValue');
+        const totalCostValueSpan = document.getElementById('totalCostValue');
+        const geminiAnalysisOutput = document.getElementById('geminiAnalysis');
+        const copyBtn = geminiAnalysisOutput.querySelector('#copyBtn'); // Select copy button inside output area
+        const whatsappNumberInput = document.getElementById('whatsappNumber');
+        const sendWhatsappBtn = document.getElementById('sendWhatsappBtn');
+
+        // Referências para o Message Box
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+
+        // --- Funções Utilitárias ---
+
+        /**
+         * Formata um número para o formato de moeda BRL (Real Brasileiro).
+         * @param {number} value - O valor a ser formatado.
+         * @returns {string} O valor formatado como R$.
+         */
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value);
+        }
+
+        /**
+         * Exibe uma mensagem em um box personalizado.
+         * @param {string} message - A mensagem a ser exibida.
+         * @param {string} type - O tipo da mensagem ('error' ou 'success').
+         */
+        function showMessage(message, type = 'error') {
+            messageText.innerHTML = message;
+            messageBox.className = `message-box ${type}`;
+            messageBox.style.display = 'block';
+        }
+
+        /**
+         * Oculta o message box.
+         */
+        function hideMessage() {
+            messageBox.style.display = 'none';
+        }
+
+        /**
+         * Copia o texto para a área de transferência.
+         * @param {string} text - O texto a ser copiado.
+         */
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showMessage('Texto copiado para a área de transferência!', 'success');
+        }
+
+        /**
+         * Valida o formato de um número de WhatsApp.
+         * @param {string} number - O número a ser validado.
+         * @returns {boolean} True se o número for válido, false caso contrário.
+         */
+        function isValidWhatsappNumber(number) {
+            return /^\+\d{10,15}$/.test(number);
+        }
+
+        // --- Lógica de Cálculo de Custos (Exemplo Simplificado) ---
+
+        /**
+         * Calcula os custos de transação (valores de exemplo).
+         * ATENÇÃO: Estes são valores FIXOS e EXEMPLOS.
+         * Custos reais variam MUITO por município, estado e tipo de imóvel.
+         * @param {number} value - Valor de transação do imóvel.
+         * @param {string} type - Tipo de imóvel.
+         * @param {string} isFirst - É primeiro imóvel? "Sim" ou "Não".
+         * @returns {object} Objeto com os custos estimados.
+         */
+        function calculateTransactionCosts(value, type, isFirst) {
+            let itbiRate = 0.02; // Alíquota padrão de 2% (exemplo)
+            let registroFee = 0.005; // 0.5% (exemplo) do valor + taxa fixa
+            let escrituraFee = 0.004; // 0.4% (exemplo) do valor + taxa fixa
+            const outrosTaxesRate = 0.001; // 0.1% para outros exemplos
+
+            let fixedRegistroFee = 500; // Exemplo de taxa fixa
+            let fixedEscrituraFee = 300; // Exemplo de taxa fixa
+
+            // Ajustes para primeiro imóvel (exemplo de benefício)
+            if (isFirst === "Sim") {
+                // Exemplo: ITBI reduzido ou isento para primeiro imóvel em alguns municípios
+                // Aqui apenas um exemplo de redução. Consultar legislação local!
+                if (value <= 300000) { // Exemplo de faixa de valor
+                    itbiRate = 0.005; // 0.5% para primeiro imóvel de baixo valor
+                } else {
+                    itbiRate = 0.01; // 1% para outros primeiros imóveis
+                }
+                // Exemplo: 50% de desconto no registro para primeiro imóvel financiado pelo SFH
+                // Para simplificação, aplicamos um desconto no registro aqui
+                registroFee *= 0.5;
+                fixedRegistroFee *= 0.5;
+            }
+
+            // ITBI é sobre o valor de transação ou venal (o maior). Usamos transação para simplificar.
+            const itbi = value * itbiRate;
+
+            // Registro: percentual sobre o valor + taxa fixa (simplificado)
+            const registro = (value * registroFee) + fixedRegistroFee;
+
+            // Escritura: percentual sobre o valor + taxa fixa (simplificado)
+            const escritura = (value * escrituraFee) + fixedEscrituraFee;
+
+            const outros = value * outrosTaxesRate; // Exemplo de outros custos/taxas
+
+            const total = itbi + registro + escritura + outros;
+
+            return { itbi, registro, escritura, outros, total };
+        }
+
+        // --- Lógica de Geração da IA ---
+
+        /**
+         * Constrói o prompt para a API do Gemini.
+         * @param {object} calculatedCosts - Os custos calculados pela calculadora.
+         * @returns {string} O prompt formatado.
+         */
+        function buildPromptForAI(calculatedCosts) {
+            const propertyValue = propertyValueInput.value.trim();
+            const propertyType = propertyTypeSelect.value;
+            const isFirstProperty = isFirstPropertySelect.value;
+            const municipalityState = municipalityStateInput.value.trim();
+            const additionalNotes = additionalNotesInput.value.trim();
+
+            let prompt = `Prepare uma análise para um cliente sobre os custos de transação de um imóvel. \n`;
+            prompt += `Inclua:
+                - Um resumo dos custos estimados (ITBI, Registro, Escritura, Outros, Total).
+                - Uma explicação concisa sobre o que são ITBI, Registro e Escritura.
+                - Um AVISO CRÍTICO: Mencione que estes são valores estimados e que os custos reais variam significativamente por município e estado no Brasil, sendo essencial a consulta à legislação local ou a um especialista.
+                - Dicas gerais para o cliente sobre como se preparar para esses custos.
+                - Não inclua saudações ou despedidas, apenas o conteúdo informativo e a análise.
+                - Use linguagem clara e acessível, com quebras de linha para facilitar a leitura.
+                - Não se refira a si mesmo como IA ou Gemini, mantenha o tom profissional e informativo.
+            \n\n`;
+
+            prompt += `Dados da Transação:\n`;
+            prompt += `Valor do Imóvel: R$ ${propertyValue}\n`;
+            prompt += `Tipo de Imóvel: ${propertyType}\n`;
+            prompt += `É Primeiro Imóvel: ${isFirstProperty}\n`;
+            if (municipalityState) prompt += `Município/Estado: ${municipalityState}\n`;
+            if (additionalNotes) prompt += `Observações Adicionais: ${additionalNotes}\n`;
+
+            prompt += `\nCustos Estimados (já calculados para referência da IA):\n`;
+            prompt += `ITBI: ${formatCurrency(calculatedCosts.itbi)}\n`;
+            prompt += `Registro: ${formatCurrency(calculatedCosts.registro)}\n`;
+            prompt += `Escritura: ${formatCurrency(calculatedCosts.escritura)}\n`;
+            prompt += `Outros Impostos/Taxas: ${formatCurrency(calculatedCosts.outros)}\n`;
+            prompt += `Total: ${formatCurrency(calculatedCosts.total)}\n`;
+
+            return prompt;
+        }
+
+        /**
+         * Faz a chamada à API do Google Gemini para gerar o texto.
+         * @param {string} prompt - O prompt a ser enviado para a IA.
+         * @returns {Promise<string>} A resposta gerada pela IA.
+         */
+        async function generateTextWithGemini(prompt) {
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+
+            const payload = { contents: chatHistory };
+            const apiKey = GEMINI_API_KEY; // Using the provided API key
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('API Error details:', errorData);
+                    throw new Error(`Erro na API: ${errorData.error.message || response.statusText}. Verifique sua chave de API ou cotas.`);
+                }
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                } else {
+                    console.warn('Estrutura de resposta inesperada da IA:', result);
+                    throw new Error('Não foi possível gerar a análise. Resposta da IA vazia ou inválida. Tente ser mais específico nos inputs.');
+                }
+            } catch (error) {
+                console.error('Erro ao chamar a API do Gemini:', error);
+                throw new Error(`Falha na comunicação com a IA: ${error.message}.`);
+            }
+        }
+
+        // --- Event Listeners ---
+
+        calculateBtn.addEventListener('click', async () => {
             const propertyValue = parseFloat(propertyValueInput.value);
-            const itbiRate = parseFloat(itbiRateInput.value);
-            const registryCostsRate = parseFloat(registryCostsRateInput.value);
 
             if (isNaN(propertyValue) || propertyValue <= 0) {
-                alert('Por favor, insira um valor válido para o imóvel.');
+                showMessage('Por favor, insira um Valor de Transação do Imóvel válido (maior que zero).', 'error');
                 return;
             }
 
-            // Cálculo ITBI
-            const itbiValue = propertyValue * (itbiRate / 100);
+            // Clear previous outputs
+            itbiValueSpan.textContent = 'R$ 0,00';
+            registroValueSpan.textContent = 'R$ 0,00';
+            escrituraValueSpan.textContent = 'R$ 0,00';
+            outrosValueSpan.textContent = 'R$ 0,00';
+            totalCostValueSpan.textContent = 'R$ 0,00';
+            geminiAnalysisOutput.textContent = 'Gerando análise...';
+            copyBtn.classList.add('hidden');
+            sendWhatsappBtn.disabled = true;
+            loadingIndicator.classList.remove('hidden');
+            calculateBtn.disabled = true;
 
-            // Cálculo Custos de Cartório (estimativa)
-            const registryCostsValue = propertyValue * (registryCostsRate / 100);
+            try {
+                const costs = calculateTransactionCosts(
+                    propertyValue,
+                    propertyTypeSelect.value,
+                    isFirstPropertySelect.value
+                );
 
-            // Total estimado
-            const totalEstimatedCosts = itbiValue + registryCostsValue;
+                itbiValueSpan.textContent = formatCurrency(costs.itbi);
+                registroValueSpan.textContent = formatCurrency(costs.registro);
+                escrituraValueSpan.textContent = formatCurrency(costs.escritura);
+                outrosValueSpan.textContent = formatCurrency(costs.outros);
+                totalCostValueSpan.textContent = formatCurrency(costs.total);
 
-            // Exibir resultados
-            displayPropertyValue.textContent = `R$ ${propertyValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            displayItbi.textContent = `R$ ${itbiValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            displayRegistryCosts.textContent = `R$ ${registryCostsValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            displayTotalCosts.textContent = `R$ ${totalEstimatedCosts.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                const prompt = buildPromptForAI(costs);
+                const iaAnalysis = await generateTextWithGemini(prompt);
+                geminiAnalysisOutput.textContent = iaAnalysis;
+                copyBtn.classList.remove('hidden');
+                sendWhatsappBtn.disabled = false;
 
-            resultSection.classList.remove('hidden');
+            } catch (error) {
+                geminiAnalysisOutput.textContent = 'Erro ao calcular ou gerar análise.';
+                showMessage(`Erro: ${error.message}`, 'error');
+            } finally {
+                loadingIndicator.classList.add('hidden');
+                calculateBtn.disabled = false;
+            }
+        });
+
+        copyBtn.addEventListener('click', () => {
+            copyToClipboard(geminiAnalysisOutput.textContent);
+        });
+
+        sendWhatsappBtn.addEventListener('click', () => {
+            const message = `*Resumo de Custos de Transação Imobiliária:*\n\n` +
+                            `*Valor do Imóvel:* ${formatCurrency(parseFloat(propertyValueInput.value))}\n` +
+                            `*ITBI:* ${itbiValueSpan.textContent}\n` +
+                            `*Registro:* ${registroValueSpan.textContent}\n` +
+                            `*Escritura:* ${escrituraValueSpan.textContent}\n` +
+                            `*Outros:* ${outrosValueSpan.textContent}\n` +
+                            `*Total Estimado:* ${totalCostValueSpan.textContent}\n\n` +
+                            `*Análise da IA:*\n` + geminiAnalysisOutput.textContent;
+                            
+            const whatsappNumber = whatsappNumberInput.value.trim();
+
+            if (!whatsappNumber) {
+                showMessage('Por favor, insira o número de WhatsApp para onde enviar a análise.', 'error');
+                return;
+            }
+            if (!isValidWhatsappNumber(whatsappNumber)) {
+                showMessage('O número de WhatsApp não é válido. Por favor, inclua o código do país e DDD (Ex: +5547997082022).', 'error');
+                return;
+            }
+
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        });
+
+        // Initial setup on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            geminiAnalysisOutput.textContent = 'Preencha os detalhes do imóvel e clique em "Calcular e Analisar Custos" para gerar a análise da IA.';
+            sendWhatsappBtn.disabled = true;
+            // Set default value for municipalityState if desired, e.g.:
+            // municipalityStateInput.value = 'Curitiba, PR';
         });
     </script>
 </body>
 </html>
+
