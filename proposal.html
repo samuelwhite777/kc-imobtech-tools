@@ -138,13 +138,13 @@
         const { useState, useEffect, useCallback, useRef } = React;
         const { createRoot } = ReactDOM;
 
-        // Utility function to convert to number, treating invalid inputs as 0
+        // Função utilitária para converter para número, tratando entradas inválidas como 0
         const parseToNumber = (value) => {
             const num = parseFloat(String(value).replace(',', '.')); // Handle comma as decimal separator
             return isNaN(num) ? 0 : num;
         };
 
-        // Utility function to format currency values in BRL
+        // Função utilitária para formatar valores monetários em BRL
         const formatCurrency = (value) => {
             return new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
@@ -154,7 +154,7 @@
             }).format(value);
         };
 
-        // Custom Slider Component
+        // Componente Slider Personalizado
         const CustomSlider = ({ label, value, onChange, min, max, step, displayValue, unit = '', children }) => {
             const display = displayValue !== undefined ? displayValue : value;
             return (
@@ -188,41 +188,6 @@
             );
         };
 
-        // AI Insight Box Component
-        const AISuggestionBox = ({ insight, idealValue, onApply }) => {
-            const [isOpen, setIsOpen] = useState(false);
-
-            if (!insight) return null;
-
-            return (
-                <div className="insight-box">
-                    <div className="insight-header" onClick={() => setIsOpen(!isOpen)}>
-                        <span>Sugestão de IA</span>
-                        <span className={`insight-arrow ${isOpen ? 'open' : ''}`}>&#9658;</span> {/* Unicode right arrow */}
-                    </div>
-                    <div className={`insight-content ${isOpen ? 'open' : ''}`}>
-                        <p>{insight}</p>
-                        {idealValue !== undefined && idealValue !== null && (
-                            <div className="mt-2">
-                                <span className="font-semibold text-blue-400">Valor Ideal: </span>
-                                <span className="text-blue-200">
-                                    {typeof idealValue === 'number' && label.includes('R$') ? formatCurrency(idealValue) : idealValue}
-                                    {typeof idealValue === 'number' && label.includes('Meses') ? ` ${idealValue} meses` : ''}
-                                    {typeof idealValue === 'number' && label.includes('Entrada') ? ` ${idealValue}%` : ''}
-                                </span>
-                                <button
-                                    onClick={() => onApply(idealValue)}
-                                    className="ml-3 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-md transition-colors duration-200"
-                                >
-                                    Aplicar
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            );
-        };
-
         // Main Proposal Generator Component
         const App = () => {
             // States for input parameters
@@ -245,8 +210,8 @@
             // States for feedback messages to the user
             const [warningObra, setWarningObra] = useState('');
             const [warningPosObra, setWarningPosObra] = useState('');
-            const [isGeneratingSuggestions, setIsGeneratingSuggestions] = useState(false);
-            const [aiSuggestions, setAiSuggestions] = useState({}); // Stores AI suggestions for each parameter
+            
+            // AI-related states removed
 
             // Constants for financial rules
             const MIN_PARCELA_MENSAL = 2000;
@@ -255,128 +220,110 @@
 
             // Main calculation function
             const calculateProposal = useCallback(() => {
-                const valImovel = parseToNumber(valorImovel);
-                const entPerc = parseToNumber(entradaPercentual);
-                const mesObra = parseToNumber(mesesObra);
-                const valReforcoAnual = parseToNumber(valorReforcoAnual);
-                const numTotalReforcosAnuaisCalculado = parseToNumber(numeroTotalReforcosAnuais);
-                const mesTotaisFluxo = parseToNumber(mesesTotaisFluxo);
-                const valChaves = parseToNumber(valorNasChaves);
+                try {
+                    const valImovel = parseToNumber(valorImovel);
+                    const entPerc = parseToNumber(entradaPercentual);
+                    const mesObra = parseToNumber(mesesObra);
+                    const valReforcoAnual = parseToNumber(valorReforcoAnual);
+                    const numTotalReforcosAnuaisCalculado = parseToNumber(numeroTotalReforcosAnuais);
+                    const mesTotaisFluxo = parseToNumber(mesesTotaisFluxo);
+                    const valChaves = parseToNumber(valorNasChaves);
 
-                // Reset warnings
-                setWarningObra('');
-                setWarningPosObra('');
+                    // Reset warnings
+                    setWarningObra('');
+                    setWarningPosObra('');
 
-                // Avoid calculations with zero property value to prevent NaN/Infinity
-                if (valImovel === 0) {
+                    // Avoid calculations with zero property value to prevent NaN/Infinity
+                    if (valImovel === 0) {
+                        setParcelasObraMensal(0);
+                        setTotalPagoObra(0);
+                        setMesesFinanciamentoPosObra(0);
+                        setParcelaMensalPosObra(0);
+                        setSaldoTotalFinanciarPosObra(0);
+                        setReforcosAplicadosNaObra(0);
+                        return;
+                    }
+
+                    // 1. Calculate Initial Payment
+                    const valorEntrada = (valImovel * entPerc) / 100;
+
+                    // 2. Calculate Total Value of ALL Reinforcements across the entire flux
+                    const totalValorTodosReforcos = numTotalReforcosAnuaisCalculado * valReforcoAnual;
+
+                    // 3. Calculate Reinforcements Paid DURING Construction period
+                    const reforcosDuranteObraCount = Math.min(numTotalReforcosAnuaisCalculado, Math.floor(mesObra / 12));
+                    const totalReforcosQueCaemNaObra = reforcosDuranteObraCount * valReforcoAnual;
+                    setReforcosAplicadosNaObra(reforcosDuranteObraCount);
+
+                    // 4. Calculate Monthly Installments During Construction
+                    // Value that *should* be paid during construction (50% of the property) to meet the rule
+                    const target50PercentInConstruction = valImovel * TARGET_PERCENT_PAID_DURING_CONSTRUCTION;
+                    
+                    // Amount already paid by initial payment and reinforcements *that fall within construction period*
+                    const valorPagoPorEntradaEReforcosNaObra = valorEntrada + totalReforcosQueCaemNaObra;
+
+                    let currentParcelasMensaisObra = 0;
+                    let currentValorTotalDasParcelasObra = 0;
+
+                    if (mesObra > 0) {
+                        const valorNecessarioDasParcelasObra = Math.max(0, target50PercentInConstruction - valorPagoPorEntradaEReforcosNaObra);
+                        let rawParcelasMensaisObra = valorNecessarioDasParcelasObra / mesObra;
+
+                        currentParcelasMensaisObra = Math.max(MIN_PARCELA_MENSAL, rawParcelasMensaisObra);
+                        
+                        if (rawParcelasMensaisObra > 0 && rawParcelasMensaisObra < MIN_PARCELA_MENSAL) {
+                            setWarningObra(`A parcela mensal durante a obra foi ajustada para o mínimo de ${formatCurrency(MIN_PARCELA_MENSAL)}.`);
+                        } else if (rawParcelasMensaisObra > HIGH_PARCELA_THRESHOLD) {
+                             setWarningObra(`A parcela mensal durante a obra (${formatCurrency(rawParcelasMensaisObra)}) está alta. Considere aumentar a entrada ou os reforços anuais para reduzir.`);
+                        }
+                        currentValorTotalDasParcelasObra = currentParcelasMensaisObra * mesObra;
+
+                    } else { // mesObra === 0
+                        currentParcelasMensaisObra = 0;
+                        currentValorTotalDasParcelasObra = 0;
+                    }
+                    setParcelasObraMensal(currentParcelasMensaisObra);
+
+                    // 5. Calculate Total Paid During Construction (actual sum of contributions during construction period)
+                    // This is the actual amount paid regardless of the 50% target, but minimum parcel applied.
+                    const actualTotalPaidDuringConstruction = valorEntrada + totalReforcosQueCaemNaObra + currentValorTotalDasParcelasObra;
+                    setTotalPagoObra(actualTotalPaidDuringConstruction);
+
+                    // 6. Calculate Remaining Balance to be Financed Post-Construction
+                    // This balance is the total property value minus *all* client contributions throughout the entire flow.
+                    let saldoTotalFinanciar = valImovel - (valorEntrada + totalValorTodosReforcos + currentValorTotalDasParcelasObra + valChaves);
+                    if (saldoTotalFinanciar < 0) saldoTotalFinanciar = 0;
+                    setSaldoTotalFinanciarPosObra(saldoTotalFinanciar);
+
+                    // 7. Months of Post-Construction Financing
+                    const currentMesesFinancPosObra = Math.max(0, mesTotaisFluxo - mesObra);
+                    setMesesFinanciamentoPosObra(currentMesesFinancPosObra);
+
+                    // 8. Monthly Installment Value Post-Construction
+                    let currentParcelaMensalPosObra = 0;
+                    if (currentMesesFinancPosObra > 0) {
+                        let rawParcelaMensalPosObra = saldoTotalFinanciar / currentMesesFinancPosObra;
+                        currentParcelaMensalPosObra = Math.max(MIN_PARCELA_MENSAL, rawParcelaMensalPosObra);
+
+                        if (rawParcelaMensalPosObra > 0 && rawParcelaMensalPosObra < MIN_PARCELA_MENSAL) {
+                            setWarningPosObra(`A parcela mensal pós-obra foi ajustada para o mínimo de ${formatCurrency(MIN_PARCELA_MENSAL)}.`);
+                        } else if (rawParcelaMensalPosObra > HIGH_PARCELA_THRESHOLD) {
+                            setWarningPosObra(`A parcela mensal pós-obra (${formatCurrency(rawParcelaMensalPosObra)}) está alta. Considere aumentar a entrada, os reforços anuais ou o valor nas chaves para reduzir o saldo a financiar.`);
+                        }
+                    }
+                    setParcelaMensalPosObra(currentParcelaMensalPosObra);
+
+                } catch (error) {
+                    console.error("Erro no cálculo da proposta:", error);
                     setParcelasObraMensal(0);
                     setTotalPagoObra(0);
                     setMesesFinanciamentoPosObra(0);
                     setParcelaMensalPosObra(0);
                     setSaldoTotalFinanciarPosObra(0);
                     setReforcosAplicadosNaObra(0);
-                    return;
+                    setWarningObra('Ocorreu um erro no cálculo. Verifique os valores inseridos ou tente novamente.');
+                    setWarningPosObra('');
                 }
-
-                // 1. Calculate Initial Payment
-                const valorEntrada = (valImovel * entPerc) / 100;
-
-                // 2. Calculate Annual Reinforcements during Construction
-                // Determines how many annual reinforcements fall within the construction period (full years only)
-                const reforcosDuranteObraCount = Math.min(numTotalReforcosAnuaisCalculado, Math.floor(mesObra / 12));
-                const totalReforcosQueCaemNaObra = reforcosDuranteObraCount * valReforcoAnual;
-                setReforcosAplicadosNaObra(reforcosDuranteObraCount);
-
-                // 3. Calculate Monthly Installments During Construction
-                // Value that *should* be paid during construction (50% of the property) to meet the rule
-                const target50PercentInConstruction = valImovel * TARGET_PERCENT_PAID_DURING_CONSTRUCTION;
-                
-                // Amount already paid by initial payment and reinforcements *that fall within construction period*
-                const valorPagoPorEntradaEReforcosNaObra = valorEntrada + totalReforcosQueCaemNaObra;
-
-                let parcelasMensaisObraCalculado = 0;
-                let valorTotalDasParcelasObra = 0; // The total sum of all monthly installments during construction
-
-                if (mesObra > 0) {
-                    if (valorPagoPorEntradaEReforcosNaObra >= target50PercentInConstruction) {
-                        // If entry + reinforcements already meet or exceed the 50% target,
-                        // no further monthly installments are needed for the 50% target.
-                        parcelasMensaisObraCalculado = 0;
-                    } else {
-                        // If entry + reinforcements don't meet the 50% target,
-                        // calculate monthly installments to cover the remaining difference to hit the 50% target.
-                        const valorFaltandoParaParcelasObra = target50PercentInConstruction - valorPagoPorEntradaEReforcosNaObra;
-                        const parcelasMensaisObraCalculadoRaw = valorFaltandoParaParcelasObra / mesObra;
-
-                        // Apply the minimum monthly installment of R$ 2,000
-                        parcelasMensaisObraCalculado = Math.max(MIN_PARCELA_MENSAL, parcelasMensaisObraCalculadoRaw);
-
-                        // Provide feedback if the raw calculated installment was adjusted up or is high
-                        if (parcelasMensaisObraCalculadoRaw > 0 && parcelasMensaisObraCalculadoRaw < MIN_PARCELA_MENSAL) {
-                            setWarningObra(`A parcela mensal durante a obra foi ajustada para o mínimo de ${formatCurrency(MIN_PARCELA_MENSAL)}.`);
-                        } else if (parcelasMensaisObraCalculadoRaw > HIGH_PARCELA_THRESHOLD) {
-                             setWarningObra(`A parcela mensal durante a obra (${formatCurrency(parcelasMensaisObraCalculadoRaw)}) está alta. Considere aumentar a entrada ou os reforços anuais para reduzir.`);
-                        }
-                    }
-                    valorTotalDasParcelasObra = parcelasMensaisObraCalculado * mesObra;
-
-                } else { // mesObra === 0 (No construction months, so no construction installments)
-                    parcelasMensaisObraCalculado = 0;
-                    valorTotalDasParcelasObra = 0;
-                }
-
-                setParcelasObraMensal(parcelasMensaisObraCalculado);
-
-                // 4. Calculate Total Paid During Construction
-                // This is the actual sum of initial payment, reinforcements *that fell during construction*, and *actual monthly installments paid*.
-                // Note: if (valorPagoPorEntradaEReforcosNaObra >= target50PercentInConstruction), then totalPaidDuringConstruction will be valorPagoPorEntradaEReforcosNaObra.
-                // Otherwise, it will be target50PercentInConstruction + any surplus from min installment adjustment.
-                let actualTotalPaidDuringConstruction = valorEntrada + totalReforcosQueCaemNaObra + valorTotalDasParcelasObra;
-                
-                // If actualTotalPaidDuringConstruction is less than 50% due to mesObra = 0 or specific scenarios,
-                // and if the 50% target was not reached by entry/reinforcements, ensure it's at least 50% if possible by monthly installments.
-                // This handles cases where parcelasMensaisObraCalculado became 0 due to 0 mesObra, but target wasn't met.
-                if (mesObra > 0 && valorPagoPorEntradaEReforcosNaObra < target50PercentInConstruction) {
-                    actualTotalPaidDuringConstruction = target50PercentInConstruction + Math.max(0, valorTotalDasParcelasObra - (target50PercentInConstruction - valorPagoPorEntradaEReforcosNaObra));
-                }
-
-                setTotalPagoObra(actualTotalPaidDuringConstruction);
-
-                // 5. Calculate Total Reinforcements Over the Entire Flux (all years)
-                // This value impacts the total amount to be financed after all other contributions.
-                const totalValorTodosReforcos = numTotalReforcosAnuaisCalculado * valReforcoAnual;
-
-                // 6. Calculate Remaining Balance to be Financed Post-Construction
-                // This balance is the total property value minus initial payment, *ALL* annual reinforcements,
-                // total monthly installments during construction, and the value paid on keys.
-                // IMPORTANT: The sum of `valorEntrada` + `totalValorTodosReforcos` + `valorTotalDasParcelasObra` + `valChaves` represents the total amount paid by the client
-                // across all phases. This sum reduces the `valorImovel` to determine the `saldoTotalFinanciarPosObra`.
-                let saldoTotalFinanciar = valImovel - (valorEntrada + totalValorTodosReforcos + valorTotalDasParcelasObra + valChaves);
-                
-                if (saldoTotalFinanciar < 0) saldoTotalFinanciar = 0; // Ensures the balance is not negative
-                setSaldoTotalFinanciarPosObra(saldoTotalFinanciar);
-
-                // 7. Months of Post-Construction Financing
-                const mesesFinancPosObra = Math.max(0, mesTotaisFluxo - mesObra);
-                setMesesFinanciamentoPosObra(mesesFinancPosObra);
-
-                // 8. Monthly Installment Value Post-Construction
-                let parcelaMensalPosObraCalculado = 0;
-                if (mesesFinancPosObra > 0) {
-                    const parcelaMensalPosObraCalculadoRaw = saldoTotalFinanciar / mesesFinancPosObra;
-                    
-                    // Apply the minimum monthly installment of R$ 2,000
-                    parcelaMensalPosObraCalculado = Math.max(MIN_PARCELA_MENSAL, parcelaMensalPosObraCalculadoRaw);
-                    
-                    // Provide feedback if the raw calculated installment was adjusted up or is high
-                    if (parcelaMensalPosObraCalculadoRaw > 0 && parcelaMensalPosObraCalculadoRaw < MIN_PARCELA_MENSAL) {
-                        setWarningPosObra(`A parcela mensal pós-obra foi ajustada para o mínimo de ${formatCurrency(MIN_PARCELA_MENSAL)}.`);
-                    } else if (parcelaMensalPosObraCalculadoRaw > HIGH_PARCELA_THRESHOLD) {
-                        setWarningPosObra(`A parcela mensal pós-obra (${formatCurrency(parcelaMensalPosObraCalculadoRaw)}) está alta. Considere aumentar a entrada, os reforços anuais ou o valor nas chaves para reduzir o saldo a financiar.`);
-                    }
-                }
-                setParcelaMensalPosObra(parcelaMensalPosObraCalculado);
-
             }, [valorImovel, entradaPercentual, mesesObra, valorReforcoAnual, numeroTotalReforcosAnuais, mesesTotaisFluxo, valorNasChaves]); // Dependencies of the calculateProposal function
 
             // Call the calculation function whenever an input state changes
@@ -386,4 +333,204 @@
 
 
             // Function to send data via WhatsApp
-     
+            const sendToWhatsApp = () => {
+                const message = `
+*PROPOSTA DE PAGAMENTO - KEVILLEN COSTA*
+---------------------------------------
+*Imóvel:* ${formatCurrency(parseToNumber(valorImovel))}
+*Entrada:* ${formatCurrency((parseToNumber(valorImovel) * parseToNumber(entradaPercentual)) / 100)} (${entradaPercentual}%)
+*Meses de Obra:* ${mesesObra} meses
+
+*Durante a Obra:*
+  - *Parcelas Mensais:* ${formatCurrency(parcelasObraMensal)} (x ${mesesObra})
+  - *Reforços Anuais:* ${formatCurrency(valorReforcoAnual)} (x ${reforcosAplicadosNaObra} reforços no período da obra)
+  - *Total Pago na Obra:* ${formatCurrency(totalPagoObra)}
+
+*Nas Chaves:* ${formatCurrency(valorNasChaves)}
+
+*Após a Obra (Financiamento):*
+  - *Saldo a Financiar:* ${formatCurrency(saldoTotalFinanciarPosObra)}
+  - *Meses de Financiamento:* ${mesesFinanciamentoPosObra} meses
+  - *Parcela Mensal Pós-Obra:* ${formatCurrency(parcelaMensalPosObra)}
+
+*Fluxo Total:* ${mesesTotaisFluxo} meses
+---------------------------------------
+`;
+
+                const whatsappLink = `https://wa.me/5547997082022?text=${encodeURIComponent(message)}`;
+                window.open(whatsappLink, '_blank');
+            };
+
+            // AI-related functions removed: generateAISuggestions, applySuggestion, AISuggestionBox
+            // No AI button or insight boxes in this version.
+
+            return (
+                <div className="flex flex-col items-center justify-center p-4 w-full">
+                    <h1 className="text-3xl sm:text-4xl font-bold text-center text-blue-400 mb-8 sm:mb-10">Gerador de Proposta de Pagamento</h1>
+
+                    <div className="bg-gray-800 rounded-xl p-6 sm:p-8 shadow-lg border border-gray-700 w-full mb-8">
+                        <h2 className="text-xl sm:text-2xl font-semibold text-gray-50 mb-6 border-b border-gray-700 pb-4">Parâmetros da Proposta</h2>
+
+                        {/* Valor do Imóvel */}
+                        <div className="mb-6">
+                            <label className="block text-gray-300 text-sm font-semibold mb-2" htmlFor="valorImovel">
+                                Valor do Imóvel (R$)
+                            </label>
+                            <input
+                                type="number"
+                                id="valorImovel"
+                                value={valorImovel}
+                                onChange={(e) => setValorImovel(parseToNumber(e.target.value))}
+                                className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all duration-200"
+                                placeholder="Ex: 500000"
+                            />
+                        </div>
+
+                        {/* Entrada (%) */}
+                        <CustomSlider
+                            label="Entrada (%)"
+                            value={entradaPercentual}
+                            onChange={(e) => setEntradaPercentual(parseToNumber(e.target.value))}
+                            min={10} // Min 10%
+                            max={30} // Max 30%
+                            step={1}
+                            unit="%"
+                        >
+                            {/* AI suggestions removed */}
+                        </CustomSlider>
+
+                        {/* Meses de Obra */}
+                        <CustomSlider
+                            label="Meses de Obra"
+                            value={mesesObra}
+                            onChange={(e) => setMesesObra(parseToNumber(e.target.value))}
+                            min={0}
+                            max={48}
+                            step={1}
+                            unit=" meses"
+                        >
+                            {/* AI suggestions removed */}
+                        </CustomSlider>
+
+                        {/* Valor Reforço Anual (R$) */}
+                        <CustomSlider
+                            label="Valor Reforço Anual (R$)"
+                            value={valorReforcoAnual}
+                            onChange={(e) => setValorReforcoAnual(parseToNumber(e.target.value))}
+                            min={0}
+                            max={50000}
+                            step={1000}
+                            displayValue={formatCurrency(valorReforcoAnual)}
+                        >
+                            {/* AI suggestions removed */}
+                        </CustomSlider>
+
+                        {/* Número Total de Reforços Anuais (visíveis) */}
+                        <CustomSlider
+                            label="Número Total de Reforços Anuais"
+                            value={numeroTotalReforcosAnuais}
+                            onChange={(e) => setNumeroTotalReforcosAnuais(parseToNumber(e.target.value))}
+                            min={0}
+                            max={20}
+                            step={1}
+                        >
+                            {/* AI suggestions removed */}
+                        </CustomSlider>
+
+                        {/* Meses Totais do Fluxo */}
+                        <CustomSlider
+                            label="Meses Totais do Fluxo"
+                            value={mesesTotaisFluxo}
+                            onChange={(e) => setMesesTotaisFluxo(parseToNumber(e.target.value))}
+                            min={mesesObra + 1}
+                            max={140} // Max 140 months
+                            step={1}
+                            unit=" meses"
+                        >
+                             {/* AI suggestions removed */}
+                        </CustomSlider>
+                        {mesesTotaisFluxo <= mesesObra && (
+                            <p className="text-red-400 text-sm mt-1">O fluxo total deve ser maior que os meses de obra.</p>
+                        )}
+
+
+                        {/* Valor nas Chaves (R$) */}
+                        <CustomSlider
+                            label="Valor nas Chaves (R$)"
+                            value={valorNasChaves}
+                            onChange={(e) => setValorNasChaves(parseToNumber(e.target.value))}
+                            min={0}
+                            max={valorImovel * 0.3}
+                            step={1000}
+                            displayValue={formatCurrency(valorNasChaves)}
+                        >
+                            {/* AI suggestions removed */}
+                        </CustomSlider>
+
+                    </div>
+
+                    {/* AI Suggestion Button removed */}
+                    {/* <div className="w-full text-center mb-8">
+                        <button
+                            onClick={generateAISuggestions}
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 w-full sm:w-auto"
+                            disabled={isGeneratingSuggestions}
+                        >
+                            {isGeneratingSuggestions ? 'Gerando sugestões...' : 'Gerar Sugestões de IA'}
+                        </button>
+                    </div> */}
+
+                    {/* Results Calculated */}
+                    <div className="bg-gray-800 rounded-xl p-6 sm:p-8 shadow-lg border border-blue-600 w-full mb-8">
+                        <h2 className="text-xl sm:text-2xl font-semibold text-blue-300 mb-6 border-b border-gray-700 pb-4">Resultados da Proposta</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <InfoCard label="Parcelas Mensais Durante a Obra" value={formatCurrency(parcelasObraMensal)} />
+                            <InfoCard label="Total Pago Durante a Obra" value={formatCurrency(totalPagoObra)} />
+                            <InfoCard label="Reforços Anuais Aplicados na Obra" value={`${reforcosAplicadosNaObra} reforços`} />
+                            <InfoCard label="Meses de Financiamento Pós-Obra" value={`${mesesFinanciamentoPosObra} meses`} />
+                            <InfoCard label="Saldo a Financiar Pós-Obra" value={formatCurrency(saldoTotalFinanciarPosObra)} />
+                            <InfoCard label="Parcela Mensal Pós-Obra" value={formatCurrency(parcelaMensalPosObra)} />
+                        </div>
+                        {warningObra && (
+                            <p className="text-amber-400 text-sm mt-4 p-2 bg-amber-900/20 rounded-md border border-amber-600">
+                                {warningObra}
+                            </p>
+                        )}
+                        {warningPosObra && (
+                            <p className="text-amber-400 text-sm mt-4 p-2 bg-amber-900/20 rounded-md border border-amber-600">
+                                {warningPosObra}
+                            </p>
+                        )}
+                        {/* AI global insight removed */}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row justify-center items-center gap-4 w-full">
+                        <button
+                            onClick={sendToWhatsApp}
+                            className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75 w-full sm:w-auto"
+                        >
+                            Enviar Proposta via WhatsApp
+                        </button>
+                        <a
+                            href="index.html"
+                            className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75 w-full sm:w-auto text-center"
+                        >
+                            Voltar
+                        </a>
+                    </div>
+
+                    <footer className="w-full text-center text-gray-500 text-sm mt-12 pt-8 border-t border-gray-700">
+                        © {new Date().getFullYear()} Kevillen Costa.
+                    </footer>
+                </div>
+            );
+        };
+
+        const container = document.getElementById('root');
+        const root = createRoot(container);
+        root.render(<App />);
+    </script>
+</body>
+</html>
+
