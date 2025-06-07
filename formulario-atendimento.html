@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Atendimento e Perfil do Cliente</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome CDN for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" xintegrity="sha512-Fo3rlrpQ4R+jQ7o0E5D5I0f1w5bUuK7zY6w2j3ZpG/o/P6+y80w7A7Z+t4+b3z2i1/w2/f6+y95m2X6X9k7l9A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a2e; /* Dark background for 'Black Premium Platinum' */
+            color: #e0e0e0; /* Light gray text */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 1rem;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .container {
+            background-color: #2a2a4a; /* Slightly lighter dark background */
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        h1 {
+            color: #fdd835; /* Gold/Platinum color */
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            line-height: 1.2;
+        }
+        h2 {
+            color: #fdd835;
+            font-weight: 600;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #d1d5db;
+        }
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #4a4a6e;
+            border-radius: 0.75rem;
+            background-color: #3a3a5e;
+            color: #e0e0e0;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-appearance: none; /* For consistent styling on iOS */
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #fdd835;
+            box-shadow: 0 0 0 2px rgba(253, 216, 53, 0.3);
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        button {
+            width: 100%;
+            padding: 0.85rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            -webkit-tap-highlight-color: transparent;
+        }
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .btn-primary {
+            background-image: linear-gradient(to right, #fdd835, #ffeb3b);
+            color: #1a1a2e;
+            box-shadow: 0 4px 10px rgba(253, 216, 53, 0.4);
+        }
+        .btn-primary:hover:not(:disabled) {
+            background-image: linear-gradient(to right, #ffeb3b, #fdd835);
+        }
+        .btn-whatsapp { /* Style for WhatsApp button */
+            background-color: #25d366;
+            color: white;
+            box-shadow: 0 4px 10px rgba(37, 211, 102, 0.4);
+        }
+        .btn-whatsapp:hover:not(:disabled) {
+            background-color: #1da851;
+        }
+        .output-area {
+            background-color: #3a3a5e;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            min-height: 150px;
+            white-space: pre-wrap; /* Preserve whitespace and line breaks */
+            word-wrap: break-word; /* Break long words */
+            font-size: 1rem;
+            color: #e0e0e0;
+            position: relative; /* For copy button positioning */
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background-color: #4a4a6e;
+            color: #e0e0e0;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .copy-btn:hover {
+            background-color: #5a5a7e;
+        }
+        .loading-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            color: #fdd835;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #fdd835;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Custom Message Box Styles */
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #3a3a5e;
+            color: #e0e0e0;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            text-align: center;
+            max-width: 90%;
+            width: 350px;
+            display: none; /* Hidden by default */
+            border: 2px solid;
+            font-size: 0.95rem;
+        }
+        .message-box p {
+            margin-bottom: 0; /* Remove default paragraph margin */
+        }
+        .message-box.error {
+            border-color: #ef4444;
+        }
+        .message-box.success {
+            border-color: #25d366;
+        }
+        .message-box-close {
+            background: none;
+            border: none;
+            color: #fdd835;
+            font-size: 1.5rem;
+            position: absolute;
+            top: 0.5rem;
+            right: 0.75rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Formulário de Atendimento e Perfil do Cliente <br> <span class="text-xl font-normal text-gray-400">Categorização e Sugestões Potencializadas por IA Gemini</span></h1>
+
+        <div class="input-section grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-group col-span-2">
+                <label for="clientName">Nome Completo do Cliente</label>
+                <input type="text" id="clientName" placeholder="Ex: Ana Clara Silva">
+            </div>
+            <div class="form-group col-span-1">
+                <label for="clientAge">Faixa Etária</label>
+                <select id="clientAge" class="w-full">
+                    <option value="">Selecione</option>
+                    <option value="18-25 anos">18-25 anos</option>
+                    <option value="26-35 anos">26-35 anos</option>
+                    <option value="36-45 anos">36-45 anos</option>
+                    <option value="46-55 anos">46-55 anos</option>
+                    <option value="+55 anos">+55 anos</option>
+                </select>
+            </div>
+            <div class="form-group col-span-1">
+                <label for="clientMaritalStatus">Estado Civil</label>
+                <select id="clientMaritalStatus" class="w-full">
+                    <option value="">Selecione</option>
+                    <option value="Solteiro(a)">Solteiro(a)</option>
+                    <option value="Casado(a)">Casado(a)</option>
+                    <option value="União Estável">União Estável</option>
+                    <option value="Divorciado(a)">Divorciado(a)</option>
+                    <option value="Viúvo(a)">Viúvo(a)</option>
+                </select>
+            </div>
+            <div class="form-group col-span-2">
+                <label for="clientFamily">Composição Familiar</label>
+                <textarea id="clientFamily" placeholder="Ex: Casal com 2 filhos (5 e 10 anos), avós moram perto; ou Solteiro(a) com 1 pet."></textarea>
+            </div>
+            <div class="form-group col-span-2">
+                <label for="clientProfessionIncome">Profissão e Renda Estimada (se souber)</label>
+                <textarea id="clientProfessionIncome" placeholder="Ex: Médico, renda estimada R$ 20.000/mês; ou Empresário do setor de TI."></textarea>
+            </div>
+            <div class="form-group col-span-2">
+                <label for="clientCurrentHousing">Situação Atual da Moradia</label>
+                <textarea id="clientCurrentHousing" placeholder="Ex: Mora de aluguel em apartamento 2 quartos, busca comprar o primeiro imóvel; ou Mora em casa grande, busca reduzir tamanho."></textarea>
+            </div>
+            <div class="form-group col-span-2">
+                <label for="clientPropertyDesires">Desejos para o Novo Imóvel (características, localização, tamanho)</label>
+                <textarea id="clientPropertyDesires" placeholder="Ex: Apartamento em condomínio com lazer completo, 3 quartos, varanda gourmet, bairro seguro e perto de escolas."></textarea>
+            </div>
+            <div class="form-group col-span-2">
+                <label for="clientInvestmentProfile">Perfil de Investimento (se houver interesse em investimento)</label>
+                <textarea id="clientInvestmentProfile" placeholder="Ex: Busca imóvel para renda de aluguel, com foco em valorização a longo prazo; ou Apenas moradia, sem interesse em investimento."></textarea>
+            </div>
+            <div class="form-group col-span-2">
+                <label for="clientChallengesConcerns">Desafios ou Preocupações do Cliente (se souber)</label>
+                <textarea id="clientChallengesConcerns" placeholder="Ex: Orçamento apertado, pouca familiaridade com financiamento, indeciso sobre a localização ideal."></textarea>
+            </div>
+            <div class="form-group col-span-1">
+                <label for="analysisDepth">Profundidade da Análise</label>
+                <select id="analysisDepth" class="w-full">
+                    <option value="Completa (Perfil, Produtos e Abordagem)">Completa (Perfil, Produtos e Abordagem)</option>
+                    <option value="Foco em Perfil e Desejos">Foco em Perfil e Desejos</option>
+                    <option value="Foco em Sugestão de Produtos">Foco em Sugestão de Produtos</option>
+                    <option value="Foco em Abordagem de Vendas">Foco em Abordagem de Vendas</option>
+                </select>
+            </div>
+            <div class="form-group col-span-1">
+                <label for="outputTone">Tom da Análise</label>
+                <select id="outputTone" class="w-full">
+                    <option value="Analítico e Detalhado">Analítico e Detalhado</option>
+                    <option value="Direto e Objetivo">Direto e Objetivo</option>
+                    <option value="Empático e Personalizado">Empático e Personalizado</option>
+                </select>
+            </div>
+        </div>
+
+        <button id="generateBtn" class="btn-primary mt-4">
+            <i class="fas fa-brain"></i> Gerar Análise de Perfil
+        </button>
+
+        <div id="loadingIndicator" class="loading-indicator hidden">
+            <div class="spinner"></div>
+            <span class="ml-3">Analisando o perfil do cliente, por favor aguarde...</span>
+        </div>
+
+        <div class="output-section mt-4">
+            <h2>Análise de Perfil Gerada:</h2>
+            <div id="generatedText" class="output-area">
+                A análise detalhada do perfil do cliente e sugestões personalizadas aparecerão aqui.
+                <button id="copyBtn" class="copy-btn hidden"><i class="fas fa-copy"></i> Copiar Análise</button>
+            </div>
+            
+            <div class="form-group mt-4">
+                <label for="whatsappNumber">WhatsApp (Com código do país e DDD)</label>
+                <input type="text" id="whatsappNumber" placeholder="Ex: +5547997082022">
+            </div>
+
+            <button id="sendWhatsappBtn" class="btn-whatsapp mt-4" disabled>
+                <i class="fab fa-whatsapp"></i> Salvar análise enviando via WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <!-- Custom Message Box HTML -->
+    <div id="messageBox" class="message-box">
+        <button class="message-box-close" onclick="hideMessage()">×</button>
+        <p id="messageText"></p>
+    </div>
+
+    <script>
+        // API Key for Gemini
+        const GEMINI_API_KEY = "AIzaSyCAdsR2LQb2SCTG1y5JYCrA4XVy0i-96NM";
+
+        // Referências aos elementos do DOM
+        const clientNameInput = document.getElementById('clientName');
+        const clientAgeSelect = document.getElementById('clientAge');
+        const clientMaritalStatusSelect = document.getElementById('clientMaritalStatus');
+        const clientFamilyInput = document.getElementById('clientFamily');
+        const clientProfessionIncomeInput = document.getElementById('clientProfessionIncome');
+        const clientCurrentHousingInput = document.getElementById('clientCurrentHousing');
+        const clientPropertyDesiresInput = document.getElementById('clientPropertyDesires');
+        const clientInvestmentProfileInput = document.getElementById('clientInvestmentProfile');
+        const clientChallengesConcernsInput = document.getElementById('clientChallengesConcerns');
+        const analysisDepthSelect = document.getElementById('analysisDepth');
+        const outputToneSelect = document.getElementById('outputTone');
+        const generateBtn = document.getElementById('generateBtn');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const generatedTextOutput = document.getElementById('generatedText');
+        const copyBtn = generatedTextOutput.querySelector('#copyBtn');
+        const whatsappNumberInput = document.getElementById('whatsappNumber');
+        const sendWhatsappBtn = document.getElementById('sendWhatsappBtn');
+
+        // Referências para o Message Box
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+
+        // --- Funções Utilitárias ---
+
+        /**
+         * Exibe uma mensagem em um box personalizado.
+         * @param {string} message - A mensagem a ser exibida.
+         * @param {string} type - O tipo da mensagem ('error' ou 'success').
+         */
+        function showMessage(message, type = 'error') {
+            messageText.innerHTML = message;
+            messageBox.className = `message-box ${type}`;
+            messageBox.style.display = 'block';
+        }
+
+        /**
+         * Oculta o message box.
+         */
+        function hideMessage() {
+            messageBox.style.display = 'none';
+        }
+
+        /**
+         * Copia o texto para a área de transferência.
+         * @param {string} text - O texto a ser copiado.
+         */
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showMessage('Análise copiada para a área de transferência!', 'success');
+        }
+
+        /**
+         * Valida o formato de um número de WhatsApp.
+         * @param {string} number - O número a ser validado.
+         * @returns {boolean} True se o número for válido, false caso contrário.
+         */
+        function isValidWhatsappNumber(number) {
+            return /^\+\d{10,15}$/.test(number);
+        }
+
+        // --- Lógica de Geração da IA ---
+
+        /**
+         * Constrói o prompt para a API do Gemini com base nos inputs do usuário.
+         * @returns {string} O prompt formatado.
+         */
+        function buildPromptForAI() {
+            const clientName = clientNameInput.value.trim();
+            const clientAge = clientAgeSelect.value;
+            const clientMaritalStatus = clientMaritalStatusSelect.value;
+            const clientFamily = clientFamilyInput.value.trim();
+            const clientProfessionIncome = clientProfessionIncomeInput.value.trim();
+            const clientCurrentHousing = clientCurrentHousingInput.value.trim();
+            const clientPropertyDesires = clientPropertyDesiresInput.value.trim();
+            const clientInvestmentProfile = clientInvestmentProfileInput.value.trim();
+            const clientChallengesConcerns = clientChallengesConcernsInput.value.trim();
+            const analysisDepth = analysisDepthSelect.value;
+            const outputTone = outputToneSelect.value;
+
+            if (!clientName || !clientAge || !clientMaritalStatus || !clientFamily || !clientProfessionIncome || !clientPropertyDesires) {
+                showMessage('Por favor, preencha os campos essenciais: Nome, Faixa Etária, Estado Civil, Composição Familiar, Profissão/Renda e Desejos para o Novo Imóvel.', 'error');
+                return null;
+            }
+
+            let prompt = `Analise o perfil do seguinte cliente para o mercado imobiliário e forneça uma análise detalhada e sugestões personalizadas. Retorne APENAS a análise, sem saudações, introduções ou comentários adicionais. O tom da análise deve ser "${outputTone}".\n\n`;
+            
+            prompt += `Dados do Cliente:\n`;
+            prompt += `- Nome: ${clientName}\n`;
+            prompt += `- Faixa Etária: ${clientAge}\n`;
+            prompt += `- Estado Civil: ${clientMaritalStatus}\n`;
+            prompt += `- Composição Familiar: ${clientFamily}\n`;
+            prompt += `- Profissão e Renda Estimada: ${clientProfessionIncome}\n`;
+            prompt += `- Situação Atual da Moradia: ${clientCurrentHousing || 'Não informado'}.\n`;
+            prompt += `- Desejos para o Novo Imóvel: ${clientPropertyDesires}\n`;
+            prompt += `- Perfil de Investimento: ${clientInvestmentProfile || 'Não informado'}.\n`;
+            prompt += `- Desafios/Preocupações: ${clientChallengesConcerns || 'Não informado'}.\n`;
+
+            prompt += `\nCom base nestes dados, realize uma análise com foco em "${analysisDepth}". Detalhe:\n`;
+            
+            if (analysisDepth.includes("Perfil")) {
+                prompt += `- Categorização do cliente (ex: comprador de primeira viagem, investidor, família em crescimento, luxo, praticidade, etc.).\n`;
+                prompt += `- Necessidades implícitas e desejos não expressos (o que ele realmente precisa, mas não disse).\n`;
+            }
+            if (analysisDepth.includes("Produtos")) {
+                prompt += `- Sugestão de tipos de imóveis e características específicas de produtos que se encaixam perfeitamente (ex: condomínio-clube, casa com quintal, apartamento de alto padrão, terreno para construção).\n`;
+            }
+            if (analysisDepth.includes("Abordagem")) {
+                prompt += `- Melhores estratégias e pontos de destaque para a abordagem de vendas e comunicação com este cliente.\n`;
+            }
+            if (analysisDepth === "Completa (Perfil, Produtos e Abordagem)") {
+                prompt += `\nInclua tod
