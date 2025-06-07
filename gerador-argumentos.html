@@ -261,12 +261,12 @@
             </div>
             
             <div class="form-group mt-4">
-                <label for="clientWhatsappNumber">WhatsApp do Cliente (Com código do país e DDD)</label>
+                <label for="clientWhatsappNumber">WhatsApp (Com código do país e DDD)</label>
                 <input type="text" id="clientWhatsappNumber" placeholder="Ex: +5547997082022">
             </div>
 
             <button id="sendWhatsappBtn" class="btn-whatsapp mt-4" disabled>
-                <i class="fab fa-whatsapp"></i> Enviar via WhatsApp
+                <i class="fab fa-whatsapp"></i> Salvar conteúdo enviando via WhatsApp
             </button>
         </div>
     </div>
@@ -385,7 +385,8 @@
             chatHistory.push({ role: "user", parts: [{ text: prompt }] });
 
             const payload = { contents: chatHistory };
-            const apiKey = ""; // Canvas will automatically provide the API key at runtime
+            // A chave de API do Google Gemini é fornecida diretamente aqui.
+            const apiKey = "AIzaSyCAdsR2LQb2SCTG1y5JYCrA4XVy0i-96NM"; 
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
@@ -398,8 +399,8 @@
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    console.error('API Error:', errorData);
-                    throw new Error(`Erro na API: ${errorData.error.message || response.statusText}`);
+                    console.error('API Error details:', errorData); // Log full error for debugging
+                    throw new Error(`Erro na API: ${errorData.error.message || response.statusText}. Verifique a sua chave de API ou as cotas de uso.`);
                 }
 
                 const result = await response.json();
@@ -409,12 +410,12 @@
                     result.candidates[0].content.parts.length > 0) {
                     return result.candidates[0].content.parts[0].text;
                 } else {
-                    console.warn('Estrutura de resposta inesperada:', result);
-                    throw new Error('Não foi possível gerar o conteúdo. Resposta da IA vazia ou inválida.');
+                    console.warn('Estrutura de resposta inesperada da IA:', result);
+                    throw new Error('Não foi possível gerar o conteúdo. A resposta da IA estava vazia ou em formato inválido. Tente ser mais específico nos inputs.');
                 }
             } catch (error) {
                 console.error('Erro ao chamar a API do Gemini:', error);
-                throw new Error(`Falha na comunicação com a IA: ${error.message}`);
+                throw new Error(`Falha na comunicação com a IA: ${error.message}.`);
             }
         }
 
@@ -437,7 +438,7 @@
                 sendWhatsappBtn.disabled = false;
             } catch (error) {
                 generatedTextOutput.textContent = 'Erro ao gerar conteúdo.';
-                showMessage(`Erro: ${error.message}. Por favor, tente novamente ou ajuste os dados.`, 'error');
+                showMessage(`Erro: ${error.message}`, 'error'); // Display error message
             } finally {
                 loadingIndicator.classList.add('hidden');
                 generateBtn.disabled = false;
@@ -458,7 +459,7 @@
             }
 
             if (whatsappNumber === '') {
-                showMessage('Por favor, insira o número de WhatsApp do cliente.', 'error');
+                showMessage('Por favor, insira o número de WhatsApp.', 'error');
                 return;
             }
 
