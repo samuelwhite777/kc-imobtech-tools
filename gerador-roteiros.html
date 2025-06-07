@@ -264,8 +264,8 @@
             </div>
             
             <div class="form-group mt-4">
-                <label for="clientWhatsappNumber">WhatsApp (Com código do país e DDD)</label>
-                <input type="text" id="clientWhatsappNumber" placeholder="Ex: +5547997082022">
+                <label for="whatsappNumber">WhatsApp (Com código do país e DDD)</label>
+                <input type="text" id="whatsappNumber" placeholder="Ex: +5547997082022">
             </div>
 
             <button id="sendWhatsappBtn" class="btn-whatsapp mt-4" disabled>
@@ -291,7 +291,7 @@
         const loadingIndicator = document.getElementById('loadingIndicator');
         const generatedTextOutput = document.getElementById('generatedText');
         const copyBtn = document.getElementById('copyBtn');
-        const clientWhatsappNumberInput = document.getElementById('clientWhatsappNumber');
+        const whatsappNumberInput = document.getElementById('whatsappNumber');
         const sendWhatsappBtn = document.getElementById('sendWhatsappBtn');
 
         // Referências para o Message Box
@@ -386,7 +386,8 @@
             chatHistory.push({ role: "user", parts: [{ text: prompt }] });
 
             const payload = { contents: chatHistory };
-            const apiKey = ""; // Canvas will automatically provide the API key at runtime
+            // A chave de API do Google Gemini é fornecida diretamente aqui.
+            const apiKey = "AIzaSyCAdsR2LQb2SCTG1y5JYCrA4XVy0i-96NM"; 
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
@@ -399,8 +400,8 @@
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    console.error('API Error:', errorData);
-                    throw new Error(`API Error: ${errorData.error.message || response.statusText}`);
+                    console.error('API Error details:', errorData); // Log full error for debugging
+                    throw new Error(`Erro na API: ${errorData.error.message || response.statusText}. Verifique a sua chave de API ou as cotas de uso.`);
                 }
 
                 const result = await response.json();
@@ -410,12 +411,12 @@
                     result.candidates[0].content.parts.length > 0) {
                     return result.candidates[0].content.parts[0].text;
                 } else {
-                    console.warn('Estrutura de resposta inesperada:', result);
-                    throw new Error('Não foi possível gerar o conteúdo. Resposta da IA vazia ou inválida.');
+                    console.warn('Estrutura de resposta inesperada da IA:', result);
+                    throw new Error('Não foi possível gerar o conteúdo. A resposta da IA estava vazia ou em formato inválido. Tente ser mais específico nos inputs.');
                 }
             } catch (error) {
                 console.error('Erro ao chamar a API do Gemini:', error);
-                throw new Error(`Falha na comunicação com a IA: ${error.message}`);
+                throw new Error(`Falha na comunicação com a IA: ${error.message}.`);
             }
         }
 
@@ -438,7 +439,7 @@
                 sendWhatsappBtn.disabled = false;
             } catch (error) {
                 generatedTextOutput.textContent = 'Erro ao gerar roteiro.';
-                showMessage(`Erro: ${error.message}. Por favor, tente novamente ou ajuste os dados.`, 'error');
+                showMessage(`Erro: ${error.message}`, 'error'); // Display error message
             } finally {
                 loadingIndicator.classList.add('hidden');
                 generateBtn.disabled = false;
@@ -451,7 +452,7 @@
 
         sendWhatsappBtn.addEventListener('click', () => {
             const message = generatedTextOutput.textContent;
-            const whatsappNumber = clientWhatsappNumberInput.value.trim();
+            const whatsappNumber = whatsappNumberInput.value.trim();
 
             if (!message || message === 'Seu roteiro gerado aparecerá aqui.' || message === 'Gerando...' || message === 'Erro ao gerar roteiro.') {
                 showMessage('Por favor, gere um roteiro antes de enviar via WhatsApp.', 'error');
@@ -459,7 +460,7 @@
             }
 
             if (whatsappNumber === '') {
-                showMessage('Por favor, insira o número de WhatsApp.', 'error'); // Updated message
+                showMessage('Por favor, insira o número de WhatsApp.', 'error');
                 return;
             }
 
