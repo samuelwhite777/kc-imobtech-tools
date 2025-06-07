@@ -11,7 +11,11 @@
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Font Awesome CDN for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" xintegrity="sha512-Fo3rlrpQ4R+jQ7o0E5D5I0f1w5bUuK7zY6w2j3ZpG/o/P6+y80w7A7Z+t4+b3z2i1/w2/f6+y95m2X6X9k7l9A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- html2canvas for capturing HTML as image -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- jsPDF for creating PDF from image -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
         body {
@@ -356,7 +360,8 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Adicionado id="container" à div principal para que html2canvas possa capturá-la -->
+    <div class="container" id="container">
         <div class="input-section">
             <h1 class="mb-6">Simulador de Valorização Imobiliária <span class="subtitle">por Kevillen Costa - Especialista em Mercado Imobiliário</span></h1>
 
@@ -432,6 +437,12 @@
     <!-- Floating Action Buttons Container -->
     <div class="floating-buttons-container">
         <div class="fab-wrapper">
+            <button id="downloadPdfBtn" class="fab-button btn-download-charts" disabled>
+                <i class="fas fa-file-pdf"></i>
+            </button>
+            <span class="fab-text">Baixar PDF da Página</span>
+        </div>
+        <div class="fab-wrapper">
             <button id="downloadChartsBtn" class="fab-button btn-download-charts" disabled>
                 <i class="fas fa-download"></i>
             </button>
@@ -471,6 +482,7 @@
         const whatsappClientBtn = document.getElementById('whatsappClientBtn');
         const whatsappKevillenBtn = document.getElementById('whatsappKevillenBtn');
         const downloadChartsBtn = document.getElementById('downloadChartsBtn');
+        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
         const valorFinalImovelSpan = document.getElementById('valorFinalImovel');
 
         // Chart canvas elements
@@ -481,299 +493,130 @@
         // Referências para o Message Box
         const messageBox = document.getElementById('messageBox');
         const messageText = document.getElementById('messageText');
+        const infoIcons = document.querySelectorAll('.info-icon');
 
+        // Variáveis para os gráficos
         let absoluteValueChart;
         let percentageChart;
         let finalValuesChart;
 
-        // Valores padrão
-        const KEVILLEN_COSTA_WHATSAPP = '+5547997082022';
-
-        // Arrays para armazenar os dados do gráfico
-        let cachedPropertyValues = [];
-        let cachedCdiValues = [];
-        let cachedSelicValues = [];
-        let cachedIpcaValues = [];
-        let cachedYears = [];
-
-        // New arrays for percentage chart
-        let cachedPropertyPercentages = [];
-        let cachedCdiPercentages = [];
-        let cachedSelicPercentages = [];
-        let cachedIpcaPercentages = [];
-
-        // Variables for final values bar chart
-        let finalPropertyValue = 0;
-        let finalCdiValue = 0;
-        let finalSelicValue = 0;
-        let finalIpcaValue = 0;
-
-        // --- Funções Utilitárias ---
-
-        /**
-         * Formata um número para o formato de moeda BRL (Real Brasileiro).
-         * @param {number} value - O valor a ser formatado.
-         * @returns {string} O valor formatado como R$.
-         */
-        function formatCurrency(value) {
+        // Função para formatar números como moeda BRL
+        const formatCurrency = (value) => {
             return new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
                 currency: 'BRL'
             }).format(value);
-        }
+        };
 
-        /**
-         * Formata um número para o formato de porcentagem.
-         * @param {number} value - O valor a ser formatado.
-         * @returns {string} O valor formatado como porcentagem.
-         */
-        function formatPercentage(value) {
+        // Função para formatar números como porcentagem
+        const formatPercentage = (value) => {
             return new Intl.NumberFormat('pt-BR', {
                 style: 'percent',
-                minimumFractionDigits: 0,
+                minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             }).format(value / 100);
-        }
+        };
 
-        /**
-         * Exibe uma mensagem em um box personalizado (substituto do alert()).
-         * @param {string} message - A mensagem a ser exibida.
-         * @param {string} type - O tipo da mensagem ('error' ou 'success').
-         */
-        function showMessage(message, type = 'error') {
-            messageText.innerHTML = message; /* Use innerHTML to allow line breaks */
-            messageBox.className = `message-box ${type}`; // Adiciona classe de tipo
+        // Função para exibir mensagem personalizada (substitui alert)
+        const showMessage = (message, type = 'info') => {
+            messageText.textContent = message;
+            messageBox.className = `message-box ${type}`; // Adiciona a classe de tipo para estilização (error, success, info)
             messageBox.style.display = 'block';
-        }
+        };
 
-        /**
-         * Oculta o message box.
-         */
-        function hideMessage() {
+        // Função para ocultar mensagem personalizada
+        const hideMessage = () => {
             messageBox.style.display = 'none';
-        }
+        };
 
-        /**
-         * Valida o formato de um número de WhatsApp.
-         * Assume formato internacional começando com + e apenas dígitos.
-         * @param {string} number - O número a ser validado.
-         * @returns {boolean} True se o número for válido, false caso contrário.
-         */
-        function isValidWhatsappNumber(number) {
-            // Regex simples: começa com +, seguido por 10 a 15 dígitos.
-            // Pode ser mais robusto se necessário.
-            return /^\+\d{10,15}$/.test(number);
-        }
+        // Inicialização dos gráficos
+        const initCharts = () => {
+            // Configurações base para os gráficos
+            const commonChartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#4a4a6e' // Cor da legenda
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Ano',
+                            color: '#4a4a6e'
+                        },
+                        ticks: {
+                            color: '#4a4a6e' // Cor dos ticks do eixo X
+                        },
+                        grid: {
+                            color: 'rgba(74, 74, 110, 0.2)' // Cor das linhas de grade
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: '#4a4a6e' // Cor dos ticks do eixo Y
+                        },
+                        grid: {
+                            color: 'rgba(74, 74, 110, 0.2)'
+                        }
+                    }
+                }
+            };
 
-        // --- Lógica Principal do Simulador ---
-
-        /**
-         * Realiza a simulação da valorização do imóvel e dos comparativos.
-         */
-        function simulateAppreciation() {
-            // Limpa os dados anteriores e desabilita os botões do WhatsApp e Download
-            cachedPropertyValues = [];
-            cachedCdiValues = [];
-            cachedSelicValues = [];
-            cachedIpcaValues = [];
-            cachedYears = [];
-            cachedPropertyPercentages = [];
-            cachedCdiPercentages = [];
-            cachedSelicPercentages = [];
-            cachedIpcaPercentages = [];
-
-            whatsappClientBtn.disabled = true;
-            whatsappKevillenBtn.disabled = true;
-            downloadChartsBtn.disabled = true;
-
-            const initialPropertyValue = parseFloat(valorInicialImovelInput.value);
-            const analysisPeriod = parseInt(periodoAnaliseInput.value);
-            const propertyAppreciationRate = parseFloat(taxaValorizacaoImovelInput.value) / 100;
-            const cdiRate = parseFloat(taxaCDIInput.value) / 100;
-            const selicRate = parseFloat(taxaSelicInput.value) / 100;
-            const ipcaRate = parseFloat(taxaIPCAInput.value) / 100;
-
-            // Validação dos dados de entrada
-            if (isNaN(initialPropertyValue) || initialPropertyValue <= 0) {
-                showMessage('Por favor, insira um Valor Inicial do Imóvel válido (maior que zero).');
-                return;
-            }
-            if (isNaN(analysisPeriod) || analysisPeriod < 4 || analysisPeriod > 20) {
-                showMessage('Por favor, defina o Período de Análise entre 4 e 20 anos.');
-                return;
-            }
-            if (isNaN(propertyAppreciationRate) || propertyAppreciationRate < 0.09 || propertyAppreciationRate > 0.20) {
-                showMessage('Por favor, defina a Taxa de Valorização do Imóvel entre 9% e 20%.');
-                return;
-            }
-            if (isNaN(cdiRate) || isNaN(selicRate) || isNaN(ipcaRate)) {
-                showMessage('Por favor, insira taxas de comparativo válidas.');
-                return;
-            }
-
-            let currentPropertyValue = initialPropertyValue;
-            let currentCdiValue = initialPropertyValue;
-            let currentSelicValue = initialPropertyValue;
-            let currentIpcaValue = initialPropertyValue; // Representa o poder de compra corrigido
-
-            // Adiciona o valor inicial para o ano 0 no gráfico (e 0% de rentabilidade)
-            cachedYears.push(0);
-            cachedPropertyValues.push(initialPropertyValue);
-            cachedCdiValues.push(initialPropertyValue);
-            cachedSelicValues.push(initialPropertyValue);
-            cachedIpcaValues.push(initialPropertyValue);
-
-            cachedPropertyPercentages.push(0);
-            cachedCdiPercentages.push(0);
-            cachedSelicPercentages.push(0);
-            cachedIpcaPercentages.push(0);
-
-
-            // Loop de cálculo ano a ano
-            for (let year = 1; year <= analysisPeriod; year++) {
-                currentPropertyValue *= (1 + propertyAppreciationRate);
-                currentCdiValue *= (1 + cdiRate);
-                currentSelicValue *= (1 + selicRate);
-                currentIpcaValue *= (1 + ipcaRate);
-
-                cachedYears.push(year);
-                cachedPropertyValues.push(currentPropertyValue);
-                cachedCdiValues.push(currentCdiValue);
-                cachedSelicValues.push(currentSelicValue);
-                cachedIpcaValues.push(currentIpcaValue);
-
-                // Calculate percentages relative to initial value
-                cachedPropertyPercentages.push(((currentPropertyValue - initialPropertyValue) / initialPropertyValue) * 100);
-                cachedCdiPercentages.push(((currentCdiValue - initialPropertyValue) / initialPropertyValue) * 100);
-                cachedSelicPercentages.push(((currentSelicValue - initialPropertyValue) / initialPropertyValue) * 100);
-                cachedIpcaPercentages.push(((currentIpcaValue - initialPropertyValue) / initialPropertyValue) * 100);
-            }
-
-            // Store final values for the bar chart
-            finalPropertyValue = currentPropertyValue;
-            finalCdiValue = currentCdiValue;
-            finalSelicValue = currentSelicValue;
-            finalIpcaValue = currentIpcaValue;
-
-            // Exibe o valor final do imóvel
-            valorFinalImovelSpan.textContent = formatCurrency(finalPropertyValue);
-
-            // Desenha todos os gráficos
-            drawAbsoluteValueChart(propertyAppreciationRate);
-            drawPercentageChart();
-            drawFinalValuesBarChart();
-
-            // Habilita os botões após simulação bem-sucedida
-            whatsappClientBtn.disabled = false;
-            whatsappKevillenBtn.disabled = false;
-            downloadChartsBtn.disabled = false;
-        }
-
-        /**
-         * Desenha ou atualiza o gráfico de linhas com os valores absolutos.
-         * @param {number} currentAppreciationRate - A taxa de valorização atual para o rótulo do gráfico.
-         */
-        function drawAbsoluteValueChart(currentAppreciationRate) {
-            if (absoluteValueChart) {
-                absoluteValueChart.destroy();
-            }
-
-            const ctx = absoluteValueChartCanvas.getContext('2d');
-            absoluteValueChart = new Chart(ctx, {
+            // Gráfico de Valorização Absoluta
+            absoluteValueChart = new Chart(absoluteValueChartCanvas, {
                 type: 'line',
                 data: {
-                    labels: cachedYears,
-                    datasets: [
-                        {
-                            label: `Valorização do Imóvel (${(currentAppreciationRate * 100).toFixed(0)}% a.a.)`,
-                            data: cachedPropertyValues,
-                            borderColor: '#fdd835', /* Gold */
-                            backgroundColor: 'rgba(253, 216, 53, 0.2)',
-                            tension: 0.3,
-                            fill: false,
-                            pointRadius: 3,
-                            pointBackgroundColor: '#fdd835',
-                        },
-                        {
-                            label: 'Rendimento CDI',
-                            data: cachedCdiValues,
-                            borderColor: '#81c784', /* Green */
-                            backgroundColor: 'rgba(129, 199, 132, 0.2)',
-                            tension: 0.3,
-                            fill: false,
-                            pointRadius: 2,
-                            pointBackgroundColor: '#81c784',
-                            borderDash: [5, 5]
-                        },
-                        {
-                            label: 'Rendimento Selic',
-                            data: cachedSelicValues,
-                            borderColor: '#64b5f6', /* Blue */
-                            backgroundColor: 'rgba(100, 181, 246, 0.2)',
-                            tension: 0.3,
-                            fill: false,
-                            pointRadius: 2,
-                            pointBackgroundColor: '#64b5f6',
-                            borderDash: [5, 5]
-                        },
-                        {
-                            label: 'Poder de Compra (IPCA)',
-                            data: cachedIpcaValues,
-                            borderColor: '#e57373', /* Red */
-                            backgroundColor: 'rgba(229, 115, 115, 0.2)',
-                            tension: 0.3,
-                            fill: false,
-                            pointRadius: 2,
-                            pointBackgroundColor: '#e57373',
-                            borderDash: [2, 2]
-                        }
-                    ]
+                    labels: [],
+                    datasets: [{
+                        label: 'Imóvel',
+                        data: [],
+                        borderColor: '#fdd835', // Gold
+                        backgroundColor: 'rgba(253, 216, 53, 0.2)',
+                        tension: 0.3,
+                        fill: true
+                    }, {
+                        label: 'CDI',
+                        data: [],
+                        borderColor: '#03a9f4', // Light Blue
+                        backgroundColor: 'rgba(3, 169, 244, 0.2)',
+                        tension: 0.3,
+                        hidden: true // Oculto por padrão
+                    }, {
+                        label: 'Selic',
+                        data: [],
+                        borderColor: '#4caf50', // Green
+                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                        tension: 0.3,
+                        hidden: true // Oculto por padrão
+                    }, {
+                        label: 'IPCA',
+                        data: [],
+                        borderColor: '#ff9800', // Orange
+                        backgroundColor: 'rgba(255, 152, 0, 0.2)',
+                        tension: 0.3,
+                        hidden: true // Oculto por padrão
+                    }]
                 },
                 options: {
-                    // Set background color for the chart canvas when exported and displayed
-                    backgroundColor: '#F0F0F0', /* Light grey background */
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    ...commonChartOptions,
                     scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Ano',
-                                color: '#333333', /* Dark text color */
-                                font: {
-                                    weight: 'bold'
-                                }
-                            },
-                            ticks: {
-                                color: '#333333', /* Dark text color */
-                                font: {
-                                    weight: 'bold'
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)' /* Subtle dark grid for light mode */
-                            }
-                        },
                         y: {
+                            ...commonChartOptions.scales.y,
+                            beginAtZero: true,
                             title: {
                                 display: true,
                                 text: 'Valor (R$)',
-                                color: '#333333', /* Dark text color */
-                                font: {
-                                    weight: 'bold'
-                                }
+                                color: '#4a4a6e'
                             },
                             ticks: {
                                 callback: function(value) {
                                     return formatCurrency(value);
-                                },
-                                color: '#333333', /* Dark text color */
-                                font: {
-                                    weight: 'bold'
                                 }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)' /* Subtle dark grid for light mode */
                             }
                         }
                     },
@@ -783,134 +626,63 @@
                                 label: function(context) {
                                     return context.dataset.label + ': ' + formatCurrency(context.parsed.y);
                                 }
-                            },
-                            backgroundColor: 'rgba(51, 51, 51, 0.9)', /* Dark tooltip background */
-                            titleColor: '#FFFFFF', /* White tooltip title */
-                            bodyColor: '#FFFFFF', /* White tooltip body */
-                            bodyFont: {
-                                weight: 'bold'
-                            },
-                            titleFont: {
-                                weight: 'bold'
                             }
                         },
-                        legend: {
-                            labels: {
-                                color: '#333333', /* Dark legend text color */
-                                font: {
-                                    weight: 'bold'
-                                }
-                            }
-                        }
+                        legend: commonChartOptions.plugins.legend
                     }
                 }
             });
-        }
 
-        /**
-         * Desenha ou atualiza o gráfico de rentabilidade percentual acumulada.
-         */
-        function drawPercentageChart() {
-            if (percentageChart) {
-                percentageChart.destroy();
-            }
-
-            const ctx = percentageChartCanvas.getContext('2d');
-            percentageChart = new Chart(ctx, {
+            // Gráfico de Rentabilidade Percentual Acumulada
+            percentageChart = new Chart(percentageChartCanvas, {
                 type: 'line',
                 data: {
-                    labels: cachedYears,
-                    datasets: [
-                        {
-                            label: 'Rentabilidade do Imóvel',
-                            data: cachedPropertyPercentages,
-                            borderColor: '#fdd835',
-                            backgroundColor: 'rgba(253, 216, 53, 0.2)',
-                            tension: 0.3,
-                            fill: false,
-                            pointRadius: 3,
-                            pointBackgroundColor: '#fdd835',
-                        },
-                        {
-                            label: 'Rentabilidade CDI',
-                            data: cachedCdiPercentages,
-                            borderColor: '#81c784',
-                            backgroundColor: 'rgba(129, 199, 132, 0.2)',
-                            tension: 0.3,
-                            fill: false,
-                            pointRadius: 2,
-                            pointBackgroundColor: '#81c784',
-                            borderDash: [5, 5]
-                        },
-                        {
-                            label: 'Rentabilidade Selic',
-                            data: cachedSelicPercentages,
-                            borderColor: '#64b5f6',
-                            backgroundColor: 'rgba(100, 181, 246, 0.2)',
-                            tension: 0.3,
-                            fill: false,
-                            pointRadius: 2,
-                            pointBackgroundColor: '#64b5f6',
-                            borderDash: [5, 5]
-                        },
-                        {
-                            label: 'Rentabilidade IPCA',
-                            data: cachedIpcaPercentages,
-                            borderColor: '#e57373',
-                            backgroundColor: 'rgba(229, 115, 115, 0.2)',
-                            tension: 0.3,
-                            fill: false,
-                            pointRadius: 2,
-                            pointBackgroundColor: '#e57373',
-                            borderDash: [2, 2]
-                        }
-                    ]
+                    labels: [],
+                    datasets: [{
+                        label: 'Imóvel (%)',
+                        data: [],
+                        borderColor: '#fdd835', // Gold
+                        backgroundColor: 'rgba(253, 216, 53, 0.2)',
+                        tension: 0.3,
+                        fill: true
+                    }, {
+                        label: 'CDI (%)',
+                        data: [],
+                        borderColor: '#03a9f4', // Light Blue
+                        backgroundColor: 'rgba(3, 169, 244, 0.2)',
+                        tension: 0.3,
+                        hidden: true // Oculto por padrão
+                    }, {
+                        label: 'Selic (%)',
+                        data: [],
+                        borderColor: '#4caf50', // Green
+                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                        tension: 0.3,
+                        hidden: true // Oculto por padrão
+                    }, {
+                        label: 'IPCA (%)',
+                        data: [],
+                        borderColor: '#ff9800', // Orange
+                        backgroundColor: 'rgba(255, 152, 0, 0.2)',
+                        tension: 0.3,
+                        hidden: true // Oculto por padrão
+                    }]
                 },
                 options: {
-                    // Set background color for the chart canvas when exported and displayed
-                    backgroundColor: '#F0F0F0', /* Light grey background */
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    ...commonChartOptions,
                     scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Ano',
-                                color: '#333333', /* Dark text color */
-                                font: {
-                                    weight: 'bold'
-                                }
-                            },
-                            ticks: {
-                                color: '#333333', /* Dark text color */
-                                font: {
-                                    weight: 'bold'
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)' /* Subtle dark grid for light mode */
-                            }
-                        },
                         y: {
+                            ...commonChartOptions.scales.y,
+                            beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Rentabilidade (%)',
-                                color: '#333333', /* Dark text color */
-                                font: {
-                                    weight: 'bold'
-                                }
+                                text: 'Rentabilidade Acumulada (%)',
+                                color: '#4a4a6e'
                             },
                             ticks: {
                                 callback: function(value) {
-                                    return value + '%';
-                                },
-                                color: '#333333', /* Dark text color */
-                                font: {
-                                    weight: 'bold'
+                                    return value.toFixed(2) + '%';
                                 }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)' /* Subtle dark grid for light mode */
                             }
                         }
                     },
@@ -920,109 +692,47 @@
                                 label: function(context) {
                                     return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + '%';
                                 }
-                            },
-                            backgroundColor: 'rgba(51, 51, 51, 0.9)', /* Dark tooltip background */
-                            titleColor: '#FFFFFF', /* White tooltip title */
-                            bodyColor: '#FFFFFF', /* White tooltip body */
-                            bodyFont: {
-                                weight: 'bold'
-                            },
-                            titleFont: {
-                                weight: 'bold'
                             }
                         },
-                        legend: {
-                            labels: {
-                                color: '#333333', /* Dark legend text color */
-                                font: {
-                                    weight: 'bold'
-                                }
-                            }
-                        }
+                        legend: commonChartOptions.plugins.legend
                     }
                 }
             });
-        }
 
-        /**
-         * Desenha ou atualiza o gráfico de barras de comparação de valores finais.
-         */
-        function drawFinalValuesBarChart() {
-            if (finalValuesChart) {
-                finalValuesChart.destroy();
-            }
-
-            const ctx = finalValuesChartCanvas.getContext('2d');
-            finalValuesChart = new Chart(ctx, {
+            // Gráfico Comparativo Final dos Valores
+            finalValuesChart = new Chart(finalValuesChartCanvas, {
                 type: 'bar',
                 data: {
-                    labels: ['Imóvel', 'CDI', 'Selic', 'Poder de Compra (IPCA)'],
-                    datasets: [
-                        {
-                            label: 'Valor Final (R$)',
-                            data: [finalPropertyValue, finalCdiValue, finalSelicValue, finalIpcaValue],
-                            backgroundColor: [
-                                '#fdd835', /* Gold */
-                                '#81c784', /* Green */
-                                '#64b5f6', /* Blue */
-                                '#e57373'  /* Red */
-                            ],
-                            borderColor: [
-                                '#fdd835',
-                                '#81c784',
-                                '#64b5f6',
-                                '#e57373'
-                            ],
-                            borderWidth: 1
-                        }
-                    ]
+                    labels: ['Imóvel', 'CDI', 'Selic', 'IPCA'],
+                    datasets: [{
+                        label: 'Valor Final',
+                        data: [],
+                        backgroundColor: ['#fdd835', '#03a9f4', '#4caf50', '#ff9800'],
+                        borderColor: ['#fdd835', '#03a9f4', '#4caf50', '#ff9800'],
+                        borderWidth: 1
+                    }]
                 },
                 options: {
-                    // Set background color for the chart canvas when exported and displayed
-                    backgroundColor: '#F0F0F0', /* Light grey background */
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    ...commonChartOptions,
                     scales: {
                         x: {
-                            title: {
-                                display: true,
-                                text: 'Tipo de Investimento',
-                                color: '#333333', /* Dark text color */
-                                font: {
-                                    weight: 'bold'
-                                }
-                            },
-                            ticks: {
-                                color: '#333333', /* Dark text color */
-                                font: {
-                                    weight: 'bold'
-                                }
-                            },
+                            ...commonChartOptions.scales.x,
                             grid: {
-                                color: 'rgba(0, 0, 0, 0.1)' /* Subtle dark grid for light mode */
+                                display: false // Remove grid lines for bar chart X axis
                             }
                         },
                         y: {
+                            ...commonChartOptions.scales.y,
+                            beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Valor (R$)',
-                                color: '#333333', /* Dark text color */
-                                font: {
-                                    weight: 'bold'
-                                }
+                                text: 'Valor Final (R$)',
+                                color: '#4a4a6e'
                             },
-                            beginAtZero: true,
                             ticks: {
                                 callback: function(value) {
                                     return formatCurrency(value);
-                                },
-                                color: '#333333', /* Dark text color */
-                                font: {
-                                    weight: 'bold'
                                 }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)' /* Subtle dark grid for light mode */
                             }
                         }
                     },
@@ -1032,180 +742,321 @@
                                 label: function(context) {
                                     return context.dataset.label + ': ' + formatCurrency(context.parsed.y);
                                 }
-                            },
-                            backgroundColor: 'rgba(51, 51, 51, 0.9)', /* Dark tooltip background */
-                            titleColor: '#FFFFFF', /* White tooltip title */
-                            bodyColor: '#FFFFFF', /* White tooltip body */
-                            bodyFont: {
-                                weight: 'bold'
-                            },
-                            titleFont: {
-                                weight: 'bold'
                             }
                         },
                         legend: {
-                            display: false
+                            display: false // No legend for single dataset bar chart
                         }
                     }
                 }
             });
-        }
+        };
 
-        /**
-         * Gera a mensagem de projeção para o WhatsApp.
-         * @returns {string} A mensagem formatada.
-         */
-        function generateWhatsappMessage() {
-            const initialPropertyValue = parseFloat(valorInicialImovelInput.value);
-            const analysisPeriod = parseInt(periodoAnaliseInput.value);
-            const propertyAppreciationRate = parseFloat(taxaValorizacaoImovelInput.value);
+        // Função principal para calcular e exibir a valorização
+        const calculateAppreciation = () => {
+            const valorInicial = parseFloat(valorInicialImovelInput.value);
+            const taxaValorizacaoImovel = parseFloat(taxaValorizacaoImovelInput.value) / 100;
+            const periodo = parseInt(periodoAnaliseInput.value);
+            const taxaCDI = parseFloat(taxaCDIInput.value) / 100;
+            const taxaSelic = parseFloat(taxaSelicInput.value) / 100;
+            const taxaIPCA = parseFloat(taxaIPCAInput.value) / 100;
 
-            const formattedInitialValue = formatCurrency(initialPropertyValue);
-            const formattedFinalPropertyValue = formatCurrency(finalPropertyValue);
-            const formattedFinalCdi = formatCurrency(finalCdiValue);
-            const formattedFinalSelic = formatCurrency(finalSelicValue);
-            const formattedFinalIpca = formatCurrency(finalIpcaValue);
-
-            return `
-Olá! 👋 Tenho uma projeção de valorização imobiliária incrível para você!
-
-📈 *Seu investimento no imóvel de ${formattedInitialValue} em ${analysisPeriod} anos pode chegar a incríveis ${formattedFinalPropertyValue}!* (Considerando ${propertyAppreciationRate}% a.a.)
-
-Compare com outros investimentos no mesmo período:
-📊 *CDI:* ${formattedFinalCdi}
-💰 *Selic:* ${formattedFinalSelic}
-📉 *Poder de Compra (IPCA):* ${formattedFinalIpca}
-
-O investimento em imóveis se mostra a opção mais segura e lucrativa, com uma valorização média de ${propertyAppreciationRate}% ao ano.
-
-Quer simular outros valores ou tirar dúvidas? Acesse nosso simulador completo:
-🔗 https://kc-imobtech-tools.vercel.app/simulador.html
-
-Fale com a gente para mais informações e comece a valorizar seu patrimônio!
-Att,
-Kevillen Costa e Equipe 🚀
-            `.trim();
-        }
-
-        /**
-         * Envia a mensagem para o WhatsApp do cliente.
-         */
-        function sendToClientWhatsApp() {
-            if (cachedPropertyValues.length === 0) {
-                showMessage('Por favor, execute a simulação antes de enviar para o WhatsApp.', 'error');
+            // Validação de inputs
+            if (isNaN(valorInicial) || valorInicial <= 0) {
+                showMessage('Por favor, insira um Valor Inicial do Imóvel válido e maior que zero.', 'error');
+                valorFinalImovelSpan.textContent = formatCurrency(0);
+                updateCharts([], [], [], [], [], [], [], [], []); // Limpa os gráficos
+                whatsappClientBtn.disabled = true;
+                whatsappKevillenBtn.disabled = true;
+                downloadChartsBtn.disabled = true;
+                downloadPdfBtn.disabled = true;
+                return;
+            }
+            if (isNaN(taxaValorizacaoImovel) || isNaN(periodo) || isNaN(taxaCDI) || isNaN(taxaSelic) || isNaN(taxaIPCA)) {
+                showMessage('Por favor, preencha todos os campos com valores numéricos válidos.', 'error');
+                valorFinalImovelSpan.textContent = formatCurrency(0);
+                updateCharts([], [], [], [], [], [], [], [], []); // Limpa os gráficos
+                whatsappClientBtn.disabled = true;
+                whatsappKevillenBtn.disabled = true;
+                downloadChartsBtn.disabled = true;
+                downloadPdfBtn.disabled = true;
                 return;
             }
 
-            const clientWhatsapp = whatsappClienteInput.value.trim();
-            if (clientWhatsapp === '') {
-                showMessage('Por favor, preencha o campo "WhatsApp do Cliente" para enviar a projeção.', 'error');
-                return;
-            }
-            if (!isValidWhatsappNumber(clientWhatsapp)) {
-                showMessage('O número de WhatsApp do cliente não parece ser válido. Por favor, inclua o código do país e DDD (Ex: +5547997082022).', 'error');
-                return;
-            }
+            hideMessage(); // Esconde a mensagem se a validação passar
 
-            const message = generateWhatsappMessage();
-            const whatsappUrl = `https://api.whatsapp.com/send?phone=${clientWhatsapp}&text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
-        }
-
-        /**
-         * Envia a mensagem para o WhatsApp da Kevillen Costa.
-         */
-        function sendToKevillenCostaWhatsApp() {
-            if (cachedPropertyValues.length === 0) {
-                showMessage('Por favor, execute a simulação antes de enviar para o WhatsApp.', 'error');
-                return;
-            }
-
-            const message = generateWhatsappMessage();
-            const whatsappUrl = `https://api.whatsapp.com/send?phone=${KEVILLEN_COSTA_WHATSAPP}&text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
-        }
-
-        /**
-         * Função para baixar um gráfico como imagem.
-         * @param {HTMLCanvasElement} canvas - O elemento canvas do gráfico.
-         * @param {string} filename - O nome do arquivo a ser salvo.
-         */
-        function downloadChartAsImage(canvas, filename) {
-            const dataURL = canvas.toDataURL('image/png');
-            const a = document.createElement('a');
-            a.href = dataURL;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
-
-        /**
-         * Função para baixar todos os gráficos.
-         */
-        function downloadAllCharts() {
-            if (cachedPropertyValues.length === 0) {
-                showMessage('Por favor, execute a simulação antes de baixar os gráficos.', 'error');
-                return;
-            }
-
-            downloadChartAsImage(absoluteValueChartCanvas, 'Valorizacao_Absoluta_Simulador_Kevillen_Costa.png');
-            downloadChartAsImage(percentageChartCanvas, 'Rentabilidade_Percentual_Simulador_Kevillen_Costa.png');
-            downloadChartAsImage(finalValuesChartCanvas, 'Comparativo_Final_Simulador_Kevillen_Costa.png');
-
-            showMessage('Gráficos baixados com sucesso!', 'success');
-        }
-
-        // --- Event Listeners ---
-        // Sliders e inputs numéricos atualizam em tempo real
-        taxaValorizacaoImovelInput.addEventListener('input', () => {
+            // Atualiza os displays dos sliders
             taxaValorizacaoDisplay.textContent = taxaValorizacaoImovelInput.value;
-            simulateAppreciation();
-        });
-
-        periodoAnaliseInput.addEventListener('input', () => {
             periodoAnaliseDisplay.textContent = periodoAnaliseInput.value;
-            simulateAppreciation();
-        });
 
-        valorInicialImovelInput.addEventListener('input', simulateAppreciation);
-        taxaCDIInput.addEventListener('input', simulateAppreciation);
-        taxaSelicInput.addEventListener('input', simulateAppreciation);
-        taxaIPCAInput.addEventListener('input', simulateAppreciation);
+            const labels = [];
+            const valoresImovel = [];
+            const rentabilidadeImovel = [];
+            const valoresCDI = [];
+            const rentabilidadeCDI = [];
+            const valoresSelic = [];
+            const rentabilidadeSelic = [];
+            const valoresIPCA = [];
+            const rentabilidadeIPCA = [];
+
+            let valorAtualImovel = valorInicial;
+            let valorAtualCDI = valorInicial;
+            let valorAtualSelic = valorInicial;
+            let valorAtualIPCA = valorInicial;
+
+            for (let i = 0; i <= periodo; i++) {
+                labels.push(`Ano ${i}`);
+
+                if (i === 0) {
+                    valoresImovel.push(valorInicial);
+                    rentabilidadeImovel.push(0);
+                    valoresCDI.push(valorInicial);
+                    rentabilidadeCDI.push(0);
+                    valoresSelic.push(valorInicial);
+                    rentabilidadeSelic.push(0);
+                    valoresIPCA.push(valorInicial);
+                    rentabilidadeIPCA.push(0);
+                } else {
+                    valorAtualImovel *= (1 + taxaValorizacaoImovel);
+                    valoresImovel.push(valorAtualImovel);
+                    rentabilidadeImovel.push(((valorAtualImovel - valorInicial) / valorInicial) * 100);
+
+                    valorAtualCDI *= (1 + taxaCDI);
+                    valoresCDI.push(valorAtualCDI);
+                    rentabilidadeCDI.push(((valorAtualCDI - valorInicial) / valorInicial) * 100);
+
+                    valorAtualSelic *= (1 + taxaSelic);
+                    valoresSelic.push(valorAtualSelic);
+                    rentabilidadeSelic.push(((valorAtualSelic - valorInicial) / valorInicial) * 100);
+
+                    valorAtualIPCA *= (1 + taxaIPCA);
+                    valoresIPCA.push(valorAtualIPCA);
+                    rentabilidadeIPCA.push(((valorAtualIPCA - valorInicial) / valorInicial) * 100);
+                }
+            }
+
+            valorFinalImovelSpan.textContent = formatCurrency(valoresImovel[periodo]);
+
+            // Atualiza os gráficos
+            updateCharts(labels, valoresImovel, rentabilidadeImovel, valoresCDI, rentabilidadeCDI, valoresSelic, rentabilidadeSelic, valoresIPCA, rentabilidadeIPCA);
+
+            // Habilita os botões de download e WhatsApp
+            whatsappClientBtn.disabled = !whatsappClienteInput.value.trim(); // Habilita se houver número no campo do cliente
+            whatsappKevillenBtn.disabled = false;
+            downloadChartsBtn.disabled = false;
+            downloadPdfBtn.disabled = false; // Habilita o botão de PDF
+        };
+
+        // Função para atualizar os dados dos gráficos
+        const updateCharts = (labels, valoresImovel, rentabilidadeImovel, valoresCDI, rentabilidadeCDI, valoresSelic, rentabilidadeSelic, valoresIPCA, rentabilidadeIPCA) => {
+            // Gráfico de Valorização Absoluta
+            absoluteValueChart.data.labels = labels;
+            absoluteValueChart.data.datasets[0].data = valoresImovel;
+            absoluteValueChart.data.datasets[1].data = valoresCDI;
+            absoluteValueChart.data.datasets[2].data = valoresSelic;
+            absoluteValueChart.data.datasets[3].data = valoresIPCA;
+            absoluteValueChart.update();
+
+            // Gráfico de Rentabilidade Percentual Acumulada
+            percentageChart.data.labels = labels;
+            percentageChart.data.datasets[0].data = rentabilidadeImovel;
+            percentageChart.data.datasets[1].data = rentabilidadeCDI;
+            percentageChart.data.datasets[2].data = rentabilidadeSelic;
+            percentageChart.data.datasets[3].data = rentabilidadeIPCA;
+            percentageChart.update();
+
+            // Gráfico Comparativo Final dos Valores
+            finalValuesChart.data.datasets[0].data = [
+                valoresImovel[valoresImovel.length - 1],
+                valoresCDI[valoresCDI.length - 1],
+                valoresSelic[valoresSelic.length - 1],
+                valoresIPCA[valoresIPCA.length - 1]
+            ];
+            finalValuesChart.update();
+        };
+
+        // Event listeners para os inputs para recalcular dinamicamente
+        valorInicialImovelInput.addEventListener('input', calculateAppreciation);
+        taxaValorizacaoImovelInput.addEventListener('input', calculateAppreciation);
+        periodoAnaliseInput.addEventListener('input', calculateAppreciation);
+        taxaCDIInput.addEventListener('input', calculateAppreciation);
+        taxaSelicInput.addEventListener('input', calculateAppreciation);
+        taxaIPCAInput.addEventListener('input', calculateAppreciation);
+        whatsappClienteInput.addEventListener('input', () => {
+            whatsappClientBtn.disabled = !whatsappClienteInput.value.trim();
+        });
 
         // Event listeners para os ícones de informação
-        document.querySelectorAll('.info-icon').forEach(icon => {
+        infoIcons.forEach(icon => {
             icon.addEventListener('click', (event) => {
                 const justification = event.target.dataset.justification;
-                showMessage(justification, 'info'); // 'info' can be a new type or handled as default
+                showMessage(justification, 'info');
             });
         });
 
-        whatsappClientBtn.addEventListener('click', sendToClientWhatsApp);
-        whatsappKevillenBtn.addEventListener('click', sendToKevillenCostaWhatsApp);
-        downloadChartsBtn.addEventListener('click', downloadAllCharts);
+        // Função para enviar mensagem via WhatsApp
+        const sendWhatsAppMessage = (phoneNumber, forKevillen = false) => {
+            const valorInicial = parseFloat(valorInicialImovelInput.value);
+            const taxaValorizacaoImovel = parseFloat(taxaValorizacaoImovelInput.value);
+            const periodo = parseInt(periodoAnaliseInput.value);
+            const taxaCDI = parseFloat(taxaCDIInput.value);
+            const taxaSelic = parseFloat(taxaSelicInput.value);
+            const taxaIPCA = parseFloat(taxaIPCAInput.value);
+            const valorFinalImovel = parseFloat(valorFinalImovelSpan.textContent.replace('R$', '').replace(/\./g, '').replace(',', '.'));
 
-        // --- Inicialização ao Carregar a Página ---
-        window.onload = function() {
-            // Define valores padrão nos inputs para 2025
-            taxaCDIInput.value = '9.3'; // Novo default
-            taxaSelicInput.value = '9.5'; // Novo default
-            taxaIPCAInput.value = '4.0'; // Novo default
-            valorInicialImovelInput.value = '500000';
+            let message = `Olá! 🏡 Simulação de Valorização Imobiliária:\n\n`;
+            message += `*Dados da Simulação:*\n`;
+            message += `  - Valor Inicial do Imóvel: ${formatCurrency(valorInicial)}\n`;
+            message += `  - Taxa de Valorização Anual do Imóvel: ${taxaValorizacaoImovel}%\n`;
+            message += `  - Período de Análise: ${periodo} anos\n`;
+            message += `  - Taxa CDI: ${taxaCDI}%\n`;
+            message += `  - Taxa Selic: ${taxaSelic}%\n`;
+            message += `  - Taxa IPCA: ${taxaIPCA}%\n\n`;
+            message += `*Resultados:*\n`;
+            message += `  - *Valor Final Estimado do Imóvel:* ${formatCurrency(valorFinalImovel)}\n\n`;
 
-            // Define o valor padrão do slider de valorização e atualiza o display
-            taxaValorizacaoImovelInput.value = '17';
-            taxaValorizacaoDisplay.textContent = '17';
+            if (forKevillen) {
+                message += `*Mensagem enviada de Kevillen Costa - Especialista em Mercado Imobiliário.*`;
+                phoneNumber = '5547997082022'; // Número fixo da Kevillen Costa
+            } else if (!phoneNumber) {
+                showMessage('Por favor, insira o número de WhatsApp do cliente ou utilize o botão para enviar para a Kevillen.', 'error');
+                return;
+            }
 
-            // Define o valor padrão do slider de período de análise e atualiza o display
-            periodoAnaliseInput.value = '10';
-            periodoAnaliseDisplay.textContent = '10';
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        };
 
-            // Exibe o valor inicial formatado no painel
-            valorFinalImovelSpan.textContent = formatCurrency(0);
+        // Event listener para o botão de WhatsApp do Cliente
+        whatsappClientBtn.addEventListener('click', () => {
+            const phoneNumber = whatsappClienteInput.value.replace(/[^0-9+]/g, ''); // Remove caracteres não numéricos, mantendo o '+'
+            sendWhatsAppMessage(phoneNumber);
+        });
 
-            // Simula automaticamente com os valores padrão ao carregar a página
-            simulateAppreciation();
+        // Event listener para o botão de WhatsApp da Kevillen Costa
+        whatsappKevillenBtn.addEventListener('click', () => {
+            sendWhatsAppMessage('', true); // Envia para o número fixo da Kevillen
+        });
+
+        // Função para baixar os gráficos
+        const downloadCharts = () => {
+            const chartsToDownload = [
+                { canvas: absoluteValueChartCanvas, name: 'valorizacao_absoluta' },
+                { canvas: percentageChartCanvas, name: 'rentabilidade_percentual' },
+                { canvas: finalValuesChartCanvas, name: 'comparativo_final' }
+            ];
+
+            chartsToDownload.forEach(chartInfo => {
+                const link = document.createElement('a');
+                link.download = `${chartInfo.name}.png`;
+                link.href = chartInfo.canvas.toDataURL('image/png');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+            showMessage('Gráficos baixados com sucesso!', 'success');
+        };
+
+        // Event listener para o botão de download dos gráficos
+        downloadChartsBtn.addEventListener('click', downloadCharts);
+
+        // Função para baixar a página como PDF
+        const downloadPdf = async () => {
+            const container = document.getElementById('container'); // Elemento principal a ser capturado
+            if (!container) {
+                showMessage('Erro: Elemento principal do simulador não encontrado para gerar o PDF.', 'error');
+                console.error('Element with ID "container" not found.');
+                return;
+            }
+
+            showMessage('Gerando PDF... Isso pode levar alguns segundos. Por favor, não interaja com a página.', 'info');
+
+            // Salva os estilos originais para restaurá-los depois
+            const originalBodyOverflow = document.body.style.overflow;
+            const originalHtmlOverflow = document.documentElement.style.overflow;
+            const originalBodyMinHeight = document.body.style.minHeight;
+
+            // Define um estilo temporário para o body e html para garantir que todo o conteúdo seja renderizado pelo html2canvas
+            document.body.style.overflow = 'visible';
+            document.documentElement.style.overflow = 'visible';
+            document.body.style.minHeight = 'auto'; // Garante que o body se expanda para todo o conteúdo
+
+            // Oculta os botões flutuantes e a caixa de mensagem durante a captura
+            const floatingButtons = document.querySelector('.floating-buttons-container');
+            const messageBoxElement = document.getElementById('messageBox');
+
+            if (floatingButtons) floatingButtons.style.display = 'none';
+            // Garante que a caixa de mensagem esteja oculta para não aparecer no PDF
+            if (messageBoxElement) messageBoxElement.style.display = 'none'; 
+
+            try {
+                // Pequeno atraso para garantir que a renderização esteja completa
+                await new Promise(resolve => setTimeout(resolve, 100)); 
+
+                // Captura o conteúdo do container para um canvas
+                const canvas = await html2canvas(container, { 
+                    scale: 2, // Maior escala para melhor resolução no PDF
+                    useCORS: true, // Importante para imagens ou recursos externos (gráficos Chart.js)
+                    backgroundColor: '#2a2a4a', // Define a cor de fundo do container no PDF
+                    logging: true, // Habilita logs no console para depuração
+                });
+
+                console.log('Canvas dimensions:', canvas.width, 'x', canvas.height); // Log para depuração
+
+                const imgData = canvas.toDataURL('image/png'); // Converte o canvas para imagem PNG
+                const { jsPDF } = window.jspdf; // Obtém a instância do jsPDF
+                const pdf = new jsPDF('p', 'mm', 'a4'); // Inicializa PDF A4 em retrato
+
+                const pdfWidth = pdf.internal.pageSize.getWidth(); // Largura da página A4 em mm
+                const pdfHeight = pdf.internal.pageSize.getHeight(); // Altura da página A4 em mm
+
+                const imgOriginalWidth = canvas.width;
+                const imgOriginalHeight = canvas.height;
+
+                // Calcula as dimensões da imagem para caber na largura do PDF mantendo a proporção
+                let imgRenderWidth = pdfWidth;
+                let imgRenderHeight = (imgOriginalHeight * pdfWidth) / imgOriginalWidth;
+
+                let heightRemaining = imgRenderHeight;
+                let yOffset = 0; // Offset Y para a imagem no PDF
+
+                // Adiciona páginas até que todo o conteúdo seja renderizado
+                while (heightRemaining > 0) {
+                    pdf.addImage(imgData, 'PNG', 0, yOffset, imgRenderWidth, imgRenderHeight);
+                    heightRemaining -= pdfHeight;
+                    yOffset -= pdfHeight; // Move a imagem para cima para a próxima página
+                    if (heightRemaining > 0) {
+                        pdf.addPage();
+                    }
+                }
+
+                pdf.save('simulacao_imobiliaria.pdf'); // Salva o arquivo PDF
+                showMessage('PDF da página baixado com sucesso!', 'success');
+
+            } catch (error) {
+                console.error("Erro ao gerar PDF:", error);
+                showMessage('Ocorreu um erro ao gerar o PDF. Detalhes: ' + error.message + '. Verifique o console para mais informações.', 'error');
+            } finally {
+                // Restaura os estilos originais do body e html
+                document.body.style.overflow = originalBodyOverflow;
+                document.documentElement.style.overflow = originalHtmlOverflow;
+                document.body.style.minHeight = originalBodyMinHeight;
+
+                // Restaura a visibilidade dos botões flutuantes
+                if (floatingButtons) floatingButtons.style.display = 'flex';
+                // Garante que a caixa de mensagem esteja oculta após a operação
+                hideMessage(); 
+            }
+        };
+
+        // Event listener para o novo botão de download de PDF
+        downloadPdfBtn.addEventListener('click', downloadPdf);
+
+
+        // Chamar a função de inicialização dos gráficos e o cálculo inicial ao carregar a página
+        window.onload = () => {
+            initCharts();
+            calculateAppreciation(); // Realiza um cálculo inicial com os valores padrão
         };
     </script>
 </body>
