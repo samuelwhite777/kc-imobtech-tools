@@ -292,7 +292,7 @@
 
     <script>
         // API Key for Gemini
-        const GEMINI_API_KEY = "AIzaSyCAdsR2LQb2SCTG1y5JYCrA4XVy0i-96NM";
+        const GEMINI_API_KEY = "AIzaSyCAdsR2LQb2SCTG1y5JYCrA4XVy0i-96NM"; // Your API key is here.
 
         // Referências aos elementos do DOM
         const propertyTypeSelect = document.getElementById('propertyType');
@@ -410,7 +410,7 @@
             chatHistory.push({ role: "user", parts: [{ text: prompt }] });
 
             const payload = { contents: chatHistory };
-            const apiKey = GEMINI_API_KEY;
+            const apiKey = GEMINI_API_KEY; // Your API key is used here
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
@@ -423,8 +423,18 @@
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    console.error('API Error details:', errorData);
-                    throw new Error(`Erro na API: ${response.status} - ${errorData.error ? errorData.error.message : response.statusText}. Por favor, verifique a sua chave de API, as cotas de uso ou as restrições de HTTP referrers na Google Cloud Console.`);
+                    console.error('API Error details (HTTP Status, Message, Code):', response.status, errorData);
+                    let errorMessage = `Erro na API: Status ${response.status}. `;
+                    if (errorData && errorData.error) {
+                        errorMessage += `Mensagem: ${errorData.error.message || 'Erro desconhecido.'} `;
+                        if (errorData.error.code) {
+                            errorMessage += `Código: ${errorData.error.code}. `;
+                        }
+                    } else {
+                        errorMessage += `Mensagem: ${response.statusText}. `;
+                    }
+                    errorMessage += `Por favor, verifique a sua chave de API, as cotas de uso ou as restrições de HTTP referrers no Google Cloud Console.`;
+                    throw new Error(errorMessage);
                 }
 
                 const result = await response.json();
@@ -434,7 +444,7 @@
                     result.candidates[0].content.parts.length > 0) {
                     return result.candidates[0].content.parts[0].text;
                 } else {
-                    console.warn('Estrutura de resposta inesperada da IA:', result);
+                    console.warn('Estrutura de resposta inesperada da IA (sem conteúdo):', result);
                     throw new Error('Não foi possível gerar o conteúdo. A resposta da IA estava vazia ou em formato inválido. Tente ser mais específico nos inputs.');
                 }
             } catch (error) {
