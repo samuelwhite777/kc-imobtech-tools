@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Anúncios TikTok com IA</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome CDN for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" xintegrity="sha512-Fo3rlrpQ4R+jQ7o0E5D5I0f1w5bUuK7zY6w2j3ZpG/o/P6+y80w7A7Z+t4+b3z2i1/w2/f6+y95m2X6X9k7l9A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a2e; /* Dark background for 'Black Premium Platinum' */
+            color: #e0e0e0; /* Light gray text */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 1rem;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .container {
+            background-color: #2a2a4a; /* Slightly lighter dark background */
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        h1 {
+            color: #fdd835; /* Gold/Platinum color */
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            line-height: 1.2;
+        }
+        h2 {
+            color: #fdd835;
+            font-weight: 600;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #d1d5db;
+        }
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #4a4a6e;
+            border-radius: 0.75rem;
+            background-color: #3a3a5e;
+            color: #e0e0e0;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-appearance: none; /* For consistent styling on iOS */
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #fdd835;
+            box-shadow: 0 0 0 2px rgba(253, 216, 53, 0.3);
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        button {
+            width: 100%;
+            padding: 0.85rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            -webkit-tap-highlight-color: transparent;
+        }
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .btn-primary {
+            background-image: linear-gradient(to right, #fdd835, #ffeb3b);
+            color: #1a1a2e;
+            box-shadow: 0 4px 10px rgba(253, 216, 53, 0.4);
+        }
+        .btn-primary:hover:not(:disabled) {
+            background-image: linear-gradient(to right, #ffeb3b, #fdd835);
+        }
+        .btn-whatsapp { /* Style for WhatsApp button */
+            background-color: #25d366;
+            color: white;
+            box-shadow: 0 4px 10px rgba(37, 211, 102, 0.4);
+        }
+        .btn-whatsapp:hover:not(:disabled) {
+            background-color: #1da851;
+        }
+        .output-area {
+            background-color: #3a3a5e;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            min-height: 150px;
+            white-space: pre-wrap; /* Preserve whitespace and line breaks */
+            word-wrap: break-word; /* Break long words */
+            font-size: 1rem;
+            color: #e0e0e0;
+            position: relative; /* For copy button positioning */
+        }
+        .output-area strong {
+            color: #fdd835; /* Highlight generated sections */
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background-color: #4a4a6e;
+            color: #e0e0e0;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .copy-btn:hover {
+            background-color: #5a5a7e;
+        }
+        .loading-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            color: #fdd835;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #fdd835;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Custom Message Box Styles */
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #3a3a5e;
+            color: #e0e0e0;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            text-align: center;
+            max-width: 90%;
+            width: 350px;
+            display: none; /* Hidden by default */
+            border: 2px solid;
+            font-size: 0.95rem;
+        }
+        .message-box p {
+            margin-bottom: 0; /* Remove default paragraph margin */
+        }
+        .message-box.error {
+            border-color: #ef4444;
+        }
+        .message-box.success {
+            border-color: #25d366;
+        }
+        .message-box-close {
+            background: none;
+            border: none;
+            color: #fdd835;
+            font-size: 1.5rem;
+            position: absolute;
+            top: 0.5rem;
+            right: 0.75rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gestor de Anúncios TikTok com IA <br> <span class="text-xl font-normal text-gray-400">Potencializado por IA Gemini</span></h1>
+
+        <div class="input-section grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-group col-span-2">
+                <label for="propertyType">Tipo de Imóvel</label>
+                <select id="propertyType" class="w-full">
+                    <option value="">Selecione</option>
+                    <option value="Apartamento">Apartamento</option>
+                    <option value="Casa">Casa</option>
+                    <option value="Terreno">Terreno</option>
+                    <option value="Comercial">Comercial</option>
+                    <option value="Loft">Loft</option>
+                    <option value="Cobertura">Cobertura</option>
+                </select>
+            </div>
+            <div class="form-group col-span-2">
+                <label for="propertyLocation">Localização do Imóvel (Cidade, Bairro)</label>
+                <input type="text" id="propertyLocation" placeholder="Ex: Rio de Janeiro, Copacabana">
+            </div>
+            <div class="form-group col-span-2">
+                <label for="mainFeatures">Características Mais 'Visuais' e Impactantes</label>
+                <textarea id="mainFeatures" placeholder="Ex: Varanda com vista mar, piscina no rooftop, cozinha americana moderna, acabamentos de luxo."></textarea>
+            </div>
+            <div class="form-group col-span-2">
+                <label for="targetAudience">Público-Alvo (Idade, Interesses do TikTok)</label>
+                <textarea id="targetAudience" placeholder="Ex: Geração Z, jovens adultos, interessados em design de interiores, moradia urbana, luxo acessível."></textarea>
+            </div>
+            <div class="form-group col-span-1">
+                <label for="videoLength">Duração do Vídeo (Segundos)</label>
+                <select id="videoLength" class="w-full">
+                    <option value="15 segundos">15 segundos</option>
+                    <option value="30 segundos">30 segundos</option>
+                    <option value="60 segundos">60 segundos</option>
+                </select>
+            </div>
+            <div class="form-group col-span-1">
+                <label for="adTone">Tom do Anúncio (TikTok)</label>
+                <select id="adTone" class="w-full">
+                    <option value="Engajador e Viral">Engajador e Viral</option>
+                    <option value="Informativo e Rápido">Informativo e Rápido</option>
+                    <option value="Inspirador e Sonhador">Inspirador e Sonhador</option>
+                    <option value="Divertido e Descontraído">Divertido e Descontraído</option>
+                </select>
+            </div>
+            <div class="form-group col-span-2">
+                <label for="additionalNotes">Observações Adicionais para IA</label>
+                <textarea id="additionalNotes" placeholder="Ex: Mencionar a tendência 'home office', destacar proximidade a cafés instagramáveis."></textarea>
+            </div>
+        </div>
+
+        <button id="generateBtn" class="btn-primary mt-4">
+            <i class="fas fa-video"></i> Gerar Anúncio TikTok
+        </button>
+
+        <div id="loadingIndicator" class="loading-indicator hidden">
+            <div class="spinner"></div>
+            <span class="ml-3">Gerando anúncio TikTok, por favor aguarde...</span>
+        </div>
+
+        <div class="output-section mt-4">
+            <h2>Anúncio Gerado:</h2>
+            <div id="generatedText" class="output-area">
+                Seu anúncio otimizado para TikTok aparecerá aqui.
+                <button id="copyBtn" class="copy-btn hidden"><i class="fas fa-copy"></i> Copiar Anúncio</button>
+            </div>
+            
+            <div class="form-group mt-4">
+                <label for="whatsappNumber">WhatsApp (Com código do país e DDD)</label>
+                <input type="text" id="whatsappNumber" placeholder="Ex: +5547997082022">
+            </div>
+
+            <button id="sendWhatsappBtn" class="btn-whatsapp mt-4" disabled>
+                <i class="fab fa-whatsapp"></i> Salvar anúncio enviando via WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <!-- Custom Message Box HTML -->
+    <div id="messageBox" class="message-box">
+        <button class="message-box-close" onclick="hideMessage()">×</button>
+        <p id="messageText"></p>
+    </div>
+
+    <script>
+        // API Key for Gemini
+        const GEMINI_API_KEY = "AIzaSyCAdsR2LQb2SCTG1y5JYCrA4XVy0i-96NM";
+
+        // Referências aos elementos do DOM
+        const propertyTypeSelect = document.getElementById('propertyType');
+        const propertyLocationInput = document.getElementById('propertyLocation');
+        const mainFeaturesInput = document.getElementById('mainFeatures');
+        const targetAudienceInput = document.getElementById('targetAudience');
+        const videoLengthSelect = document.getElementById('videoLength');
+        const adToneSelect = document.getElementById('adTone');
+        const additionalNotesInput = document.getElementById('additionalNotes');
+        const generateBtn = document.getElementById('generateBtn');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const generatedTextOutput = document.getElementById('generatedText');
+        const copyBtn = generatedTextOutput.querySelector('#copyBtn');
+        const whatsappNumberInput = document.getElementById('whatsappNumber');
+        const sendWhatsappBtn = document.getElementById('sendWhatsappBtn');
+
+        // Referências para o Message Box
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+
+        // --- Funções Utilitárias ---
+
+        /**
+         * Exibe uma mensagem em um box personalizado.
+         * @param {string} message - A mensagem a ser exibida.
+         * @param {string} type - O tipo da mensagem ('error' ou 'success').
+         */
+        function showMessage(message, type = 'error') {
+            messageText.innerHTML = message;
+            messageBox.className = `message-box ${type}`;
+            messageBox.style.display = 'block';
+        }
+
+        /**
+         * Oculta o message box.
+         */
+        function hideMessage() {
+            messageBox.style.display = 'none';
+        }
+
+        /**
+         * Copia o texto para a área de transferência.
+         * @param {string} text - O texto a ser copiado.
+         */
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showMessage('Conteúdo copiado para a área de transferência!', 'success');
+        }
+
+        /**
+         * Valida o formato de um número de WhatsApp.
+         * @param {string} number - O número a ser validado.
+         * @returns {boolean} True se o número for válido, false caso contrário.
+         */
+        function isValidWhatsappNumber(number) {
+            return /^\+\d{10,15}$/.test(number);
+        }
+
+        // --- Lógica de Geração da IA ---
+
+        /**
+         * Constrói o prompt para a API do Gemini.
+         * @returns {string} O prompt formatado.
+         */
+        function buildPromptForAI() {
+            const propertyType = propertyTypeSelect.value;
+            const propertyLocation = propertyLocationInput.value.trim();
+            const mainFeatures = mainFeaturesInput.value.trim();
+            const targetAudience = targetAudienceInput.value.trim();
+            const videoLength = videoLengthSelect.value;
+            const adTone = adToneSelect.value;
+            const additionalNotes = additionalNotesInput.value.trim();
+
+            if (!propertyType || !propertyLocation || !mainFeatures || !targetAudience || !videoLength || !adTone) {
+                showMessage('Por favor, preencha todos os campos obrigatórios para gerar o anúncio TikTok.', 'error');
+                return null;
+            }
+
+            let prompt = `Crie APENAS o conteúdo de um anúncio em vídeo para o TikTok. NÃO inclua saudações, introduções ou comentários adicionais. Use linguagem e formato adequados para o TikTok, incluindo hooks, transições rápidas e chamadas para ação. Use emojis e hashtags populares.\n\n`;
+            
+            prompt += `Informações do Imóvel:\n`;
+            prompt += `- Tipo: ${propertyType}\n`;
+            prompt += `- Localização: ${propertyLocation}\n`;
+            prompt += `- Características Mais Visuais: ${mainFeatures}\n`;
+            
+            prompt += `\nDetalhes da Campanha:\n`;
+            prompt += `- Público-Alvo: ${targetAudience}\n`;
+            prompt += `- Duração do Vídeo: ${videoLength}\n`;
+            prompt += `- Tom do Anúncio: ${adTone}\n`;
+            if (additionalNotes) prompt += `- Observações Adicionais: ${additionalNotes}\n`;
+
+            prompt += `\nEstruture a resposta com as seguintes seções (com títulos):
+                - **Gancho (Hook):** Frase ou cena inicial para prender a atenção (máx. 5 segundos de fala/texto).
+                - **Corpo do Anúncio (Body/Visuals):** Roteiro ou descrição das cenas visuais (o que mostrar e dizer rapidamente, focando nos diferenciais visuais).
+                - **Texto da Legenda (Caption):** Texto curto e engajador para a legenda do TikTok (com emojis e hashtags).
+                - **Chamada para Ação (Call to Action - CTA):** Sugestão de texto para o botão e para o áudio/tela final.
+                - **Sugestões de Áudio/Música:** Sugestão de tipo de áudio ou trend popular.
+                - **Hashtags Relevantes:** Lista de hashtags virais e de nicho para o TikTok.`;
+            
+            return prompt;
+        }
+
+        /**
+         * Faz a chamada à API do Google Gemini para gerar o texto.
+         * @param {string} prompt - O prompt a ser enviado para a IA.
+         * @returns {Promise<string>} A resposta gerada pela IA.
+         */
+        async function generateTextWithGemini(prompt) {
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+
+            const payload = { contents: chatHistory };
+            const apiKey = GEMINI_API_KEY;
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('API Error details:', errorData);
+                    throw new Error(`Erro na API: ${errorData.error.message || response.statusText}. Verifique sua chave de API ou cotas.`);
+                }
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                } else {
+                    console.warn('Estrutura de resposta inesperada da IA:', result);
+                    throw new Error('Não foi possível gerar o conteúdo. A resposta da IA estava vazia ou em formato inválido. Tente ser mais específico nos inputs.');
+                }
+            } catch (error) {
+                console.error('Erro ao chamar a API do Gemini:', error);
+                throw new Error(`Falha na comunicação com a IA: ${error.message}.`);
+            }
+        }
+
+        // --- Event Listeners ---
+
+        generateBtn.addEventListener('click', async () => {
+            const prompt = buildPromptForAI();
+            if (!prompt) return;
+
+            generatedTextOutput.textContent = 'Gerando anúncio TikTok...';
+            copyBtn.classList.add('hidden');
+            sendWhatsappBtn.disabled = true;
+            loadingIndicator.classList.remove('hidden');
+            generateBtn.disabled = true;
+
+            try {
+                const generatedContent = await generateTextWithGemini(prompt);
+                generatedTextOutput.innerHTML = generatedContent;
+                copyBtn.classList.remove('hidden');
+                sendWhatsappBtn.disabled = false;
+            } catch (error) {
+                generatedTextOutput.textContent = 'Erro ao gerar anúncio TikTok.';
+                showMessage(`Erro: ${error.message}`, 'error');
+            } finally {
+                loadingIndicator.classList.add('hidden');
+                generateBtn.disabled = false;
+            }
+        });
+
+        copyBtn.addEventListener('click', () => {
+            copyToClipboard(generatedTextOutput.innerText);
+        });
+
+        sendWhatsappBtn.addEventListener('click', () => {
+            const message = generatedTextOutput.innerText;
+            const whatsappNumber = whatsappNumberInput.value.trim();
+
+            if (!message || message === 'Seu anúncio otimizado para TikTok aparecerá aqui.' || message === 'Gerando anúncio TikTok...' || message === 'Erro ao gerar anúncio TikTok.') {
+                showMessage('Por favor, gere um anúncio antes de enviar via WhatsApp.', 'error');
+                return;
+            }
+
+            if (whatsappNumber === '') {
+                showMessage('Por favor, insira o número de WhatsApp.', 'error');
+                return;
+            }
+
+            if (!isValidWhatsappNumber(whatsappNumber)) {
+                showMessage('O número de WhatsApp não é válido. Por favor, inclua o código do país e DDD (Ex: +5547997082022).', 'error');
+                return;
+            }
+
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        });
+
+        // Initial setup on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            generatedTextOutput.textContent = 'Preencha os detalhes do imóvel e do anúncio e clique em "Gerar Anúncio TikTok" para obter sua criação.';
+            sendWhatsappBtn.disabled = true;
+        });
+    </script>
+</body>
+</html>
+
