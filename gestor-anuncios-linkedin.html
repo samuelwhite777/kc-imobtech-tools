@@ -424,7 +424,7 @@
                 if (!response.ok) {
                     const errorData = await response.json();
                     console.error('API Error details:', errorData);
-                    throw new Error(`Erro na API: ${errorData.error.message || response.statusText}. Verifique sua chave de API ou cotas.`);
+                    throw new Error(`Erro na API: ${response.status} - ${errorData.error ? errorData.error.message : response.statusText}. Por favor, verifique a sua chave de API, as cotas de uso ou as restrições de HTTP referrers na Google Cloud Console.`);
                 }
 
                 const result = await response.json();
@@ -460,4 +460,48 @@
                 generatedTextOutput.innerHTML = generatedContent;
                 copyBtn.classList.remove('hidden');
                 sendWhatsappBtn.disabled = false;
-        
+            } catch (error) {
+                generatedTextOutput.textContent = 'Erro ao gerar anúncio LinkedIn.';
+                showMessage(`Erro: ${error.message}`, 'error');
+            } finally {
+                loadingIndicator.classList.add('hidden');
+                generateBtn.disabled = false;
+            }
+        });
+
+        copyBtn.addEventListener('click', () => {
+            copyToClipboard(generatedTextOutput.innerText);
+        });
+
+        sendWhatsappBtn.addEventListener('click', () => {
+            const message = generatedTextOutput.innerText;
+            const whatsappNumber = whatsappNumberInput.value.trim();
+
+            if (!message || message === 'Seu anúncio otimizado para LinkedIn Ads aparecerá aqui.' || message === 'Gerando anúncio LinkedIn...' || message === 'Erro ao gerar anúncio LinkedIn.') {
+                showMessage('Por favor, gere um anúncio antes de enviar via WhatsApp.', 'error');
+                return;
+            }
+
+            if (whatsappNumber === '') {
+                showMessage('Por favor, insira o número de WhatsApp.', 'error');
+                return;
+            }
+
+            if (!isValidWhatsappNumber(whatsappNumber)) {
+                showMessage('O número de WhatsApp não é válido. Por favor, inclua o código do país e DDD (Ex: +5547997082022).', 'error');
+                return;
+            }
+
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        });
+
+        // Initial setup on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            generatedTextOutput.textContent = 'Preencha os detalhes do imóvel e da campanha e clique em "Gerar Anúncio LinkedIn Ads" para obter sua criação.';
+            sendWhatsappBtn.disabled = true;
+        });
+    </script>
+</body>
+</html>
+
