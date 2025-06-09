@@ -4,130 +4,168 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kevillen Costa | Ferramentas Imobiliárias</title>
-    <!-- Tailwind CSS CDN -->
+    <!-- Tailwind CSS CDN para estilização utilitária e responsiva -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+        // Configuração personalizada do Tailwind CSS para definir paleta de cores e sombras
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
+                        // Define a fonte padrão como Inter, com fallback para fontes sans-serif
                         sans: ['Inter', 'sans-serif'],
                     },
                     colors: {
-                        'custom-bg-dark': '#0A0A0A',
-                        'dark-card-bg': '#1a1a1a', /* Slightly lighter dark for card backgrounds */
-                        'purple-accent-light': '#8B5CF6', /* Purple-400 for highlights */
-                        'purple-accent-dark': '#5B21B6',  /* Purple-800 for deeper accents */
-                        'golden-light': '#FFD700', /* Gold */
-                        'golden-dark': '#DAA520',  /* Goldenrod */
+                        // Paleta de cores inspirada na Netflix
+                        'netflix-dark': '#141414', /* Cor de fundo principal */
+                        'netflix-card': '#222222', /* Cor de fundo dos cards e elementos */
+                        'netflix-red': '#E50914',  /* Vermelho característico da Netflix para destaques */
+                        'netflix-light-gray': '#B3B3B3', /* Cinza claro para textos secundários */
+                        'netflix-text': '#E5E7EB', /* Cor principal de texto */
+                        'netflix-hover-dark': '#303030', /* Cor de hover para elementos escuros */
                     },
                     boxShadow: {
-                        'golden-glow': '0 0 15px rgba(255, 215, 0, 0.5)', /* Custom golden glow effect - adjusted */
-                        'xl-purple': '0 10px 15px -3px rgba(139, 92, 246, 0.2), 0 4px 6px -2px rgba(139, 92, 246, 0.1)', /* Adjusted shadow for cards */
+                        // Definições de sombra personalizadas para efeitos de brilho e profundidade
+                        'netflix-glow-red': '0 0 15px rgba(229, 9, 20, 0.4)', /* Sombra vermelha para destaque vibrante */
+                        'card-glow': '0 5px 15px rgba(0,0,0,0.5)', /* Sombra sutil para cards */
+                        'card-hover-glow': '0 10px 20px rgba(0,0,0,0.8)', /* Sombra mais intensa e dramática no hover */
                     }
                 }
             }
         }
     </script>
-    <!-- React & ReactDOM CDN -->
+    <!-- CDNs para React e ReactDOM, essenciais para a construção da interface com componentes -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Babel CDN for JSX transformation -->
+    <!-- Babel CDN para transpilar JSX para JavaScript que o navegador entende -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
+        /* Estilos globais e personalizados para a página */
         body {
             font-family: 'Inter', sans-serif;
-            overflow-x: hidden; /* Prevent horizontal scroll issues */
+            background-color: theme('colors.netflix-dark'); /* Fundo escuro conforme a paleta Netflix */
+            color: theme('colors.netflix-text'); /* Cor de texto principal clara */
+            overflow-x: hidden; /* Previne rolagem horizontal indesejada */
+            min-height: 100vh; /* Garante que o body ocupa toda a altura da viewport */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
-        /* Custom scrollbar for a sleek look */
+
+        /* Estilização personalizada da barra de rolagem para um visual mais elegante */
         ::-webkit-scrollbar {
             width: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: #1a1a1a;
+            background: theme('colors.netflix-card'); /* Cor da trilha da barra de rolagem */
             border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb {
-            background: #4a4a4a;
+            background: theme('colors.netflix-light-gray'); /* Cor do "polegar" da barra de rolagem */
             border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #5a5a5a;
+            background: theme('colors.netflix-red'); /* Cor no hover da barra de rolagem */
         }
-        /* Fade-in animation for sections */
+
+        /* Animação de aparição gradual para seções ao rolar a página */
         .fade-in-section {
             opacity: 0;
             transform: translateY(20px);
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out; /* Slightly longer transition */
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out; /* Transição suave e um pouco mais longa */
         }
         .fade-in-section.is-visible {
             opacity: 1;
             transform: translateY(0);
         }
 
-        /* Custom glow effect for the profile section border */
+        /* Efeito de brilho personalizado para a borda da seção de perfil, adaptado ao estilo Netflix */
         .profile-section-glow::before {
             content: '';
             position: absolute;
-            inset: -2px; /* Slightly outside the border */
-            border-radius: 1.5rem; /* Match parent border-radius */
+            inset: -2px; /* Define o quão "fora" da borda o brilho se estende */
+            border-radius: 1.5rem; /* Corresponde ao border-radius do elemento pai */
             padding: 2px;
-            background: linear-gradient(45deg, #FFD700, #DAA520, #EC4899); /* Dynamic gradient border with gold */
+            background: linear-gradient(45deg, theme('colors.netflix-red'), theme('colors.netflix-red'), #FF4500); /* Gradiente de tons de vermelho/laranja */
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
-            filter: blur(5px); /* Soft glow - adjusted */
-            opacity: 0.5; /* Adjusted */
-            z-index: 0;
-            animation: pulse-glow 4s infinite alternate; /* Slower pulse animation */
+            filter: blur(5px); /* Suaviza o brilho */
+            opacity: 0.6; /* Transparência do brilho */
+            z-index: 0; /* Garante que o brilho fica por baixo do conteúdo */
+            animation: pulse-netflix-glow 4s infinite alternate; /* Animação de pulso contínua */
         }
 
-        @keyframes pulse-glow {
-            0% { opacity: 0.4; filter: blur(4px); } /* Adjusted */
-            100% { opacity: 0.6; filter: blur(8px); } /* Adjusted */
+        /* Animação keyframes para o efeito de pulso do brilho */
+        @keyframes pulse-netflix-glow {
+            0% { opacity: 0.5; filter: blur(4px); }
+            100% { opacity: 0.7; filter: blur(8px); }
         }
 
-        /* Subtle text shadow for headings */
-        .text-glow {
-            text-shadow: 0px 0px 6px rgba(255, 215, 0, 0.4); /* Golden glow - adjusted */
+        /* Sombra de texto sutil para títulos, adaptada ao brilho vermelho Netflix */
+        .text-glow-netflix {
+            text-shadow: 0px 0px 8px rgba(229, 9, 20, 0.6); /* Sombra vermelha com intensidade */
+        }
+
+        /* Efeito de hover nos cards de ferramentas, similar ao estilo Netflix */
+        .tool-card-hover:hover {
+            transform: scale(1.05); /* Aumenta ligeiramente o tamanho do card no hover */
+            box-shadow: theme('boxShadow.card-hover-glow'); /* Sombra mais intensa */
+            z-index: 10; /* Garante que o card em hover sobreponha os outros */
+            border-color: theme('colors.netflix-red'); /* Adiciona uma borda vermelha no hover */
+        }
+        .tool-card-hover {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
+            transform-origin: center center; /* Garante que a transição de escala seja do centro */
         }
     </style>
 </head>
-<body class="bg-custom-bg-dark text-gray-100 font-sans min-h-screen flex flex-col justify-center items-center py-8 px-4 sm:px-6 lg:px-8">
+<body class="bg-netflix-dark text-netflix-text font-sans flex flex-col justify-center items-center py-8 px-4 sm:px-6 lg:px-8">
 
+    <!-- Onde o aplicativo React será montado -->
     <div id="root" class="w-full max-w-7xl"></div>
 
     <script type="text/babel">
+        // Importa hooks essenciais do React
         const { useState, useEffect, useRef } = React;
         const { createRoot } = ReactDOM;
 
-        // Componente para aparição gradual ao rolar
+        /**
+         * Componente para aplicar um efeito de aparição gradual ao rolar a página.
+         * Utiliza Intersection Observer para detectar quando o elemento se torna visível.
+         * @param {object} props - As propriedades do componente.
+         * @param {React.ReactNode} props.children - Conteúdo a ser renderizado dentro da seção.
+         */
         const FadeInSection = ({ children }) => {
-            const domRef = useRef();
-            const [isVisible, setVisible] = useState(false);
+            const domRef = useRef(); // Ref para o elemento DOM
+            const [isVisible, setVisible] = useState(false); // Estado para controlar a visibilidade
 
             useEffect(() => {
+                // Cria um Intersection Observer para observar o elemento
                 const observer = new IntersectionObserver(entries => {
-                    // Check if the target element is intersecting and if it's not already visible
+                    // Verifica se o elemento está intersectando e ainda não está visível
                     if (entries[0].isIntersecting && !isVisible) {
-                        setVisible(true);
-                        // Disconnect observer once visible to avoid re-triggering
+                        setVisible(true); // Define como visível
+                        // Desconecta o observer uma vez que o elemento se tornou visível para evitar re-triggers
                         observer.unobserve(domRef.current);
                     }
-                }, { threshold: 0.1 }); // Trigger when 10% of element is visible
+                }, { threshold: 0.1 }); // Dispara quando 10% do elemento está visível
 
+                // Observa o elemento DOM atual, se ele existir
                 if (domRef.current) {
                     observer.observe(domRef.current);
                 }
 
-                // Cleanup observer on component unmount
+                // Função de limpeza para desconectar o observer ao desmontar o componente
                 return () => {
                     if (domRef.current) {
                         observer.unobserve(domRef.current);
                     }
                 };
-            }, [isVisible]); // Depend on isVisible to ensure observer is only removed once
+            }, [isVisible]); // Depende de `isVisible` para garantir que o observer seja removido apenas uma vez
 
+            // Renderiza o conteúdo com classes de animação condicionais
             return (
                 <div
                     className={`fade-in-section ${isVisible ? 'is-visible' : ''}`}
@@ -138,21 +176,30 @@
             );
         };
 
-        // Componente Card da Ferramenta
+        /**
+         * Componente Card da Ferramenta, estilizado no padrão Netflix.
+         * @param {object} props - As propriedades do componente.
+         * @param {string} props.title - Título da ferramenta.
+         * @param {string} props.description - Descrição da ferramenta.
+         * @param {string} props.link - Link para a página da ferramenta.
+         * @param {React.ReactNode} props.icon - Ícone SVG da ferramenta.
+         */
         const ToolCard = ({ title, description, link, icon }) => (
+            // Link que encapsula o card, fazendo-o clicável
             <a href={link} className="block group rounded-xl">
-                <div className="relative bg-dark-card-bg rounded-xl p-6 flex flex-col items-center text-center shadow-lg transition-all duration-500 transform hover:scale-105 border border-gray-700 hover:border-purple-accent-light hover:shadow-xl-purple overflow-hidden">
-                    {/* Background gradient on hover - adjusted opacity */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-15 transition-opacity duration-300 bg-gradient-to-br from-purple-700 to-indigo-800 rounded-xl"></div>
-                    <div className="relative z-10">
+                <div className="relative bg-netflix-card rounded-xl p-6 flex flex-col items-center text-center shadow-card-glow transition-all duration-500 transform tool-card-hover border border-gray-700 overflow-hidden">
+                    {/* Gradiente de fundo que aparece no hover, para um efeito visual moderno */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-15 transition-opacity duration-300 bg-gradient-to-br from-netflix-red to-fuchsia-800 rounded-xl"></div>
+                    <div className="relative z-10"> {/* Conteúdo do card com z-index para sobrepor o gradiente */}
+                        {/* Renderiza o ícone apenas se ele for fornecido */}
                         {icon && (
-                            <div className="mb-4 text-purple-accent-light group-hover:text-purple-accent-light transition-colors duration-300 p-3 bg-gray-700 rounded-full inline-flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:bg-purple-accent-dark">
+                            <div className="mb-4 text-netflix-red group-hover:text-white transition-colors duration-300 p-3 bg-gray-700 rounded-full inline-flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:bg-netflix-red">
                                 {icon}
                             </div>
                         )}
-                        <h3 className="text-xl font-semibold text-gray-50 group-hover:text-purple-accent-light transition-colors duration-300 mb-2">{title}</h3>
-                        <p className="text-gray-400 text-sm mb-4 flex-grow">{description}</p>
-                        <button className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 transform group-hover:-translate-y-0.5 shadow-md group-hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75">
+                        <h3 className="text-xl font-semibold text-netflix-text group-hover:text-white transition-colors duration-300 mb-2">{title}</h3>
+                        <p className="text-netflix-light-gray text-sm mb-4 flex-grow">{description}</p>
+                        <button className="bg-netflix-red hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 transform group-hover:-translate-y-0.5 shadow-md group-hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-netflix-red focus:ring-opacity-75">
                             Acessar Ferramenta
                         </button>
                     </div>
@@ -160,175 +207,242 @@
             </a>
         );
 
-        // Componente Principal do Aplicativo
+        /**
+         * Componente Principal do Aplicativo, que gerencia o layout e os dados das ferramentas.
+         */
         const App = () => {
-            const tools = [
+            // Array de categorias, cada uma contendo suas próprias ferramentas
+            const categories = [
                 {
-                    title: "Simulador de Valorização e Rentabilidade",
-                    description: "Analise o potencial de investimento de um imóvel ao longo do tempo, comparando com outras aplicações financeiras.",
-                    link: "simulador.html", // Caminho para a nova página do simulador
-                    icon: (
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10v10h18V10M7 15l4-4 4 4 6-6"></path></svg>
-                    )
+                    name: "Análise e Planejamento Imobiliário",
+                    tools: [
+                        {
+                            title: "Simulador de Valorização e Rentabilidade",
+                            description: "Analise o potencial de investimento de um imóvel ao longo do tempo, comparando com outras aplicações financeiras.",
+                            link: "simulador.html",
+                            icon: (
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10v10h18V10M7 15l4-4 4 4 6-6"></path></svg>
+                            )
+                        },
+                        {
+                            title: "Calculadora de Custos de Transação",
+                            description: "Calcule de forma rápida e transparente todos os custos adicionais (ITBI, registro, escritura) de uma transação imobiliária.",
+                            link: "calculadora-custos.html",
+                            icon: (
+                                <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                                    <line x1="12" y1="8" x2="12" y2="8"></line>
+                                    <path d="M16.24 7.76a6 6 0 0 1 0 8.48m-8.48 0a6 6 0 0 1 0-8.48"></path>
+                                </svg>
+                            )
+                        },
+                    ]
                 },
                 {
-                    title: "Gerador de Proposta de Pagamento",
-                    description: "Crie e personalize fluxos de pagamento detalhados para seus clientes, com valores e prazos ajustáveis.",
-                    link: "proposal.html",
-                    icon: (
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    )
+                    name: "Marketing e Anúncios com IA",
+                    tools: [
+                        {
+                            title: "Gerador de Copys para Anúncios (IA)",
+                            description: "Utilize a IA Gemini para criar descrições e copys persuasivas para anúncios de imóveis e redes sociais.",
+                            link: "gerador-copy.html",
+                            icon: (
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673L12 21l-2.337-4zm-.18-11.82A2.001 2.001 0 0116 8v7a2 2 0 01-2 2h-4a2 2 0 01-2-2V8a2 2 0 011.82-1.996zm.18-2.18A4.001 4.001 0 008 8v7a4 4 0 004 4h0a4.001 4.001 0 004-4V8a4 4 0 00-4-4z"></path></svg>
+                            )
+                        },
+                        {
+                            title: "Gestor de Anúncios Google com IA",
+                            description: "Cria palavras-chave estratégicas, títulos, descrições e extensões de anúncio para campanhas de pesquisa e display no Google Ads. Ajuda a segmentar o público-alvo para otimizar a performance.",
+                            link: "gestor-anuncios-google.html",
+                            icon: (
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 12l3 3 7-7m-4 10a2 2 0 11-4 0 2 2 0 014 0zm-4-8a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                            )
+                        },
+                        {
+                            title: "Gestor de Anúncios TikTok com IA",
+                            description: "Desenvolve roteiros dinâmicos para vídeos curtos, ideias visuais, legendas com emojis e hashtags populares, além de sugestões de áudio, para anúncios no TikTok. Foca em linguagem e formato específicos para a plataforma.",
+                            link: "gestor-anuncios-tiktok.html",
+                            icon: (
+                                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM17.18 10.37C17.26 10.45 17.33 10.53 17.39 10.61C17.45 10.69 17.5 10.77 17.55 10.85C17.59 10.93 17.63 11.01 17.67 11.09C17.7 11.17 17.73 11.25 17.76 11.33C17.79 11.41 17.82 11.49 17.84 11.57C17.86 11.65 17.88 11.73 17.9 11.81C17.92 11.89 17.93 11.97 17.95 12.05C17.96 12.13 17.97 12.21 17.98 12.29C17.99 12.37 18 12.45 18 12.53V15.5C18 15.7761 17.7761 16 17.5 16H6.5C6.22386 16 6 15.7761 6 15.5V8.5C6 8.22386 6.22386 8 6.5 8H16C16.2761 8 16.5 8.22386 16.5 8.5V10.37C16.5 10.37 16.5 10.37 17.18 10.37Z"></path>
+                                </svg>
+                            )
+                        },
+                        {
+                            title: "Gestor de Anúncios LinkedIn com IA",
+                            description: "Gera manchetes, textos introdutórios e chamadas para ação com linguagem profissional e focada em negócios. Sugere segmentação por cargos, setores e empresas para anúncios no LinkedIn Ads.",
+                            link: "gestor-anuncios-linkedin.html",
+                            icon: (
+                                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M20 2H4C2.89543 2 2 2.89543 2 4V20C2 21.1046 2.89543 22 4 22H20C21.1046 22 22 21.1046 22 20V4C22 2.89543 21.1046 2 20 2ZM8 19H5V8H8V19ZM6.5 6.75C5.67157 6.75 5 6.07843 5 5.25C5 4.42157 5.67157 3.75 6.5 3.75C7.32843 3.75 8 4.42157 8 5.25C8 6.07843 7.32843 6.75 6.5 6.75ZM19 19H16V13.5C16 12.0494 14.5126 11.5 13.75 11.5C12.9874 11.5 12 12.0494 12 13.5V19H9V8H12V9.5C12.7231 8.87784 13.6841 8.5 14.75 8.5C17.0658 8.5 19 10.3541 19 13V19Z"></path>
+                                </svg>
+                            )
+                        },
+                        {
+                            title: "Gestor de Anúncios Meta com IA",
+                            description: "Cria textos persuasivos, títulos, descrições e chamadas para ação, incluindo sugestões de segmentação e conteúdo visual (imagens/vídeos), para anúncios no Facebook e Instagram (Meta Ads).",
+                            link: "gestor-anuncios-meta.html",
+                            icon: (
+                                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM15.5 8C16.3284 8 17 8.67157 17 9.5V15.5C17 16.3284 16.3284 17 15.5 17H8.5C7.67157 17 7 16.3284 7 15.5V8.5C7 7.67157 7.67157 7 8.5 7H15.5ZM12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9ZM12 10C13.1046 10 14 10.8954 14 12C14 13.1046 13.1046 14 12 14C10.8954 14 10 13.1046 10 12C10 10.8954 10.8954 10 12 10Z"></path>
+                                </svg>
+                            )
+                        },
+                        {
+                            title: "Roteiros para Vídeos Curtos (IA)",
+                            description: "Crie ideias e roteiros dinâmicos para seus vídeos de imóveis no Instagram Reels, TikTok e WhatsApp Status.",
+                            link: "gerador-roteiros.html",
+                            icon: (
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            )
+                        },
+                    ]
                 },
                 {
-                    title: "Gerador de Copys para Anúncios (IA)",
-                    description: "Utilize a IA Gemini para criar descrições e copys persuasivas para anúncios de imóveis e redes sociais.",
-                    link: "gerador-copy.html",
-                    icon: (
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673L12 21l-2.337-4zm-.18-11.82A2.001 2.001 0 0116 8v7a2 2 0 01-2 2h-4a2 2 0 01-2-2V8a2 2 0 011.82-1.996zm.18-2.18A4.001 4.001 0 008 8v7a4 4 0 004 4h0a4.001 4.001 0 004-4V8a4 4 0 00-4-4z"></path></svg>
-                    )
-                },
-                // --- Novas ferramentas de Gestão de Anúncios com IA ---
-                {
-                    title: "Gestor de Anúncios Google com IA",
-                    description: "Cria palavras-chave estratégicas, títulos, descrições e extensões de anúncio para campanhas de pesquisa e display no Google Ads. Ajuda a segmentar o público-alvo para otimizar a performance.",
-                    link: "gestor-anuncios-google.html",
-                    icon: (
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 12l3 3 7-7m-4 10a2 2 0 11-4 0 2 2 0 014 0zm-4-8a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                        </svg>
-                    )
-                },
-                {
-                    title: "Gestor de Anúncios TikTok com IA",
-                    description: "Desenvolve roteiros dinâmicos para vídeos curtos, ideias visuais, legendas com emojis e hashtags populares, além de sugestões de áudio, para anúncios no TikTok. Foca em linguagem e formato específicos para a plataforma.",
-                    link: "gestor-anuncios-tiktok.html",
-                    icon: (
-                        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM17.18 10.37C17.26 10.45 17.33 10.53 17.39 10.61C17.45 10.69 17.5 10.77 17.55 10.85C17.59 10.93 17.63 11.01 17.67 11.09C17.7 11.17 17.73 11.25 17.76 11.33C17.79 11.41 17.82 11.49 17.84 11.57C17.86 11.65 17.88 11.73 17.9 11.81C17.92 11.89 17.93 11.97 17.95 12.05C17.96 12.13 17.97 12.21 17.98 12.29C17.99 12.37 18 12.45 18 12.53V15.5C18 15.7761 17.7761 16 17.5 16H6.5C6.22386 16 6 15.7761 6 15.5V8.5C6 8.22386 6.22386 8 6.5 8H16C16.2761 8 16.5 8.22386 16.5 8.5V10.37C16.5 10.37 16.5 10.37 17.18 10.37Z"></path>
-                        </svg>
-                    )
-                },
-                {
-                    title: "Gestor de Anúncios LinkedIn com IA",
-                    description: "Gera manchetes, textos introdutórios e chamadas para ação com linguagem profissional e focada em negócios. Sugere segmentação por cargos, setores e empresas para anúncios no LinkedIn Ads.",
-                    link: "gestor-anuncios-linkedin.html",
-                    icon: (
-                        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M20 2H4C2.89543 2 2 2.89543 2 4V20C2 21.1046 2.89543 22 4 22H20C21.1046 22 22 21.1046 22 20V4C22 2.89543 21.1046 2 20 2ZM8 19H5V8H8V19ZM6.5 6.75C5.67157 6.75 5 6.07843 5 5.25C5 4.42157 5.67157 3.75 6.5 3.75C7.32843 3.75 8 4.42157 8 5.25C8 6.07843 7.32843 6.75 6.5 6.75ZM19 19H16V13.5C16 12.0494 14.5126 11.5 13.75 11.5C12.9874 11.5 12 12.0494 12 13.5V19H9V8H12V9.5C12.7231 8.87784 13.6841 8.5 14.75 8.5C17.0658 8.5 19 10.3541 19 13V19Z"></path>
-                        </svg>
-                    )
-                },
-                {
-                    title: "Gestor de Anúncios Meta com IA",
-                    description: "Cria textos persuasivos, títulos, descrições e chamadas para ação, incluindo sugestões de segmentação e conteúdo visual (imagens/vídeos), para anúncios no Facebook e Instagram (Meta Ads).",
-                    link: "gestor-anuncios-meta.html",
-                    icon: (
-                        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM15.5 8C16.3284 8 17 8.67157 17 9.5V15.5C17 16.3284 16.3284 17 15.5 17H8.5C7.67157 17 7 16.3284 7 15.5V8.5C7 7.67157 7.67157 7 8.5 7H15.5ZM12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9ZM12 10C13.1046 10 14 10.8954 14 12C14 13.1046 13.1046 14 12 14C10.8954 14 10 13.1046 10 12C10 10.8954 10.8954 10 12 10Z"></path>
-                        </svg>
-                    )
-                },
-                // --- Fim das novas ferramentas ---
-                {
-                    title: "Quebra de Objeções e Argumentos (IA)",
-                    description: "Gere argumentos inteligentes e respostas eficazes para superar objeções de clientes com o auxílio da IA.",
-                    link: "gerador-argumentos.html",
-                    icon: (
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M3 15h18l-3-6H6l-3 6z"></path></svg>
-                    )
-                },
-                {
-                    title: "Roteiros para Vídeos Curtos (IA)",
-                    description: "Crie ideias e roteiros dinâmicos para seus vídeos de imóveis no Instagram Reels, TikTok e WhatsApp Status.",
-                    link: "gerador-roteiros.html",
-                    icon: (
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    )
+                    name: "Vendas e Atendimento ao Cliente",
+                    tools: [
+                        {
+                            title: "Gerador de Proposta de Pagamento",
+                            description: "Crie e personalize fluxos de pagamento detalhados para seus clientes, com valores e prazos ajustáveis.",
+                            link: "proposal.html",
+                            icon: (
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            )
+                        },
+                        {
+                            title: "Quebra de Objeções e Argumentos (IA)",
+                            description: "Gere argumentos inteligentes e respostas eficazes para superar objeções de clientes com o auxílio da IA.",
+                            link: "gerador-argumentos.html",
+                            icon: (
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M3 15h18l-3-6H6l-3 6z"></path></svg>
+                            )
+                        },
+                        {
+                            title: "Análise de Perfil de Cliente (IA)",
+                            description: "Obtenha sugestões de imóveis e abordagens de venda com base no perfil do seu cliente, otimizando a compatibilidade.",
+                            link: "analise-perfil.html",
+                            icon: (
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9a3 3 0 100-6 3 3 0 000 6zM3 4h18M3 8h18m-9 6a9 9 0 00-9 9h18a9 9 0 00-9-9z"></path></svg>
+                            )
+                        },
+                        {
+                            title: "Formulário de Detalhamento do Cliente",
+                            description: "Preencha um formulário completo para registrar todas as informações importantes e desejos específicos do seu cliente.",
+                            link: "formulario-atendimento.html",
+                            icon: (
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M17 12a2 2 0 11-4 0 2 2 0 014 0zm-2 0a.5.5 0 10-1 0 .5.5 0 001 0z"></path>
+                                </svg>
+                            )
+                        },
+                        {
+                            title: "Mini Agendador de Visitas",
+                            description: "Organize seus agendamentos de visitas de forma simples e mantenha o controle da sua agenda diária.",
+                            link: "agendador.html",
+                            icon: (
+                                <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    <path d="M8 14h.01"></path>
+                                    <path d="M12 14h.01"></path>
+                                    <path d="M16 14h.01"></path>
+                                    <path d="M8 18h.01"></path>
+                                    <path d="M12 18h.01"></path>
+                                    <path d="M16 18h.01"></path>
+                                </svg>
+                            )
+                        },
+                    ]
                 },
                 {
-                    title: "Análise de Perfil de Cliente (IA)",
-                    description: "Obtenha sugestões de imóveis e abordagens de venda com base no perfil do seu cliente, otimizando a compatibilidade.",
-                    link: "analise-perfil.html",
-                    icon: (
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9a3 3 0 100-6 3 3 0 000 6zM3 4h18M3 8h18m-9 6a9 9 0 00-9 9h18a9 9 0 00-9-9z"></path></svg>
-                    )
+                    name: "Produtos e Desempenho",
+                    tools: [
+                        {
+                            title: "Produtos Imobiliários Recomendados",
+                            description: "Explore uma seleção de imóveis cuidadosamente recomendados por Kevillen Costa, com análises detalhadas.",
+                            link: "produtos-imobiliarios.html",
+                            icon: (
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m7 0V5a2 2 0 012-2h2a2 2 0 012 2v6m-6 0H6"></path>
+                                </svg>
+                            )
+                        },
+                        {
+                            title: "Tabela de Vendas Atualizada",
+                            description: "Acompanhe as vendas mais recentes e a performance de cada produto imobiliário com uma tabela sempre atualizada.",
+                            link: "tabela-vendas.html",
+                            icon: (
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 2v-6m-9 11h16a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                </svg>
+                            )
+                        }
+                    ]
                 },
                 {
-                    title: "Formulário de Detalhamento do Cliente",
-                    description: "Preencha um formulário completo para registrar todas as informações importantes e desejos específicos do seu cliente.",
-                    link: "formulario-atendimento.html", // Aponta para o mesmo arquivo do formulário
-                    icon: (
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M17 12a2 2 0 11-4 0 2 2 0 014 0zm-2 0a.5.5 0 10-1 0 .5.5 0 001 0z"></path>
-                        </svg>
-                    )
-                },
-                {
-                    title: "Calculadora de Custos de Transação",
-                    description: "Calcule de forma rápida e transparente todos os custos adicionais (ITBI, registro, escritura) de uma transação imobiliária.",
-                    link: "calculadora-custos.html",
-                    icon: (
-                        <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="16" x2="12" y2="12"></line>
-                            <line x1="12" y1="8" x2="12" y2="8"></line>
-                            <path d="M16.24 7.76a6 6 0 0 1 0 8.48m-8.48 0a6 6 0 0 1 0-8.48"></path>
-                        </svg>
-                    )
-                },
-                {
-                    title: "Mini Agendador de Visitas",
-                    description: "Organize seus agendamentos de visitas de forma simples e mantenha o controle da sua agenda diária.",
-                    link: "agendador.html",
-                    icon: (
-                        <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                            <line x1="16" y1="2" x2="16" y2="6"></line>
-                            <line x1="8" y1="2" x2="8" y2="6"></line>
-                            <line x1="3" y1="10" x2="21" y2="10"></line>
-                            <path d="M8 14h.01"></path>
-                            <path d="M12 14h.01"></path>
-                            <path d="M16 14h.01"></path>
-                            <path d="M8 18h.01"></path>
-                            <path d="M12 18h.01"></path>
-                            <path d="M16 18h.01"></path>
-                        </svg>
-                    )
+                    name: "Desenvolvimento Profissional e Suporte",
+                    tools: [
+                        {
+                            title: "Conteúdo Educativo e Informativo",
+                            description: "Acesse materiais educativos, preparatórios e informativos para aprimorar seus conhecimentos no mercado imobiliário.",
+                            link: "conteudo-educativo.html",
+                            icon: (
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13.5m0-13.5c-4.142 0-7.5 3.167-7.5 7.5s3.358 7.5 7.5 7.5 7.5-3.167 7.5-7.5-3.358-7.5-7.5-7.5zM12 6.253a4.5 4.5 0 014.5 4.5M12 6.253a4.5 4.5 0 00-4.5 4.5m4.5-4.5V19.753"></path>
+                                </svg>
+                            )
+                        },
+                        {
+                            title: "Consultor TTI/Superior com IA",
+                            description: "Obtenha orientação e suporte especializado para sua jornada profissional como corretor, com o auxílio de um consultor de IA.",
+                            link: "consultor-ia.html",
+                            icon: (
+                                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM17.18 10.37C17.26 10.45 17.33 10.53 17.39 10.61C17.45 10.69 17.5 10.77 17.55 10.85C17.59 10.93 17.63 11.01 17.67 11.09C17.7 11.17 17.73 11.25 17.76 11.33C17.79 11.41 17.82 11.49 17.84 11.57C17.86 11.65 17.88 11.73 17.9 11.81C17.92 11.89 17.93 11.97 17.95 12.05C17.96 12.13 17.97 12.21 17.98 12.29C17.99 12.37 18 12.45 18 12.53V15.5C18 15.7761 17.7761 16 17.5 16H6.5C6.22386 16 6 15.7761 6 15.5V8.5C6 8.22386 6.22386 8 6.5 8H16C16.2761 8 16.5 8.22386 16.5 8.5V10.37C16.5 10.37 16.5 10.37 17.18 10.37Z"/>
+                                </svg>
+                            )
+                        },
+                    ]
                 }
             ];
 
-            // Mensagem de WhatsApp URL-encoded
+            // Mensagem de WhatsApp URL-encoded para garantir compatibilidade em URLs
             const whatsappMessage = encodeURIComponent("Olá Kev! Estava acessando tua página e acessei pelo link de WhatsApp. Pode me ajudar?");
             const whatsappLink = `https://wa.me/5547997082022?text=${whatsappMessage}`;
             const instagramLink = `https://www.instagram.com/kevecosta/`;
 
             return (
-                <div className="flex flex-col items-center justify-center p-4">
-                    {/* Seção de Apresentação da Kevillen Costa */}
+                <div className="flex flex-col items-center justify-center p-4 w-full max-w-7xl">
+                    {/* Seção de Apresentação da Kevillen Costa, com efeito de aparição gradual */}
                     <FadeInSection>
-                        <section className="bg-dark-card-bg rounded-3xl p-8 mb-12 w-full shadow-2xl border border-purple-accent-light text-center relative overflow-hidden profile-section-glow">
-                            <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-custom-bg-dark opacity-30 rounded-3xl"></div>
+                        <section className="bg-netflix-card rounded-3xl p-8 mb-12 w-full shadow-2xl border border-gray-700 text-center relative overflow-hidden profile-section-glow">
+                            {/* Gradiente de fundo sutil para a seção de perfil */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-netflix-dark opacity-30 rounded-3xl"></div>
                             <div className="relative z-10">
+                                {/* Imagem de perfil da Kevillen Costa com borda e brilho temáticos */}
                                 <img
-                                    src="https://placehold.co/150x150/1a1a1a/FFD700?text=KC"
+                                    src="https://placehold.co/150x150/141414/E50914?text=KC"
                                     alt="Kevillen Costa Profile"
-                                    className="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-golden-light shadow-xl shadow-golden-dark/50 object-cover transition-all duration-300 hover:scale-105 hover:shadow-golden-glow"
+                                    className="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-netflix-red shadow-xl shadow-netflix-red/50 object-cover transition-all duration-300 hover:scale-105 hover:shadow-netflix-glow-red"
                                 />
-                                <h1 className="text-4xl sm:text-5xl font-extrabold text-purple-accent-light mb-3 leading-tight text-glow">Kevillen Costa</h1>
-                                <p className="text-xl text-golden-light font-semibold mb-4">Sua Especialista e Parceira no mercado imobiliário de Santa Catarina</p>
-                                <p className="text-gray-300 text-md sm:text-lg max-w-2xl mx-auto mb-6">
+                                <h1 className="text-4xl sm:text-5xl font-extrabold text-netflix-red mb-3 leading-tight text-glow-netflix">Kevillen Costa</h1>
+                                <p className="text-xl text-netflix-light-gray font-semibold mb-4">Sua Especialista e Parceira no mercado imobiliário de Santa Catarina</p>
+                                <p className="text-gray-400 text-md sm:text-lg max-w-2xl mx-auto mb-6">
                                     Com anos de experiência e um olhar apurado para as melhores oportunidades, sou sua parceira estratégica no mercado imobiliário. Minha missão é capacitar você, corretor parceiro, com as ferramentas e o suporte necessários para alcançar novos patamares de sucesso e garantir a melhor experiência para seus clientes.
                                 </p>
+                                {/* Links para redes sociais com ícones e efeitos de hover */}
                                 <div className="flex justify-center space-x-6">
-                                    <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="text-gray-200 hover:text-green-500 transition-colors duration-300 flex items-center text-lg p-2 rounded-lg hover:bg-gray-700">
-                                        {/* Updated WhatsApp Icon */}
+                                    <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="text-netflix-text hover:text-green-500 transition-colors duration-300 flex items-center text-lg p-2 rounded-lg hover:bg-netflix-hover-dark">
                                         <svg className="w-6 h-6 mr-2" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M12.0007 2C6.47829 2 2.00073 6.47754 2.00073 12C2.00073 14.1804 2.69466 16.3134 3.97127 18.1062L2.00073 22L5.89531 20.0494C7.51139 20.9128 9.28186 21.3995 11.0007 21.637L11.0007 21.6372C11.3283 21.6811 11.6611 21.7032 12.0007 21.7032C17.5228 21.7032 22.0007 17.2257 22.0007 11.7032C22.0007 6.18076 17.5228 1.70323 12.0007 1.70323V2ZM17.0007 15.7032C16.8183 15.9189 16.5923 15.9754 16.3213 15.9754C16.0503 15.9754 15.8244 15.9189 15.642 15.7032C15.4596 15.4876 15.0007 15.0007 15.0007 14.7032C15.0007 14.4057 14.0007 13.5007 13.0007 12.5007C12.0007 11.5007 11.0007 10.7032 10.0007 9.70322C9.00073 8.70322 8.00073 7.70322 8.00073 7.40322C8.00073 7.10322 8.00073 6.60322 8.50073 6.10322C8.70073 5.90322 8.91833 5.80322 9.09993 5.80322C9.28153 5.80322 9.45333 5.80322 9.60073 5.80322C9.74813 5.80322 10.0007 5.70322 10.2007 5.90322C10.4007 6.10322 10.6007 6.50322 10.7007 6.70322C10.8007 6.90322 10.9007 7.00322 10.9007 7.20322C10.9007 7.40322 10.8007 7.50322 10.6007 7.70322C10.4007 7.90322 9.90073 8.40322 9.70073 8.60322C9.50073 8.80322 9.40073 8.90322 9.40073 9.10322C9.40073 9.30322 9.70073 9.80322 10.2007 10.3032C10.7007 10.8032 11.0007 11.2032 11.5007 11.7032C12.0007 12.2032 12.4007 12.5032 12.9007 13.0032C13.4007 13.5032 13.8007 13.8032 14.0007 14.0032C14.2007 14.2032 14.4007 14.3032 14.6007 14.4032C14.8007 14.5032 15.2007 14.8032 15.4007 14.9032C15.6007 15.0032 15.8007 15.1032 15.8007 15.3032C15.8007 15.5032 15.7007 15.7032 15.6007 15.8032L17.0007 15.7032Z"/>
                                         </svg>
                                         WhatsApp
                                     </a>
-                                    <a href={instagramLink} target="_blank" rel="noopener noreferrer" className="text-gray-200 hover:text-pink-500 transition-colors duration-300 flex items-center text-lg p-2 rounded-lg hover:bg-gray-700">
-                                        {/* Updated Instagram Icon */}
+                                    <a href={instagramLink} target="_blank" rel="noopener noreferrer" className="text-netflix-text hover:text-pink-500 transition-colors duration-300 flex items-center text-lg p-2 rounded-lg hover:bg-netflix-hover-dark">
                                         <svg className="w-6 h-6 mr-2" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M12 2C8.68 2 8.35 2.01 7.23 2.06C6.1 2.12 5.08 2.31 4.18 2.69C3.26 3.06 2.5 3.65 1.89 4.26C1.28 4.87 0.69 5.63 0.31 6.53C-0.07 7.43 0.12 8.45 0.18 9.57C0.24 10.69 0.25 11.02 0.25 12C0.25 12.98 0.24 13.31 0.18 14.43C0.12 15.55 0.07 16.57 0.07 17.69C0.12 18.82 0.31 19.84 0.69 20.74C1.06 21.64 1.65 22.4 2.26 23.01C2.87 23.62 3.63 24.21 4.53 24.59C5.43 24.97 6.45 25.16 7.57 25.22C8.69 25.28 9.02 25.29 10 25.29C10.98 25.29 11.31 25.28 12.43 25.22C13.55 25.16 14.57 24.97 15.47 24.59C16.37 24.21 17.13 23.62 17.74 23.01C18.35 22.4 18.94 21.64 19.32 20.74C19.7 19.84 19.89 18.82 19.95 17.69C20.01 16.57 20.02 16.24 20.02 15.26C20.02 14.28 20.01 13.95 19.95 12.83C19.89 11.71 19.7 10.69 19.32 9.79C18.94 8.89 18.35 8.13 17.74 7.52C17.13 6.91 16.37 6.32 15.47 5.94C14.57 5.56 13.55 5.37 12.43 5.31C11.31 5.25 10.98 5.24 10 5.24C9.02 5.24 8.69 5.25 7.57 5.31C6.45 5.37 5.43 5.56 4.53 5.94C3.63 6.32 2.87 6.91 2.26 7.52C1.65 8.13 1.06 8.89 0.69 9.79C0.31 10.69 0.12 11.71 0.18 12.83C0.24 13.95 0.25 14.28 0.25 15.26C0.25 16.24 0.24 16.57 0.18 17.69C0.12 18.82 0.07 19.84 0.07 20.74C0.07 21.64 0.07 22.4 0.07 22.4L0.07 22.4C0.07 22.4 0.07 22.4 0.07 22.4C0.07 22.4 0.07 22.4 0.07 22.4L0.07 22.4L0.07 22.4ZM12 7.71C10.74 7.71 9.71 8.74 9.71 10C9.71 11.26 10.74 12.29 12 12.29C13.26 12.29 14.29 11.26 14.29 10C14.29 8.74 13.26 7.71 12 7.71ZM12 10.29C11.51 10.29 11.29 10.51 11.29 11C11.29 11.49 11.51 11.71 12 11.71C12.49 11.71 12.71 11.49 12.71 11C12.71 10.51 12.49 10.29 12 10.29ZM19 12C19 15.86 15.86 19 12 19C8.14 19 5 15.86 5 12C5 8.14 8.14 5 12 5C15.86 5 19 8.14 19 12Z"/>
                                         </svg>
@@ -339,30 +453,43 @@
                         </section>
                     </FadeInSection>
 
-                    {/* Título da Seção de Ferramentas */}
+                    {/* Título da Seção de Ferramentas com efeito de aparição gradual e estilo Netflix */}
                     <FadeInSection>
-                        <h2 className="text-3xl sm:text-4xl font-extrabold text-golden-light mb-10 mt-8 text-center text-glow">
+                        <h2 className="text-3xl sm:text-4xl font-extrabold text-netflix-red mb-10 mt-8 text-center text-glow-netflix">
                             Minhas Ferramentas para o seu Sucesso
                         </h2>
                     </FadeInSection>
 
-                    {/* Grid de Ferramentas */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full px-4 mb-12">
-                        {tools.map((tool, index) => (
-                            <FadeInSection key={index}>
-                                <ToolCard {...tool} />
+                    {/* Itera sobre as categorias e renderiza cada uma */}
+                    {categories.map((category, catIndex) => (
+                        <div key={catIndex} className="w-full max-w-7xl mb-12">
+                            <FadeInSection>
+                                {/* Título da Categoria */}
+                                <h3 className="text-2xl sm:text-3xl font-bold text-netflix-text mb-6 mt-8 text-glow-netflix">
+                                    {category.name}
+                                </h3>
                             </FadeInSection>
-                        ))}
-                    </div>
+                            {/* Grid para os cards das ferramentas dentro de cada categoria */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full px-4">
+                                {/* Itera sobre as ferramentas dentro da categoria */}
+                                {category.tools.map((tool, toolIndex) => (
+                                    <FadeInSection key={toolIndex}>
+                                        <ToolCard {...tool} />
+                                    </FadeInSection>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
 
-                    {/* Rodapé */}
-                    <footer className="w-full text-center text-gray-500 text-sm mt-8 pb-4">
+                    {/* Rodapé da página, com estilo Netflix */}
+                    <footer class="w-full text-center text-gray-500 text-sm mt-8 pb-4">
                         <p>&copy; 2025 Kevillen Costa. Todos os direitos reservados.</p>
                     </footer>
                 </div>
             );
         };
 
+        // Monta o componente principal React no elemento com id 'root'
         const container = document.getElementById('root');
         const root = createRoot(container);
         root.render(<App />);
