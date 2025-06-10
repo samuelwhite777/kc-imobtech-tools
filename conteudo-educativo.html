@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kevillen Costa | Conteúdo Educativo e Informativo</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Kevillen Costa | Conteúdo Educativo e Informativo - Em Construção</title>
+    <!-- Tailwind CSS CDN para estilização rápida e responsiva -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+        // Configuração personalizada do Tailwind CSS, incluindo cores para o tema claro (azul bebê e branco)
         tailwind.config = {
             theme: {
                 extend: {
@@ -14,43 +15,46 @@
                         sans: ['Inter', 'sans-serif'],
                     },
                     colors: {
-                        'netflix-dark': '#141414',
-                        'netflix-card': '#222222',
-                        'netflix-red': '#E50914',
-                        'netflix-light-gray': '#B3B3B3',
-                        'netflix-text': '#E5E7EB',
+                        'background-light': '#F8F8F8',      /* Fundo branco-quente */
+                        'card-white': '#FFFFFF',             /* Cor de fundo dos cartões */
+                        'accent-blue': '#2196F3',            /* Azul vibrante para destaque */
+                        'text-dark-gray': '#4A4A4A',         /* Cor principal para o texto */
+                        'text-medium-gray': '#757575',       /* Cor para texto secundário */
                     },
                 }
             }
         }
     </script>
     <style>
+        /* Estilos personalizados para o corpo da página */
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: theme('colors.netflix-dark');
-            color: theme('colors.netflix-text');
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            font-family: 'Inter', sans-serif; /* Define a fonte principal */
+            background-color: theme('colors.background-light'); /* Usa a nova cor de fundo clara */
+            color: theme('colors.text-dark-gray'); /* Define a nova cor do texto principal */
+            min-height: 100vh; /* Garante que o corpo ocupe toda a altura da viewport */
+            display: flex; /* Habilita o Flexbox para centralizar o conteúdo */
+            flex-direction: column; /* Organiza os itens em coluna */
+            align-items: center; /* Centraliza horizontalmente */
+            justify-content: center; /* Centraliza verticalmente */
         }
     </style>
 </head>
 <body class="p-4 sm:p-8">
 
-    <div class="bg-netflix-card rounded-xl shadow-lg p-6 sm:p-10 max-w-2xl w-full text-center">
-        <h1 class="text-3xl sm:text-4xl font-bold text-netflix-red mb-4">
-            Conteúdo Educativo e Informativo
+    <div class="bg-card-white rounded-xl shadow-lg p-6 sm:p-10 max-w-2xl w-full text-center">
+        <!-- Título principal da página -->
+        <h1 class="text-3xl sm:text-4xl font-bold text-accent-blue mb-4">
+            Conteúdo Educativo e Informativo <br> (Em Construção)
         </h1>
-        <p class="text-netflix-light-gray text-lg mb-6">
-            Aprimore seus conhecimentos com materiais de estudo, artigos informativos e guias práticos sobre o mercado imobiliário. Mais conteúdo em breve!
+        <!-- Parágrafo de descrição do serviço -->
+        <p class="text-text-medium-gray text-lg mb-6">
+            Página em construção. Acesso exclusivo para parceiros VIP.
         </p>
-        <a href="index.html" class="inline-block bg-netflix-red text-white font-semibold py-2 px-6 rounded-lg hover:bg-red-700 transition-colors duration-300">
+        <!-- Botão para voltar à página de ferramentas -->
+        <a href="index.html" class="inline-block bg-accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300">
             Voltar para as Ferramentas
         </a>
     </div>
 
 </body>
 </html>
-
