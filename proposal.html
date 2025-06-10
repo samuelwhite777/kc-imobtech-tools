@@ -25,7 +25,7 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <!-- Babel CDN for JSX transformation -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Font Awesome CDN for icons (still included for potential future use or other icons if needed elsewhere) -->
+    <!-- Font Awesome CDN for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" xintegrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEbFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
@@ -96,7 +96,7 @@
             -moz-appearance: textfield;
         }
         /* Custom styles for collapsible sections (like AI proposal cards) */
-        .insight-box {
+        .insight-box { /* Keep for general styling, though specific AI cards are removed */
             background-color: #1f2937; /* Gray-800 */
             border: 1px solid #3b82f6; /* Blue-600 */
             border-radius: 0.5rem;
@@ -106,7 +106,7 @@
             font-size: 0.875rem; /* text-sm */
             line-height: 1.25rem; /* leading-5 */
         }
-        .insight-header {
+        .insight-header { /* Keep for general styling */
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -114,21 +114,21 @@
             font-weight: 600;
             color: #93c5fd; /* Blue-300 */
         }
-        .insight-content {
+        .insight-content { /* Keep for general styling */
             padding-top: 0.5rem;
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease-out;
         }
-        .insight-content.open {
+        .insight-content.open { /* Keep for general styling */
             max-height: 200px; /* Adjust as needed for content length */
             transition: max-height 0.5s ease-in;
             cursor: pointer; /* Indicate it's clickable */
         }
-        .insight-arrow {
+        .insight-arrow { /* Keep for general styling */
             transition: transform 0.3s ease;
         }
-        .insight-arrow.open {
+        .insight-arrow.open { /* Keep for general styling */
             transform: rotate(90deg);
         }
 
@@ -155,17 +155,68 @@
     <div id="root" class="w-full max-w-4xl"></div>
 
     <script type="text/babel">
+        // Log para verificar se o script Babel está sendo processado
+        console.log("Iniciando processamento do script Babel...");
+
         const { useState, useEffect, useCallback, useRef } = React;
         const { createRoot } = ReactDOM;
 
-        // Função utilitária para converter para número, tratando entradas inválidas como 0
+        // --- GLOBAL ERROR HANDLING START ---
+        // Variáveis globais para controlar o estado de erro
+        let globalHasError = false;
+        let globalErrorMessage = '';
+
+        // Função para exibir uma mensagem de erro global no DOM
+        const showGlobalError = (message) => {
+            globalHasError = true;
+            globalErrorMessage = message;
+            const rootContainer = document.getElementById('root');
+            if (rootContainer) {
+                // Se o elemento raiz existe, renderiza uma mensagem de erro simples
+                rootContainer.innerHTML = `
+                    <div class="flex flex-col items-center justify-center min-h-screen bg-custom-bg-dark text-red-400 p-8 text-center">
+                        <h1 class="text-3xl font-bold mb-4">Oops! Algo deu errado.</h1>
+                        <p class="text-lg mb-6">${message}</p>
+                        <p class="text-md mb-8">Por favor, tente recarregar a página. Se o problema persistir, entre em contato com o suporte.</p>
+                        <button onclick="window.location.reload()" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75">
+                            Recarregar Página
+                        </button>
+                    </div>
+                `;
+            }
+        };
+
+        // Captura erros JavaScript não tratados em todo o window
+        window.onerror = (message, source, lineno, colno, error) => {
+            console.error("Erro global não capturado:", error || message);
+            showGlobalError("Um erro inesperado ocorreu na aplicação.");
+            // Retorna true para evitar que o erro seja reportado no console do navegador (opcional)
+            return true;
+        };
+
+        // Captura promessas rejeitadas não tratadas (erros em operações assíncronas)
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error("Rejeição de promessa não tratada globalmente:", event.reason);
+            showGlobalError("Uma operação assíncrona falhou inesperadamente.");
+            // Retorna true para evitar que o erro seja reportado no console do navegador (opcional)
+            return true;
+        });
+        // --- GLOBAL ERROR HANDLING END ---
+
+        // Utility function to convert to number, treating invalid inputs as 0
         const parseToNumber = (value) => {
-            const num = parseFloat(String(value).replace(',', '.')); // Handle comma as decimal separator
+            // Remove todos os caracteres que não são dígitos, ponto ou vírgula, depois substitui vírgula por ponto.
+            const cleanedValue = String(value).replace(/[^\d.,]/g, '').replace(',', '.');
+            const num = parseFloat(cleanedValue);
             return isNaN(num) ? 0 : num;
         };
 
-        // Função utilitária para formatar valores monetários em BRL
+        // Utility function to format monetary values in BRL
         const formatCurrency = (value) => {
+            // Garante que o valor é um número antes de formatar
+            if (isNaN(value) || value === null) {
+                return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(0);
+            }
             return new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
                 currency: 'BRL',
@@ -174,9 +225,10 @@
             }).format(value);
         };
 
-        // Componente Slider Personalizado
+        // Custom Slider Component
         const CustomSlider = ({ label, value, onChange, min, max, step, displayValue, unit = '', children }) => {
-            const display = displayValue !== undefined ? displayValue : value;
+            // Garante que o valor a ser exibido e o valor do input são números válidos
+            const display = displayValue !== undefined ? displayValue : (isNaN(value) ? 0 : value);
             return (
                 <div className="mb-6">
                     <label className="block text-gray-300 text-sm font-semibold mb-2">
@@ -187,7 +239,7 @@
                         min={min}
                         max={max}
                         step={step}
-                        value={value}
+                        value={isNaN(value) ? min : value} // Garante que o slider sempre tenha um valor numérico válido
                         onChange={onChange}
                         className="w-full"
                     />
@@ -236,76 +288,23 @@
             );
         };
 
-        // Component for displaying an alternative proposal generated by AI
-        const AlternativeProposalCard = ({ proposal, onApply }) => {
-            const [isOpen, setIsOpen] = useState(false);
-
-            const formatDisplayValue = (key, value) => {
-                if (typeof value !== 'number') return value;
-                
-                switch (key) {
-                    case 'valorReforcoAnual':
-                    case 'valorNasChaves':
-                        return formatCurrency(value);
-                    case 'mesesTotaisFluxo':
-                        return `${value} meses`;
-                    case 'entradaPercentual':
-                        return `${value}%`;
-                    case 'numeroTotalReforcosAnuais':
-                        return `${value} reforços`;
-                    default:
-                        return value;
-                }
-            };
-
-            return (
-                <div className="bg-gray-700 rounded-lg p-4 mb-4 shadow-md border border-blue-500">
-                    <div className="insight-header" onClick={() => setIsOpen(!isOpen)}> {/* Only opens/closes */}
-                        <h3 className="text-lg font-semibold text-blue-300">{proposal.scenarioName}</h3>
-                        <span className={`insight-arrow ${isOpen ? 'open' : ''}`}>&#9658;</span>
-                    </div>
-                    <div 
-                        className={`insight-content ${isOpen ? 'open' : ''}`}
-                        onClick={isOpen ? () => onApply(proposal.parameters) : undefined} // Apply only when open and content is clicked
-                    >
-                        <p className="text-gray-300 mb-3">{proposal.description}</p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-200">
-                            {Object.entries(proposal.parameters).map(([key, value]) => {
-                                let displayLabel = '';
-                                switch (key) {
-                                    case 'entradaPercentual': displayLabel = 'Entrada (%)'; break;
-                                    case 'valorReforcoAnual': displayLabel = 'Reforço Anual'; break;
-                                    case 'numeroTotalReforcosAnuais': displayLabel = 'Num. Reforços'; break;
-                                    case 'mesesTotaisFluxo': displayLabel = 'Fluxo Total'; break;
-                                    case 'valorNasChaves': displayLabel = 'Valor Nas Chaves'; break;
-                                    default: displayLabel = key;
-                                }
-                                return (
-                                    <div key={key} className="flex justify-between items-center bg-gray-600 px-3 py-1 rounded-md">
-                                        <span className="font-medium">{displayLabel}:</span>
-                                        <span className="text-blue-200">{formatDisplayValue(key, value)}</span>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                        {/* Removed the explicit "Aplicar Esta Proposta" button */}
-                    </div>
-                </div>
-            );
-        };
-
         // Main Proposal Generator Component
         const App = () => {
-            // States for input parameters
-            const [valorImovel, setValorImovel] = useState(500000);
-            const [entradaPercentual, setEntradaPercentual] = useState(10); // Default to 10% as requested
-            // Default mesesObra to 60 months (5 years), max to 72 months (6 years)
+            // Se ocorreu um erro global, não renderiza a aplicação principal
+            if (globalHasError) {
+                return null; // A função showGlobalError já renderizou o UI de erro
+            }
+
+            // O valor do imóvel agora é um número diretamente para o slider
+            const [valorImovel, setValorImovel] = useState(500000); 
+            
+            const [entradaPercentual, setEntradaPercentual] = useState(10); 
             const [mesesObra, setMesesObra] = useState(60); 
             const [valorReforcoAnual, setValorReforcoAnual] = useState(15000);
-            const [numeroTotalReforcosAnuais, setNumeroTotalReforcosAnuais] = useState(Math.floor(120 / 12)); // Default to 10 for 120 months flux
-            const [mesesTotaisFluxo, setMesesTotaisFluxo] = useState(120); // Default to 120 months, Max 140
-            // Default valorNasChaves to 10% of valorImovel
-            const [valorNasChaves, setValorNasChaves] = useState(500000 * 0.10); 
+            const [numeroTotalReforcosAnuais, setNumeroTotalReforcosAnuais] = useState(Math.floor(120 / 12)); 
+            const [mesesTotaisFluxo, setMesesTotaisFluxo] = useState(120); 
+            // Inicializa valorNasChaves com base no valorImovel inicial
+            const [valorNasChaves, setValorNasChaves] = useState(parseToNumber(500000 * 0.10)); 
 
             // States for calculated results
             const [parcelasObraMensal, setParcelasObraMensal] = useState(0);
@@ -314,24 +313,25 @@
             const [parcelaMensalPosObra, setParcelaMensalPosObra] = useState(0);
             const [saldoTotalFinanciarPosObra, setSaldoTotalFinanciarPosObra] = useState(0);
             const [reforcosAplicadosNaObra, setReforcosAplicadosNaObra] = useState(0);
+            const [reforcosAplicadosAposObra, setReforcosAplicadosAposObra] = useState(0);
+            const [totalValorReforcosNaObra, setTotalValorReforcosNaObra] = useState(0);
+            const [totalValorReforcosAposObra, setTotalValorReforcosAposObra] = useState(0);
 
             // States for feedback messages to the user
             const [warningObra, setWarningObra] = useState('');
             const [warningPosObra, setWarningPosObra] = useState('');
-            const [floatingMessage, setFloatingMessage] = useState(null); // State for floating message
+            const [floatingMessage, setFloatingMessage] = useState(null); 
             
-            const [isGeneratingProposals, setIsGeneratingProposals] = useState(false); // State for AI generation loading
-            const [alternativeProposals, setAlternativeProposals] = useState([]); // State to store AI generated proposals
-
             // Constants for financial rules
             const MIN_PARCELA_MENSAL = 2000;
-            const TARGET_PERCENT_PAID_DURING_CONSTRUCTION = 0.50; // 50% of property value must be paid during construction
-            const HIGH_PARCELA_THRESHOLD = 5000; // Threshold for "high" installment, triggers a warning
+            const TARGET_PERCENT_PAID_DURING_CONSTRUCTION = 0.50; 
+            const HIGH_PARCELA_THRESHOLD = 5000; 
 
             // Main calculation function
             const calculateProposal = useCallback(() => {
                 try {
-                    const valImovel = parseToNumber(valorImovel);
+                    // Usamos valorImovel diretamente, pois é um número
+                    const valImovel = valorImovel; 
                     const entPerc = parseToNumber(entradaPercentual);
                     const mesObra = parseToNumber(mesesObra);
                     const valReforcoAnual = parseToNumber(valorReforcoAnual);
@@ -342,6 +342,9 @@
                     // Reset warnings
                     setWarningObra('');
                     setWarningPosObra('');
+                    setReforcosAplicadosAposObra(0); 
+                    setTotalValorReforcosNaObra(0); 
+                    setTotalValorReforcosAposObra(0); 
 
                     // Avoid calculations with zero property value to prevent NaN/Infinity
                     if (valImovel === 0) {
@@ -351,6 +354,9 @@
                         setParcelaMensalPosObra(0);
                         setSaldoTotalFinanciarPosObra(0);
                         setReforcosAplicadosNaObra(0);
+                        setReforcosAplicadosAposObra(0);
+                        setTotalValorReforcosNaObra(0);
+                        setTotalValorReforcosAposObra(0);
                         return;
                     }
 
@@ -358,24 +364,26 @@
                     const valorEntrada = (valImovel * entPerc) / 100;
 
                     // 2. Calculate Total Value of ALL Reinforcements across the entire flux
-                    // This is the total sum of all planned annual reinforcements.
                     const totalValorTodosReforcos = numTotalReforcosAnuaisCalculado * valReforcoAnual;
 
                     // 3. Calculate Reinforcements Paid DURING Construction period
-                    // This counts only the reinforcements that fall within the construction months.
                     const reforcosDuranteObraCount = Math.min(numTotalReforcosAnuaisCalculado, Math.floor(mesObra / 12));
                     const totalReforcosQueCaemNaObra = reforcosDuranteObraCount * valReforcoAnual;
                     setReforcosAplicadosNaObra(reforcosDuranteObraCount);
+                    setTotalValorReforcosNaObra(totalReforcosQueCaemNaObra); 
+
+                    // Calculate Reinforcements Applied AFTER Construction period
+                    const reforcosAposObraCount = Math.max(0, numTotalReforcosAnuaisCalculado - reforcosDuranteObraCount);
+                    const totalReforcosQueCaemAposObra = reforcosAposObraCount * valReforcoAnual;
+                    setReforcosAplicadosAposObra(reforcosAposObraCount);
+                    setTotalValorReforcosAposObra(totalReforcosQueCaemAposObra); 
 
                     // 4. Calculate Monthly Installments During Construction
-                    // Value that *should* be paid during construction (50% of the property) to meet the rule
                     const target50PercentInConstruction = valImovel * TARGET_PERCENT_PAID_DURING_CONSTRUCTION;
-                    
-                    // Amount already paid by initial payment and reinforcements *that fall within construction period*
                     const valorPagoPorEntradaEReforcosNaObra = valorEntrada + totalReforcosQueCaemNaObra;
 
                     let rawParcelasMensaisObra = 0;
-                    let valorTotalDasParcelasObraCalculated = 0; // The total sum of monthly installments during construction based on raw calculation
+                    let valorTotalDasParcelasObraCalculated = 0; 
 
                     if (mesObra > 0) {
                         const valorNecessarioDasParcelasObra = Math.max(0, target50PercentInConstruction - valorPagoPorEntradaEReforcosNaObra);
@@ -390,20 +398,18 @@
                         } else if (rawParcelasMensaisObra < 0) {
                             setWarningObra(`Atenção: A parcela mensal durante a obra resultou em valor negativo (${formatCurrency(rawParcelasMensaisObra)}). Isso pode indicar que a entrada e reforços já excedem o valor do imóvel ou a meta de 50%.`);
                         }
-                    } 
-                    setParcelasObraMensal(rawParcelasMensaisObra); // Display the raw calculated value
+                    } else if (target50PercentInConstruction - valorPagoPorEntradaEReforcosNaObra > 0) {
+                        setWarningObra(`Atenção: Meses de obra definidos como 0, mas ainda é necessário pagar ${formatCurrency(target50PercentInConstruction - valorPagoPorEntradaEReforcosNaObra)} para atingir a meta de 50% durante a obra.`);
+                    }
+                    setParcelasObraMensal(rawParcelasMensaisObra); 
 
-                    // 5. Calculate Total Paid During Construction (actual sum of contributions during construction period)
-                    // This is the actual amount paid, which contributes to reducing the overall financing.
+                    // 5. Calculate Total Paid During Construction 
                     const actualTotalPaidDuringConstruction = valorEntrada + totalReforcosQueCaemNaObra + valorTotalDasParcelasObraCalculated;
                     setTotalPagoObra(actualTotalPaidDuringConstruction);
 
                     // 6. Calculate Remaining Balance to be Financed Post-Construction
-                    // This balance is the total property value minus *all* client contributions throughout the entire flow.
-                    // This calculation is crucial: it sums all explicit payments to reduce the final loan amount.
                     let saldoTotalFinanciar = valImovel - (valorEntrada + totalValorTodosReforcos + valorTotalDasParcelasObraCalculated + valChaves);
                     
-                    // Allow negative saldoTotalFinanciarPosObra for display and warning, but clamp for subsequent calculations (like division)
                     if (saldoTotalFinanciar < 0) {
                          setWarningPosObra(`Atenção: O saldo a financiar pós-obra resultou em valor negativo (${formatCurrency(saldoTotalFinanciar)}). Isso indica que o total pago excede o valor do imóvel.`);
                     }
@@ -411,17 +417,14 @@
 
 
                     // 7. Months of Post-Construction Financing
-                    const currentMesesFinancPosObra = Math.max(0, mesTotaisFluxo - mesObra); // Must be at least 0
+                    const currentMesesFinancPosObra = Math.max(0, mesTotaisFluxo - mesObra); 
                     setMesesFinanciamentoPosObra(currentMesesFinancPosObra);
 
                     // 8. Monthly Installment Value Post-Construction
                     let rawParcelaMensalPosObra = 0;
                     if (currentMesesFinancPosObra > 0) {
-                        // Use Math.max(0, saldoTotalFinanciar) to ensure division by zero or negative balance doesn't break.
-                        // This prevents NaN/Infinity in rawParcelaMensalPosObra, but saldoTotalFinanciarPosObra still shows raw value.
                         rawParcelaMensalPosObra = Math.max(0, saldoTotalFinanciar) / currentMesesFinancPosObra;
                         
-                        // Warnings for rawParcelaMensalPosObra
                         if (rawParcelaMensalPosObra < MIN_PARCELA_MENSAL && rawParcelaMensalPosObra >= 0) {
                             setWarningPosObra(`Atenção: A parcela mensal pós-obra (${formatCurrency(rawParcelaMensalPosObra)}) está abaixo do mínimo de ${formatCurrency(MIN_PARCELA_MENSAL)}.`);
                         } else if (rawParcelaMensalPosObra > HIGH_PARCELA_THRESHOLD) {
@@ -432,7 +435,7 @@
                     } else if (saldoTotalFinanciar > 0) {
                         setWarningPosObra(`Atenção: Saldo a financiar (${formatCurrency(saldoTotalFinanciar)}) com 0 meses pós-obra. Ajuste o fluxo total ou pague mais nas chaves.`);
                     }
-                    setParcelaMensalPosObra(rawParcelaMensalPosObra); // Display the raw calculated value
+                    setParcelaMensalPosObra(rawParcelaMensalPosObra); 
 
                 } catch (error) {
                     console.error("Erro no cálculo da proposta:", error);
@@ -442,6 +445,9 @@
                     setParcelaMensalPosObra(0);
                     setSaldoTotalFinanciarPosObra(0);
                     setReforcosAplicadosNaObra(0);
+                    setReforcosAplicadosAposObra(0); 
+                    setTotalValorReforcosNaObra(0); 
+                    setTotalValorReforcosAposObra(0); 
                     setWarningObra('Ocorreu um erro inesperado no cálculo. Por favor, verifique os valores inseridos ou tente novamente.');
                     setWarningPosObra('');
                 }
@@ -450,250 +456,58 @@
             // Call the calculation function whenever an input state changes
             useEffect(() => {
                 calculateProposal();
-            }, [calculateProposal]);
+                // Ajusta o valor inicial de 'valorNasChaves' para refletir 10% do valor do imóvel quando 'valorImovel' muda.
+                // É importante que essa lógica não sobrescreva o valor se o usuário já tiver alterado 'valorNasChaves' manualmente.
+                // Para simplicidade, vamos redefinir aqui quando o valor do imóvel mudar.
+                setValorNasChaves(parseToNumber(valorImovel * 0.10));
+            }, [calculateProposal, valorImovel]);
 
 
             // Function to send data via WhatsApp
             const sendToWhatsApp = () => {
+                // Usamos valorImovel diretamente, pois é um número
+                const valImovel = valorImovel; 
+                const entPerc = parseToNumber(entradaPercentual);
+                const valorEntradaCalculado = (valImovel * entPerc) / 100;
+                // Defensive check for valImovel being zero before calculating percentage
+                const percentualNasChaves = valImovel > 0 ? (parseToNumber(valorNasChaves) / valImovel * 100).toFixed(0) : '0';
+
+
                 const message = `
 *PROPOSTA DE PAGAMENTO - KEVILLEN COSTA*
 ---------------------------------------
-*Imóvel:* ${formatCurrency(parseToNumber(valorImovel))}
-*Entrada:* ${formatCurrency((parseToNumber(valorImovel) * parseToNumber(entradaPercentual)) / 100)} (${entradaPercentual}%)
-*Meses de Obra:* ${mesesObra} meses
+Valor da Unidade: ${formatCurrency(valImovel)}
+Entrada: **${formatCurrency(valorEntradaCalculado)}** (${entPerc}%)
+Meses de Obra: ${mesesObra} meses
+Fluxo Total: ${mesesTotaisFluxo} meses
 
-*Durante a Obra:*
-  - *Parcelas Mensais:* ${formatCurrency(parcelasObraMensal)} (x ${mesesObra})
-  - *Reforços Anuais:* ${formatCurrency(valorReforcoAnual)} (x ${reforcosAplicadosNaObra} reforços no período da obra)
-  - *Total Pago na Obra:* ${formatCurrency(totalPagoObra)}
+Durante a Obra:
+  - Parcelas Mensais: Em **(${mesesObra}x) ${formatCurrency(parcelasObraMensal)}**
+  - Reforço Anual em obra: Em **(${reforcosAplicadosNaObra}x) ${formatCurrency(valorReforcoAnual)}**
+  
+  - Total a ser pago durante a Obra: ${formatCurrency(totalPagoObra)}.
 
-*Nas Chaves:* ${formatCurrency(valorNasChaves)}
+____________________________________________
+Nas Chaves (${percentualNasChaves}%): **${formatCurrency(valorNasChaves)}**
+____________________________________________
+Após a Obra (Financiamento em ${mesesFinanciamentoPosObra} meses):
 
-*Após a Obra (Financiamento):*
-  - *Saldo a Financiar:* ${formatCurrency(saldoTotalFinanciarPosObra)}
-  - *Meses de Financiamento:* ${mesesFinanciamentoPosObra} meses
-  - *Parcela Mensal Pós-Obra:* ${formatCurrency(parcelaMensalPosObra)}
+  - Reforço Anual pós Obra: **(${reforcosAplicadosAposObra}x) ${formatCurrency(valorReforcoAnual)}**
+  - Parcela Mensal Pós-Obra: Em **(${mesesFinanciamentoPosObra}x) ${formatCurrency(parcelaMensalPosObra)}**
 
-*Fluxo Total:* ${mesesTotaisFluxo} meses
----------------------------------------
+  - Saldo pós obra: ${formatCurrency(saldoTotalFinanciarPosObra)}.
+
+Valores corrigidos pelo CUB-SC do mês vigente.
 `;
 
                 const whatsappLink = `https://wa.me/5547997082022?text=${encodeURIComponent(message)}`;
                 window.open(whatsappLink, '_blank');
             };
 
-            // Function to generate AI alternative proposals
-            const generateAlternativeProposals = useCallback(async () => {
-                setIsGeneratingProposals(true);
-                setAlternativeProposals([]); // Clear previous proposals
-
-                const currentData = {
-                    valorImovel: valorImovel,
-                    entradaPercentual: entradaPercentual,
-                    mesesObra: mesesObra,
-                    valorReforcoAnual: valorReforcoAnual,
-                    numeroTotalReforcosAnuais: numeroTotalReforcosAnuais,
-                    mesesTotaisFluxo: mesesTotaisFluxo,
-                    valorNasChaves: valorNasChaves,
-                    parcelasObraMensal: parcelasObraMensal,
-                    totalPagoObra: totalPagoObra,
-                    saldoTotalFinanciarPosObra: saldoTotalFinanciarPosObra,
-                    mesesFinanciamentoPosObra: mesesFinanciamentoPosObra,
-                    parcelaMensalPosObra: parcelaMensalPosObra
-                };
-
-                const prompt = `
-Você é um especialista em planejamento financeiro imobiliário e seu objetivo é gerar 5 versões otimizadas de propostas de pagamento para um imóvel, com base nos dados atuais e em cenários específicos. Para cada versão, você deve fornecer os valores ideais para os parâmetros de entrada. Mantenha a 'description' de cada cenário muito curta e direta.
-
-**Dados Atuais da Proposta:**
-${JSON.stringify(currentData, null, 2)}
-
-**Regras de Negócio e Limites:**
-- Parcela Mensal Mínima (Durante Obra e Pós-Obra): R$ ${MIN_PARCELA_MENSAL}.
-- Meta de Pagamento Durante a Obra: Pelo menos 50% do valor do imóvel deve ser pago durante os meses de obra (incluindo entrada e reforços anuais que caem na obra).
-- Limite de Entrada: Entre 10% e 30% do valor do imóvel.
-- Limite de Meses do Fluxo: Máximo de 140 meses.
-- Prazo de Obra: Máximo de 72 meses (6 anos).
-- Valor nas Chaves: Máximo de 30% do valor do imóvel.
-
-**Cenários de Geração:**
-
-1.  **Focando em ENTRADA MAIOR:**
-    * Sugira um \`entradaPercentual\` significativamente maior (próximo ao limite superior de 30% se a parcela pós-obra estiver alta, ou um valor intermediário se já estiver confortável), para reduzir o saldo a financiar e as parcelas futuras.
-    * Ajuste \`valorReforcoAnual\`, \`numeroTotalReforcosAnuais\`, \`mesesTotaisFluxo\` e \`valorNasChaves\` para complementar este objetivo, buscando uma parcela pós-obra mais baixa e confortável.
-
-2.  **Focando em PARCELA MENSAL PÓS-OBRA BAIXA (próximo a R$ ${MIN_PARCELA_MENSAL}):**
-    * Sugira ajustes em \`mesesTotaisFluxo\` (o mais alto possível, até 140 meses), \`valorReforcoAnual\`, \`numeroTotalReforcosAnuais\` e \`valorNasChaves\` para que a \`parcelaMensalPosObra\` se aproxime de R$ ${MIN_PARCELA_MENSAL}.
-    * Mantenha \`entradaPercentual\` em um nível razoável (evite descapitalizar demais).
-
-3.  **Focando em ENTRADA MÍNIMA (10%) com COMPENSAÇÃO por PARCELAS/REFORÇOS:**
-    * Defina \`entradaPercentual\` como 10%.
-    * Compense a entrada mínima com \`valorReforcoAnual\` e/ou \`numeroTotalReforcosAnuais\` mais elevados. Pode ser necessário ajustar \`mesesTotaisFluxo\` para um prazo menor se as parcelas ficarem muito altas, ou para um prazo maior se as parcelas ficarem confortáveis mas o saldo ainda precisar de mais tempo. Busque um equilibrio onde as parcelas mensais não excedam drasticamente R$ ${HIGH_PARCELA_THRESHOLD}.
-
-4.  **Simulação de PAGAMENTO ANTECIPADO:**
-    * Foco em \`entradaPercentual\` mais alta (até 30%), \`valorReforcoAnual\` maior e \`numeroTotalReforcosAnuais\` maior, e \`valorNasChaves\` maior, para reduzir o saldo a financiar drasticamente e permitir um \`mesesTotaisFluxo\` menor. Objetivo é quitar o mais rápido possível e minimizar juros.
-
-5.  **Simulação CONSERVADORA:**
-    * Foco em \`parcelaMensalPosObra\` mais baixa (próximo ao mínimo de R$ ${MIN_PARCELA_MENSAL}). Isso pode envolver \`mesesTotaisFluxo\` mais alto (próximo a 140), \`entradaPercentual\` menor (próximo a 10%), e \`valorReforcoAnual\` e \`valorNasChaves\` também menores para priorizar liquidez do cliente.
-
-**Formato de Saída (JSON Array):**
-Retorne um array JSON contendo 5 objetos, um para cada cenário. Cada objeto deve ter as chaves \`scenarioName\`, \`description\` e \`parameters\`. Os valores em \`parameters\` devem ser números.
-
-\`\`\`json
-[
-  {
-    "scenarioName": "Entrada Maior",
-    "description": "Foco em entrada alta para reduzir parcelas futuras.",
-    "parameters": {
-      "entradaPercentual": <valor_percentual_ideal>,
-      "valorReforcoAnual": <valor_monetario_ideal>,
-      "numeroTotalReforcosAnuais": <quantidade_ideal>,
-      "mesesTotaisFluxo": <meses_ideal>,
-      "valorNasChaves": <valor_monetario_ideal>
-    }
-  },
-  {
-    "scenarioName": "Parcela Mensal Baixa (R$ ${MIN_PARCELA_MENSAL})",
-    "description": "Otimizada para parcela pós-obra mínima.",
-    "parameters": {
-      "entradaPercentual": <valor_percentual_ideal>,
-      "valorReforcoAnual": <valor_monetario_ideal>,
-      "numeroTotalReforcosAnuais": <quantidade_ideal>,
-      "mesesTotaisFluxo": <meses_ideal>,
-      "valorNasChaves": <valor_monetario_ideal>
-    }
-  },
-  {
-    "scenarioName": "Entrada Mínima com Compensação por Parcelas/Reforços",
-    "description": "Entrada mínima compensada por reforços e/ou parcelas maiores.",
-    "parameters": {
-      "entradaPercentual": 10,
-      "valorReforcoAnual": <valor_monetario_ideal>,
-      "numeroTotalReforcosAnuais": <quantidade_ideal>,
-      "mesesTotaisFluxo": <meses_ideal>,
-      "valorNasChaves": <valor_monetario_ideal>
-    }
-  },
-  {
-    "scenarioName": "Simulação de Pagamento Antecipado",
-    "description": "Pagamentos extras para reduzir juros totais e prazo.",
-    "parameters": {
-      "entradaPercentual": <valor_percentual_ideal>,
-      "valorReforcoAnual": <valor_monetario_ideal>,
-      "numeroTotalReforcosAnuais": <quantidade_ideal>,
-      "mesesTotaisFluxo": <meses_ideal>,
-      "valorNasChaves": <valor_monetario_ideal>
-    }
-  },
-  {
-    "scenarioName": "Simulação Conservadora",
-    "description": "Parcelas baixas e flexibilidade, com prazo mais longo.",
-    "parameters": {
-      "entradaPercentual": <valor_percentual_ideal>,
-      "valorReforcoAnual": <valor_monetario_ideal>,
-      "numeroTotalReforcosAnuais": <quantidade_ideal>,
-      "mesesTotaisFluxo": <meses_ideal>,
-      "valorNasChaves": <valor_monetario_ideal>
-    }
-  }
-]
-\`\`\`
-`;
-
-                try {
-                    let chatHistory = [];
-                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-                    const payload = {
-                        contents: chatHistory,
-                        generationConfig: {
-                            responseMimeType: "application/json",
-                            responseSchema: {
-                                type: "ARRAY",
-                                items: {
-                                    type: "OBJECT",
-                                    properties: {
-                                        "scenarioName": { "type": "STRING" },
-                                        "description": { "type": "STRING" },
-                                        "parameters": {
-                                            "type": "OBJECT",
-                                            "properties": {
-                                                "entradaPercentual": { "type": "NUMBER" },
-                                                "valorReforcoAnual": { "type": "NUMBER" },
-                                                "numeroTotalReforcosAnuais": { "type": "NUMBER" },
-                                                "mesesTotaisFluxo": { "type": "NUMBER" },
-                                                "valorNasChaves": { "type": "NUMBER" }
-                                            },
-                                            "required": ["entradaPercentual", "valorReforcoAnual", "numeroTotalReforcosAnuais", "mesesTotaisFluxo", "valorNasChaves"]
-                                        }
-                                    },
-                                    "required": ["scenarioName", "description", "parameters"]
-                                }
-                            }
-                        }
-                    };
-                    const apiKey = "AIzaSyCAdsR2LQb2SCTG1y5JYCrA4XVy0i-96NM"; // API Key inserted here
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    const result = await response.json();
-                    if (result.candidates && result.candidates.length > 0 &&
-                        result.candidates[0].content && result.candidates[0].content.parts &&
-                        result.candidates[0].content.parts.length > 0) {
-                        const json = result.candidates[0].content.parts[0].text;
-                        const parsedJson = JSON.parse(json);
-
-                        // Filter out any entries where idealValue is null or undefined for display
-                        // and ensure numbers are rounded to integers where appropriate for sliders
-                        const formattedProposals = parsedJson.map(proposal => ({
-                            ...proposal,
-                            parameters: Object.fromEntries(
-                                Object.entries(proposal.parameters).map(([key, value]) => {
-                                    if (key === 'entradaPercentual' || key === 'numeroTotalReforcosAnuais' || key === 'mesesTotaisFluxo') {
-                                        return [key, Math.round(value)]; // Round for sliders
-                                    }
-                                    // Round currency values to nearest 1000 for better slider usability
-                                    return [key, Math.round(value / 1000) * 1000]; 
-                                }).filter(([, value]) => value !== null && value !== undefined) // Filter out null/undefined
-                            )
-                        }));
-
-                        setAlternativeProposals(formattedProposals);
-
-                    } else {
-                        console.error("AI response structure is unexpected or content is missing", result);
-                        setFloatingMessage({ message: "Não foi possível gerar propostas alternativas. Tente novamente.", type: "error" });
-                    }
-                } catch (error) {
-                    console.error("Error generating alternative proposals:", error);
-                    setFloatingMessage({ message: "Erro ao conectar com a IA para gerar propostas. Verifique sua conexão ou tente novamente.", type: "error" });
-                } finally {
-                    setIsGeneratingProposals(false);
-                }
-            }, [valorImovel, entradaPercentual, mesesObra, valorReforcoAnual, numeroTotalReforcosAnuais, mesesTotaisFluxo, valorNasChaves,
-                parcelasObraMensal, totalPagoObra, saldoTotalFinanciarPosObra, mesesFinanciamentoPosObra, parcelaMensalPosObra,
-                MIN_PARCELA_MENSAL, HIGH_PARCELA_THRESHOLD, formatCurrency]);
-
-
-            // Function to apply an alternative proposal to the main simulator
-            const applyAlternativeProposal = useCallback((parameters) => {
-                // Apply values from the generated proposal to the main simulator states
-                if (parameters.entradaPercentual !== undefined) setEntradaPercentual(parameters.entradaPercentual);
-                if (parameters.valorReforcoAnual !== undefined) setValorReforcoAnual(parameters.valorReforcoAnual);
-                if (parameters.numeroTotalReforcosAnuais !== undefined) setNumeroTotalReforcosAnuais(parameters.numeroTotalReforcosAnuais);
-                if (parameters.mesesTotaisFluxo !== undefined) setMesesTotaisFluxo(parameters.mesesTotaisFluxo);
-                if (parameters.valorNasChaves !== undefined) setValorNasChaves(parameters.valorNasChaves);
-                
-                setAlternativeProposals([]); // Clear proposals after applying one
-                setFloatingMessage({ message: "Proposta aplicada ao simulador!", type: "success" }); // Show success message
-            }, []);
 
             return (
                 <div className="flex flex-col items-center justify-center p-4 w-full">
+                    {console.log("App component rendering...")} 
                     <FloatingMessage 
                         message={floatingMessage ? floatingMessage.message : null} 
                         type={floatingMessage ? floatingMessage.type : null} 
@@ -704,28 +518,25 @@ Retorne um array JSON contendo 5 objetos, um para cada cenário. Cada objeto dev
                     <div className="bg-gray-800 rounded-xl p-6 sm:p-8 shadow-lg border border-gray-700 w-full mb-8">
                         <h2 className="text-xl sm:text-2xl font-semibold text-gray-50 mb-6 border-b border-gray-700 pb-4">Parâmetros da Proposta</h2>
 
-                        {/* Valor do Imóvel */}
-                        <div className="mb-6">
-                            <label className="block text-gray-300 text-sm font-semibold mb-2" htmlFor="valorImovel">
-                                Valor do Imóvel (R$)
-                            </label>
-                            <input
-                                type="number"
-                                id="valorImovel"
-                                value={valorImovel}
-                                onChange={(e) => setValorImovel(parseToNumber(e.target.value))}
-                                className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all duration-200"
-                                placeholder="Ex: 500000"
-                            />
-                        </div>
+                        {/* Valor do Imóvel - AGORA É UM SLIDER COM PASSO DE MIL */}
+                        <CustomSlider
+                            label="Valor do Imóvel (R$)"
+                            value={valorImovel}
+                            onChange={(e) => setValorImovel(parseToNumber(e.target.value))}
+                            min={0} // Mínimo de 0
+                            max={1000000} // Máximo de 1 milhão
+                            step={1000} // Passo de 1000 em 1000
+                            displayValue={formatCurrency(valorImovel)}
+                        >
+                        </CustomSlider>
 
                         {/* Entrada (%) */}
                         <CustomSlider
                             label="Entrada (%)"
                             value={entradaPercentual}
                             onChange={(e) => setEntradaPercentual(parseToNumber(e.target.value))}
-                            min={10} // Min 10%
-                            max={30} // Max 30%
+                            min={10} 
+                            max={30} 
                             step={1}
                             unit="%"
                         >
@@ -737,7 +548,7 @@ Retorne um array JSON contendo 5 objetos, um para cada cenário. Cada objeto dev
                             value={mesesObra}
                             onChange={(e) => setMesesObra(parseToNumber(e.target.value))}
                             min={0}
-                            max={72} // Max 72 months (6 years)
+                            max={72} 
                             step={1}
                             unit=" meses"
                         >
@@ -749,7 +560,7 @@ Retorne um array JSON contendo 5 objetos, um para cada cenário. Cada objeto dev
                             value={valorReforcoAnual}
                             onChange={(e) => setValorReforcoAnual(parseToNumber(e.target.value))}
                             min={0}
-                            max={valorImovel * 0.10} // Max is 10% of imóvel value, dynamic
+                            max={valorImovel * 0.10} // Max é 10% do valor do imóvel, dinâmico
                             step={1000}
                             displayValue={formatCurrency(valorReforcoAnual)}
                         >
@@ -761,7 +572,7 @@ Retorne um array JSON contendo 5 objetos, um para cada cenário. Cada objeto dev
                             value={numeroTotalReforcosAnuais}
                             onChange={(e) => setNumeroTotalReforcosAnuais(parseToNumber(e.target.value))}
                             min={0}
-                            max={Math.max(0, Math.floor(mesesTotaisFluxo / 12))} // Max tied to total flux duration
+                            max={Math.max(0, Math.floor(parseToNumber(mesesTotaisFluxo) / 12))} // Max atrelado à duração total do fluxo
                             step={1}
                         >
                         </CustomSlider>
@@ -771,13 +582,13 @@ Retorne um array JSON contendo 5 objetos, um para cada cenário. Cada objeto dev
                             label="Meses Totais do Fluxo"
                             value={mesesTotaisFluxo}
                             onChange={(e) => setMesesTotaisFluxo(parseToNumber(e.target.value))}
-                            min={mesesObra + 1}
-                            max={140} // Max 140 months
+                            min={Math.min(140, parseToNumber(mesesObra) + 1)}
+                            max={140} 
                             step={1}
                             unit=" meses"
                         >
                         </CustomSlider>
-                        {mesesTotaisFluxo <= mesesObra && (
+                        {parseToNumber(mesesTotaisFluxo) <= parseToNumber(mesesObra) && (
                             <p className="text-red-400 text-sm mt-1">O fluxo total deve ser maior que os meses de obra.</p>
                         )}
 
@@ -788,7 +599,7 @@ Retorne um array JSON contendo 5 objetos, um para cada cenário. Cada objeto dev
                             value={valorNasChaves}
                             onChange={(e) => setValorNasChaves(parseToNumber(e.target.value))}
                             min={0}
-                            max={valorImovel * 0.3}
+                            max={valorImovel * 0.3} // Max é 30% do valor do imóvel
                             step={1000}
                             displayValue={formatCurrency(valorNasChaves)}
                         >
@@ -796,41 +607,20 @@ Retorne um array JSON contendo 5 objetos, um para cada cenário. Cada objeto dev
 
                     </div>
 
-                    {/* AI Alternative Proposals Button */}
-                    <div className="w-full text-center mb-8">
-                        <button
-                            onClick={generateAlternativeProposals}
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 w-full sm:w-auto"
-                            disabled={isGeneratingProposals}
-                        >
-                            {isGeneratingProposals ? 'Gerando propostas...' : 'Gerar Propostas Alternativas (IA)'}
-                        </button>
-                    </div>
-
-                    {/* Alternative Proposals Display */}
-                    {alternativeProposals.length > 0 && (
-                        <div className="bg-gray-800 rounded-xl p-6 sm:p-8 shadow-lg border border-blue-600 w-full mb-8">
-                            <h2 className="text-xl sm:text-2xl font-semibold text-blue-300 mb-6 border-b border-gray-700 pb-4">Propostas Alternativas (IA)</h2>
-                            {alternativeProposals.map((proposal, index) => (
-                                <AlternativeProposalCard
-                                    key={index}
-                                    proposal={proposal}
-                                    onApply={applyAlternativeProposal}
-                                />
-                            ))}
-                        </div>
-                    )}
-
                     {/* Results Calculated */}
                     <div className="bg-gray-800 rounded-xl p-6 sm:p-8 shadow-lg border border-blue-600 w-full mb-8">
                         <h2 className="text-xl sm:text-2xl font-semibold text-blue-300 mb-6 border-b border-gray-700 pb-4">Resultados da Proposta</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <InfoCard label="Parcelas Mensais Durante a Obra" value={formatCurrency(parcelasObraMensal)} />
                             <InfoCard label="Total Pago Durante a Obra" value={formatCurrency(totalPagoObra)} />
-                            <InfoCard label="Reforços Anuais Aplicados na Obra" value={`${reforcosAplicadosNaObra} reforços`} />
+                            <InfoCard label="Número de Reforços na Obra" value={`${reforcosAplicadosNaObra} reforços`} />
+                            <InfoCard label="Total de Reforços na Obra" value={formatCurrency(totalValorReforcosNaObra)} />
+                            
                             <InfoCard label="Meses de Financiamento Pós-Obra" value={`${mesesFinanciamentoPosObra} meses`} />
                             <InfoCard label="Saldo a Financiar Pós-Obra" value={formatCurrency(saldoTotalFinanciarPosObra)} />
                             <InfoCard label="Parcela Mensal Pós-Obra" value={formatCurrency(parcelaMensalPosObra)} />
+                            <InfoCard label="Número de Reforços Pós-Obra" value={`${reforcosAplicadosAposObra} reforços`} />
+                            <InfoCard label="Total de Reforços Pós-Obra" value={formatCurrency(totalValorReforcosAposObra)} />
                         </div>
                         {warningObra && (
                             <p className="text-amber-400 text-sm mt-4 p-2 bg-amber-900/20 rounded-md border border-amber-600">
@@ -868,9 +658,19 @@ Retorne um array JSON contendo 5 objetos, um para cada cenário. Cada objeto dev
         };
 
         const container = document.getElementById('root');
-        const root = createRoot(container);
-        root.render(<App />);
+        // Apenas tenta renderizar o React se nenhum erro global tiver ocorrido
+        if (container && !globalHasError) {
+            try {
+                const root = createRoot(container);
+                root.render(<App />);
+            } catch (e) {
+                console.error("Erro ao iniciar a renderização do React:", e);
+                showGlobalError("Falha ao carregar a interface do usuário. Por favor, recarregue.");
+            }
+        } else if (!container) {
+            console.error("Elemento 'root' não encontrado no DOM!");
+            showGlobalError("O ponto de montagem da aplicação não foi encontrado.");
+        }
     </script>
 </body>
 </html>
-
