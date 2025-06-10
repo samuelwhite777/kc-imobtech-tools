@@ -22,7 +22,7 @@
             padding: 1rem;
             box-sizing: border-box;
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            -moz-osx-osx-font-smoothing: grayscale;
         }
         .container {
             background-color: #F0F4F8; /* Um tom de azul-cinza muito claro para o container */
@@ -468,7 +468,8 @@
             chatHistory.push({ role: "user", parts: [{ text: prompt }] });
 
             const payload = { contents: chatHistory };
-            const apiKey = ""; // API Key for Gemini -  Leave blank for Canvas to provide
+            // A chave de API do Google Gemini é fornecida diretamente aqui.
+            const apiKey = "AIzaSyCAdsR2LQb2SCTG1y5JYCrA4XVy0i-96NM";
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
