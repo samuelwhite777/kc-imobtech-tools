@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerador de Proposta de Pagamento | Kevillen Costa</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -14,18 +13,14 @@
                         sans: ['Inter', 'sans-serif'],
                     },
                     colors: {
-                        'custom-bg-dark': '#0A0A0A',
                     }
                 }
             }
         }
     </script>
-    <!-- React & ReactDOM CDN -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Babel CDN for JSX transformation -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Font Awesome CDN for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" xintegrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEbFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
@@ -33,58 +28,57 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
-        /* Custom scrollbar for a sleek look */
         ::-webkit-scrollbar {
             width: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: #1a1a1a;
+            background: #e5e7eb;
             border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb {
-            background: #4a4a4a;
+            background: #9ca3af;
             border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #5a5a5a;
+            background: #6b7280;
             cursor: grab;
         }
         input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
             height: 8px;
-            background: #4a4a4a;
+            background: #d1d5db;
             border-radius: 5px;
             outline: none;
             transition: opacity .2s;
-            @apply shadow-inner; /* Add inner shadow for depth */
+            @apply shadow-inner;
         }
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
             width: 20px;
             height: 20px;
-            background: #3B82F6; /* Blue-600 */
+            background: #3B82F6;
             border-radius: 50%;
             cursor: grab;
             transition: background .2s, transform .2s;
-            @apply shadow-md; /* Add shadow to thumb */
+            @apply shadow-md;
         }
         input[type="range"]::-webkit-slider-thumb:hover {
-            background: #2563EB; /* Blue-700 */
+            background: #2563EB;
             transform: scale(1.1);
         }
         input[type="range"]::-moz-range-thumb {
             width: 20px;
             height: 20px;
-            background: #3B82F6; /* Blue-600 */
+            background: #3B82F6;
             border-radius: 50%;
             cursor: grab;
             transition: background .2s, transform .2s;
             @apply shadow-md;
         }
         input[type="range"]::-moz-range-thumb:hover {
-            background: #2563EB; /* Blue-700 */
+            background: #2563EB;
             transform: scale(1.1);
         }
         input[type="number"]::-webkit-inner-spin-button,
@@ -95,44 +89,41 @@
         input[type="number"] {
             -moz-appearance: textfield;
         }
-        /* Custom styles for collapsible sections (like AI proposal cards) */
-        .insight-box { /* Keep for general styling, though specific AI cards are removed */
-            background-color: #1f2937; /* Gray-800 */
-            border: 1px solid #3b82f6; /* Blue-600 */
+        .insight-box {
+            background-color: #e2e8f0;
+            border: 1px solid #3b82f6;
             border-radius: 0.5rem;
             padding: 1rem;
             margin-top: 0.5rem;
-            color: #d1d5db; /* Gray-300 */
-            font-size: 0.875rem; /* text-sm */
-            line-height: 1.25rem; /* leading-5 */
+            color: #4b5563;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
         }
-        .insight-header { /* Keep for general styling */
+        .insight-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
             font-weight: 600;
-            color: #93c5fd; /* Blue-300 */
+            color: #1d4ed8;
         }
-        .insight-content { /* Keep for general styling */
+        .insight-content {
             padding-top: 0.5rem;
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease-out;
         }
-        .insight-content.open { /* Keep for general styling */
-            max-height: 200px; /* Adjust as needed for content length */
+        .insight-content.open {
+            max-height: 200px;
             transition: max-height 0.5s ease-in;
-            cursor: pointer; /* Indicate it's clickable */
+            cursor: pointer;
         }
-        .insight-arrow { /* Keep for general styling */
+        .insight-arrow {
             transition: transform 0.3s ease;
         }
-        .insight-arrow.open { /* Keep for general styling */
+        .insight-arrow.open {
             transform: rotate(90deg);
         }
-
-        /* Floating message (toast) styles */
         .floating-message {
             position: fixed;
             top: 1rem;
@@ -150,34 +141,29 @@
         }
     </style>
 </head>
-<body class="bg-custom-bg-dark text-gray-100 font-sans min-h-screen flex flex-col justify-center items-center py-8 px-4 sm:px-6 lg:px-8">
+<body class="bg-white text-gray-900 font-sans min-h-screen flex flex-col justify-center items-center py-8 px-4 sm:px-6 lg:px-8">
 
     <div id="root" class="w-full max-w-4xl"></div>
 
     <script type="text/babel">
-        // Log para verificar se o script Babel está sendo processado
         console.log("Iniciando processamento do script Babel...");
 
         const { useState, useEffect, useCallback, useRef } = React;
         const { createRoot } = ReactDOM;
 
-        // --- GLOBAL ERROR HANDLING START ---
-        // Variáveis globais para controlar o estado de erro
         let globalHasError = false;
         let globalErrorMessage = '';
 
-        // Função para exibir uma mensagem de erro global no DOM
         const showGlobalError = (message) => {
             globalHasError = true;
             globalErrorMessage = message;
             const rootContainer = document.getElementById('root');
             if (rootContainer) {
-                // Se o elemento raiz existe, renderiza uma mensagem de erro simples
                 rootContainer.innerHTML = `
-                    <div class="flex flex-col items-center justify-center min-h-screen bg-custom-bg-dark text-red-400 p-8 text-center">
-                        <h1 class="text-3xl font-bold mb-4">Oops! Algo deu errado.</h1>
-                        <p class="text-lg mb-6">${message}</p>
-                        <p class="text-md mb-8">Por favor, tente recarregar a página. Se o problema persistir, entre em contato com o suporte.</p>
+                    <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100 text-red-600 p-8 text-center">
+                        <h1 class="text-3xl font-bold mb-4">Oops! Algo deu errado na aplicação.</h1>
+                        <p class="text-lg mb-6 break-words">${message}</p>
+                        <p class="text-md mb-8">Por favor, tente recarregar a página. Se o problema persistir, por favor, copie a mensagem acima e entre em contato com o suporte.</p>
                         <button onclick="window.location.reload()" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75">
                             Recarregar Página
                         </button>
@@ -186,34 +172,32 @@
             }
         };
 
-        // Captura erros JavaScript não tratados em todo o window
         window.onerror = (message, source, lineno, colno, error) => {
             console.error("Erro global não capturado:", error || message);
-            showGlobalError("Um erro inesperado ocorreu na aplicação.");
-            // Retorna true para evitar que o erro seja reportado no console do navegador (opcional)
+            let displayMessage = `Erro: ${message}`;
+            if (source) displayMessage += `\nFonte: ${source}`;
+            if (lineno) displayMessage += `\nLinha: ${lineno}`;
+            if (colno) displayMessage += `\nColuna: ${colno}`;
+            if (error && error.stack) displayMessage += `\nStack: ${error.stack}`;
+            showGlobalError(displayMessage);
             return true;
         };
 
-        // Captura promessas rejeitadas não tratadas (erros em operações assíncronas)
         window.addEventListener('unhandledrejection', (event) => {
             console.error("Rejeição de promessa não tratada globalmente:", event.reason);
-            showGlobalError("Uma operação assíncrona falhou inesperadamente.");
-            // Retorna true para evitar que o erro seja reportado no console do navegador (opcional)
+            let displayMessage = `Rejeição de promessa: ${event.reason}`;
+            if (event.reason && event.reason.stack) displayMessage += `\nStack: ${event.reason.stack}`;
+            showGlobalError(displayMessage);
             return true;
         });
-        // --- GLOBAL ERROR HANDLING END ---
 
-        // Utility function to convert to number, treating invalid inputs as 0
         const parseToNumber = (value) => {
-            // Remove todos os caracteres que não são dígitos, ponto ou vírgula, depois substitui vírgula por ponto.
             const cleanedValue = String(value).replace(/[^\d.,]/g, '').replace(',', '.');
             const num = parseFloat(cleanedValue);
             return isNaN(num) ? 0 : num;
         };
 
-        // Utility function to format monetary values in BRL
         const formatCurrency = (value) => {
-            // Garante que o valor é um número antes de formatar
             if (isNaN(value) || value === null) {
                 return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(0);
             }
@@ -225,21 +209,19 @@
             }).format(value);
         };
 
-        // Custom Slider Component
         const CustomSlider = ({ label, value, onChange, min, max, step, displayValue, unit = '', children }) => {
-            // Garante que o valor a ser exibido e o valor do input são números válidos
             const display = displayValue !== undefined ? displayValue : (isNaN(value) ? 0 : value);
             return (
                 <div className="mb-6">
-                    <label className="block text-gray-300 text-sm font-semibold mb-2">
-                        {label}: <span className="text-blue-400 font-bold">{display}{unit}</span>
+                    <label className="block text-gray-700 text-sm font-semibold mb-2">
+                        {label}: <span className="text-blue-600 font-bold">{display}{unit}</span>
                     </label>
                     <input
                         type="range"
                         min={min}
                         max={max}
                         step={step}
-                        value={isNaN(value) ? min : value} // Garante que o slider sempre tenha um valor numérico válido
+                        value={isNaN(value) ? min : value}
                         onChange={onChange}
                         className="w-full"
                     />
@@ -248,19 +230,17 @@
             );
         };
 
-        // Info Card Component for Results
         const InfoCard = ({ label, value, type = 'blue' }) => {
-            const bgColor = type === 'blue' ? 'bg-blue-900/20 border-blue-600' : 'bg-amber-900/20 border-amber-600';
-            const textColor = type === 'blue' ? 'text-blue-300' : 'text-amber-300';
+            const bgColor = type === 'blue' ? 'bg-blue-100 border-blue-400' : 'bg-amber-100 border-amber-400';
+            const textColor = type === 'blue' ? 'text-blue-700' : 'text-amber-700';
             return (
                 <div className={`p-4 rounded-lg border ${bgColor} shadow-md`}>
-                    <p className="text-sm text-gray-400">{label}</p>
+                    <p className="text-sm text-gray-600">{label}</p>
                     <p className={`text-xl font-bold ${textColor}`}>{value}</p>
                 </div>
             );
         };
 
-        // Floating Message (Toast) Component
         const FloatingMessage = ({ message, type, onClose }) => {
             const [isVisible, setIsVisible] = useState(false);
 
@@ -269,9 +249,9 @@
                     setIsVisible(true);
                     const timer = setTimeout(() => {
                         setIsVisible(false);
-                        const hideTimer = setTimeout(() => onClose(), 300); // Allow fade-out animation
+                        const hideTimer = setTimeout(() => onClose(), 300);
                         return () => clearTimeout(hideTimer);
-                    }, 3000); // Message stays visible for 3 seconds
+                    }, 3000);
                     return () => clearTimeout(timer);
                 } else {
                     setIsVisible(false);
@@ -288,14 +268,11 @@
             );
         };
 
-        // Main Proposal Generator Component
         const App = () => {
-            // Se ocorreu um erro global, não renderiza a aplicação principal
             if (globalHasError) {
-                return null; // A função showGlobalError já renderizou o UI de erro
+                return null;
             }
 
-            // O valor do imóvel agora é um número diretamente para o slider
             const [valorImovel, setValorImovel] = useState(500000); 
             
             const [entradaPercentual, setEntradaPercentual] = useState(10); 
@@ -303,10 +280,8 @@
             const [valorReforcoAnual, setValorReforcoAnual] = useState(15000);
             const [numeroTotalReforcosAnuais, setNumeroTotalReforcosAnuais] = useState(Math.floor(120 / 12)); 
             const [mesesTotaisFluxo, setMesesTotaisFluxo] = useState(120); 
-            // Inicializa valorNasChaves com base no valorImovel inicial
             const [valorNasChaves, setValorNasChaves] = useState(parseToNumber(500000 * 0.10)); 
 
-            // States for calculated results
             const [parcelasObraMensal, setParcelasObraMensal] = useState(0);
             const [totalPagoObra, setTotalPagoObra] = useState(0);
             const [mesesFinanciamentoPosObra, setMesesFinanciamentoPosObra] = useState(0);
@@ -317,20 +292,15 @@
             const [totalValorReforcosNaObra, setTotalValorReforcosNaObra] = useState(0);
             const [totalValorReforcosAposObra, setTotalValorReforcosAposObra] = useState(0);
 
-            // States for feedback messages to the user
             const [warningObra, setWarningObra] = useState('');
             const [warningPosObra, setWarningPosObra] = useState('');
             const [floatingMessage, setFloatingMessage] = useState(null); 
             
-            // Constants for financial rules
             const MIN_PARCELA_MENSAL = 2000;
             const TARGET_PERCENT_PAID_DURING_CONSTRUCTION = 0.50; 
-            const HIGH_PARCELA_THRESHOLD = 5000; 
 
-            // Main calculation function
             const calculateProposal = useCallback(() => {
                 try {
-                    // Usamos valorImovel diretamente, pois é um número
                     const valImovel = valorImovel; 
                     const entPerc = parseToNumber(entradaPercentual);
                     const mesObra = parseToNumber(mesesObra);
@@ -339,14 +309,12 @@
                     const mesTotaisFluxo = parseToNumber(mesesTotaisFluxo);
                     const valChaves = parseToNumber(valorNasChaves);
 
-                    // Reset warnings
                     setWarningObra('');
                     setWarningPosObra('');
                     setReforcosAplicadosAposObra(0); 
                     setTotalValorReforcosNaObra(0); 
                     setTotalValorReforcosAposObra(0); 
 
-                    // Avoid calculations with zero property value to prevent NaN/Infinity
                     if (valImovel === 0) {
                         setParcelasObraMensal(0);
                         setTotalPagoObra(0);
@@ -360,25 +328,20 @@
                         return;
                     }
 
-                    // 1. Calculate Initial Payment
                     const valorEntrada = (valImovel * entPerc) / 100;
 
-                    // 2. Calculate Total Value of ALL Reinforcements across the entire flux
                     const totalValorTodosReforcos = numTotalReforcosAnuaisCalculado * valReforcoAnual;
 
-                    // 3. Calculate Reinforcements Paid DURING Construction period
                     const reforcosDuranteObraCount = Math.min(numTotalReforcosAnuaisCalculado, Math.floor(mesObra / 12));
                     const totalReforcosQueCaemNaObra = reforcosDuranteObraCount * valReforcoAnual;
                     setReforcosAplicadosNaObra(reforcosDuranteObraCount);
                     setTotalValorReforcosNaObra(totalReforcosQueCaemNaObra); 
 
-                    // Calculate Reinforcements Applied AFTER Construction period
                     const reforcosAposObraCount = Math.max(0, numTotalReforcosAnuaisCalculado - reforcosDuranteObraCount);
                     const totalReforcosQueCaemAposObra = reforcosAposObraCount * valReforcoAnual;
                     setReforcosAplicadosAposObra(reforcosAposObraCount);
                     setTotalValorReforcosAposObra(totalReforcosQueCaemAposObra); 
 
-                    // 4. Calculate Monthly Installments During Construction
                     const target50PercentInConstruction = valImovel * TARGET_PERCENT_PAID_DURING_CONSTRUCTION;
                     const valorPagoPorEntradaEReforcosNaObra = valorEntrada + totalReforcosQueCaemNaObra;
 
@@ -390,12 +353,10 @@
                         rawParcelasMensaisObra = valorNecessarioDasParcelasObra / mesObra;
                         valorTotalDasParcelasObraCalculated = rawParcelasMensaisObra * mesObra;
 
-                        // Warnings for rawParcelasMensaisObra
                         if (rawParcelasMensaisObra < MIN_PARCELA_MENSAL && rawParcelasMensaisObra >= 0) {
                             setWarningObra(`Atenção: A parcela mensal durante a obra (${formatCurrency(rawParcelasMensaisObra)}) está abaixo do mínimo de ${formatCurrency(MIN_PARCELA_MENSAL)}.`);
-                        } else if (rawParcelasMensaisObra > HIGH_PARCELA_THRESHOLD) {
-                             setWarningObra(`Atenção: A parcela mensal durante a obra (${formatCurrency(rawParcelasMensaisObra)}) está muito alta (acima de ${formatCurrency(HIGH_PARCELA_THRESHOLD)}). Considere aumentar a entrada ou os reforços anuais.`);
-                        } else if (rawParcelasMensaisObra < 0) {
+                        } 
+                        else if (rawParcelasMensaisObra < 0) {
                             setWarningObra(`Atenção: A parcela mensal durante a obra resultou em valor negativo (${formatCurrency(rawParcelasMensaisObra)}). Isso pode indicar que a entrada e reforços já excedem o valor do imóvel ou a meta de 50%.`);
                         }
                     } else if (target50PercentInConstruction - valorPagoPorEntradaEReforcosNaObra > 0) {
@@ -403,11 +364,9 @@
                     }
                     setParcelasObraMensal(rawParcelasMensaisObra); 
 
-                    // 5. Calculate Total Paid During Construction 
                     const actualTotalPaidDuringConstruction = valorEntrada + totalReforcosQueCaemNaObra + valorTotalDasParcelasObraCalculated;
                     setTotalPagoObra(actualTotalPaidDuringConstruction);
 
-                    // 6. Calculate Remaining Balance to be Financed Post-Construction
                     let saldoTotalFinanciar = valImovel - (valorEntrada + totalValorTodosReforcos + valorTotalDasParcelasObraCalculated + valChaves);
                     
                     if (saldoTotalFinanciar < 0) {
@@ -416,20 +375,17 @@
                     setSaldoTotalFinanciarPosObra(saldoTotalFinanciar);
 
 
-                    // 7. Months of Post-Construction Financing
                     const currentMesesFinancPosObra = Math.max(0, mesTotaisFluxo - mesObra); 
                     setMesesFinanciamentoPosObra(currentMesesFinancPosObra);
 
-                    // 8. Monthly Installment Value Post-Construction
                     let rawParcelaMensalPosObra = 0;
                     if (currentMesesFinancPosObra > 0) {
                         rawParcelaMensalPosObra = Math.max(0, saldoTotalFinanciar) / currentMesesFinancPosObra;
                         
                         if (rawParcelaMensalPosObra < MIN_PARCELA_MENSAL && rawParcelaMensalPosObra >= 0) {
                             setWarningPosObra(`Atenção: A parcela mensal pós-obra (${formatCurrency(rawParcelaMensalPosObra)}) está abaixo do mínimo de ${formatCurrency(MIN_PARCELA_MENSAL)}.`);
-                        } else if (rawParcelaMensalPosObra > HIGH_PARCELA_THRESHOLD) {
-                            setWarningPosObra(`Atenção: A parcela mensal pós-obra (${formatCurrency(rawParcelaMensalPosObra)}) está muito alta (acima de ${formatCurrency(HIGH_PARCELA_THRESHOLD)}). Considere aumentar a entrada, os reforços anuais ou o valor nas chaves.`);
-                        } else if (rawParcelaMensalPosObra < 0) {
+                        } 
+                        else if (rawParcelaMensalPosObra < 0) {
                             setWarningPosObra(`Atenção: A parcela mensal pós-obra resultou em valor negativo (${formatCurrency(rawParcelaMensalPosObra)}). Isso pode indicar um saldo devedor negativo.`);
                         }
                     } else if (saldoTotalFinanciar > 0) {
@@ -453,25 +409,17 @@
                 }
             }, [valorImovel, entradaPercentual, mesesObra, valorReforcoAnual, numeroTotalReforcosAnuais, mesesTotaisFluxo, valorNasChaves]); 
 
-            // Call the calculation function whenever an input state changes
             useEffect(() => {
                 calculateProposal();
-                // Ajusta o valor inicial de 'valorNasChaves' para refletir 10% do valor do imóvel quando 'valorImovel' muda.
-                // É importante que essa lógica não sobrescreva o valor se o usuário já tiver alterado 'valorNasChaves' manualmente.
-                // Para simplicidade, vamos redefinir aqui quando o valor do imóvel mudar.
                 setValorNasChaves(parseToNumber(valorImovel * 0.10));
             }, [calculateProposal, valorImovel]);
 
 
-            // Function to send data via WhatsApp
             const sendToWhatsApp = () => {
-                // Usamos valorImovel diretamente, pois é um número
                 const valImovel = valorImovel; 
                 const entPerc = parseToNumber(entradaPercentual);
                 const valorEntradaCalculado = (valImovel * entPerc) / 100;
-                // Defensive check for valImovel being zero before calculating percentage
                 const percentualNasChaves = valImovel > 0 ? (parseToNumber(valorNasChaves) / valImovel * 100).toFixed(0) : '0';
-
 
                 const message = `
 *PROPOSTA DE PAGAMENTO - KEVILLEN COSTA*
@@ -513,24 +461,23 @@ Valores corrigidos pelo CUB-SC do mês vigente.
                         type={floatingMessage ? floatingMessage.type : null} 
                         onClose={() => setFloatingMessage(null)} 
                     />
-                    <h1 className="text-3xl sm:text-4xl font-bold text-center text-blue-400 mb-8 sm:mb-10">Gerador de Proposta de Pagamento</h1>
+                    <h1 className="text-3xl sm:text-4xl font-bold text-center text-blue-700 mb-2 sm:mb-4">Gerador de Proposta de Pagamento</h1>
+                    
 
-                    <div className="bg-gray-800 rounded-xl p-6 sm:p-8 shadow-lg border border-gray-700 w-full mb-8">
-                        <h2 className="text-xl sm:text-2xl font-semibold text-gray-50 mb-6 border-b border-gray-700 pb-4">Parâmetros da Proposta</h2>
+                    <div className="bg-gray-50 rounded-xl p-6 sm:p-8 shadow-lg border border-gray-300 w-full mb-8">
+                        <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-6 border-b border-gray-300 pb-4">Parâmetros da Proposta</h2>
 
-                        {/* Valor do Imóvel - AGORA É UM SLIDER COM PASSO DE MIL */}
                         <CustomSlider
                             label="Valor do Imóvel (R$)"
                             value={valorImovel}
                             onChange={(e) => setValorImovel(parseToNumber(e.target.value))}
-                            min={0} // Mínimo de 0
-                            max={1000000} // Máximo de 1 milhão
-                            step={1000} // Passo de 1000 em 1000
+                            min={300000}
+                            max={3000000}
+                            step={1000}
                             displayValue={formatCurrency(valorImovel)}
                         >
                         </CustomSlider>
 
-                        {/* Entrada (%) */}
                         <CustomSlider
                             label="Entrada (%)"
                             value={entradaPercentual}
@@ -542,7 +489,6 @@ Valores corrigidos pelo CUB-SC do mês vigente.
                         >
                         </CustomSlider>
 
-                        {/* Meses de Obra */}
                         <CustomSlider
                             label="Meses de Obra"
                             value={mesesObra}
@@ -554,30 +500,27 @@ Valores corrigidos pelo CUB-SC do mês vigente.
                         >
                         </CustomSlider>
 
-                        {/* Valor Reforço Anual (R$) */}
                         <CustomSlider
                             label="Valor Reforço Anual (R$)"
                             value={valorReforcoAnual}
                             onChange={(e) => setValorReforcoAnual(parseToNumber(e.target.value))}
                             min={0}
-                            max={valorImovel * 0.10} // Max é 10% do valor do imóvel, dinâmico
+                            max={valorImovel * 0.10}
                             step={1000}
                             displayValue={formatCurrency(valorReforcoAnual)}
                         >
                         </CustomSlider>
 
-                        {/* Número Total de Reforços Anuais (visíveis) */}
                         <CustomSlider
                             label="Número Total de Reforços Anuais"
                             value={numeroTotalReforcosAnuais}
                             onChange={(e) => setNumeroTotalReforcosAnuais(parseToNumber(e.target.value))}
                             min={0}
-                            max={Math.max(0, Math.floor(parseToNumber(mesesTotaisFluxo) / 12))} // Max atrelado à duração total do fluxo
+                            max={Math.max(0, Math.floor(parseToNumber(mesesTotaisFluxo) / 12))}
                             step={1}
                         >
                         </CustomSlider>
 
-                        {/* Meses Totais do Fluxo */}
                         <CustomSlider
                             label="Meses Totais do Fluxo"
                             value={mesesTotaisFluxo}
@@ -589,17 +532,16 @@ Valores corrigidos pelo CUB-SC do mês vigente.
                         >
                         </CustomSlider>
                         {parseToNumber(mesesTotaisFluxo) <= parseToNumber(mesesObra) && (
-                            <p className="text-red-400 text-sm mt-1">O fluxo total deve ser maior que os meses de obra.</p>
+                            <p className="text-red-600 text-sm mt-1">O fluxo total deve ser maior que os meses de obra.</p>
                         )}
 
 
-                        {/* Valor nas Chaves (R$) */}
                         <CustomSlider
                             label="Valor nas Chaves (R$)"
                             value={valorNasChaves}
                             onChange={(e) => setValorNasChaves(parseToNumber(e.target.value))}
                             min={0}
-                            max={valorImovel * 0.3} // Max é 30% do valor do imóvel
+                            max={valorImovel * 0.3}
                             step={1000}
                             displayValue={formatCurrency(valorNasChaves)}
                         >
@@ -607,9 +549,8 @@ Valores corrigidos pelo CUB-SC do mês vigente.
 
                     </div>
 
-                    {/* Results Calculated */}
-                    <div className="bg-gray-800 rounded-xl p-6 sm:p-8 shadow-lg border border-blue-600 w-full mb-8">
-                        <h2 className="text-xl sm:text-2xl font-semibold text-blue-300 mb-6 border-b border-gray-700 pb-4">Resultados da Proposta</h2>
+                    <div className="bg-gray-50 rounded-xl p-6 sm:p-8 shadow-lg border border-blue-400 w-full mb-8">
+                        <h2 className="text-xl sm:text-2xl font-semibold text-blue-700 mb-6 border-b border-gray-300 pb-4">Resultados da Proposta</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <InfoCard label="Parcelas Mensais Durante a Obra" value={formatCurrency(parcelasObraMensal)} />
                             <InfoCard label="Total Pago Durante a Obra" value={formatCurrency(totalPagoObra)} />
@@ -623,19 +564,18 @@ Valores corrigidos pelo CUB-SC do mês vigente.
                             <InfoCard label="Total de Reforços Pós-Obra" value={formatCurrency(totalValorReforcosAposObra)} />
                         </div>
                         {warningObra && (
-                            <p className="text-amber-400 text-sm mt-4 p-2 bg-amber-900/20 rounded-md border border-amber-600">
+                            <p className="text-amber-700 text-sm mt-4 p-2 bg-amber-100 rounded-md border border-amber-400">
                                 {warningObra}
                             </p>
                         )}
                         {warningPosObra && (
-                            <p className="text-amber-400 text-sm mt-4 p-2 bg-amber-900/20 rounded-md border border-amber-600">
+                            <p className="text-amber-700 text-sm mt-4 p-2 bg-amber-100 rounded-md border border-amber-400">
                                 {warningPosObra}
                             </p>
                         )}
                     </div>
 
-                    {/* Action Buttons at the bottom */}
-                    <div className="flex flex-col sm:flex-row justify-center items-center gap-4 w-full">
+                    <div className="flex flex-col sm:flex-row justify-center items-center gap-4 w-full mt-8">
                         <button
                             onClick={sendToWhatsApp}
                             className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75 w-full sm:w-auto"
@@ -644,13 +584,13 @@ Valores corrigidos pelo CUB-SC do mês vigente.
                         </button>
                         <a
                             href="index.html"
-                            className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75 w-full sm:w-auto text-center"
+                            className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75 w-full sm:w-auto text-center"
                         >
                             Voltar
                         </a>
                     </div>
 
-                    <footer className="w-full text-center text-gray-500 text-sm mt-12 pt-8 border-t border-gray-700">
+                    <footer class="w-full text-center text-gray-600 text-sm mt-12 pt-8 border-t border-gray-300">
                         © {new Date().getFullYear()} Kevillen Costa.
                     </footer>
                 </div>
@@ -658,7 +598,6 @@ Valores corrigidos pelo CUB-SC do mês vigente.
         };
 
         const container = document.getElementById('root');
-        // Apenas tenta renderizar o React se nenhum erro global tiver ocorrido
         if (container && !globalHasError) {
             try {
                 const root = createRoot(container);
