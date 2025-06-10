@@ -13,8 +13,8 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #1a1a2e; /* Dark background for 'Black Premium Platinum' */
-            color: #e0e0e0; /* Light gray text */
+            background-color: #FFFFFF; /* Fundo branco */
+            color: #87CEEB; /* Texto azul bebê */
             display: flex;
             justify-content: center;
             align-items: flex-start;
@@ -25,18 +25,18 @@
             -moz-osx-font-smoothing: grayscale;
         }
         .container {
-            background-color: #2a2a4a; /* Slightly lighter dark background */
+            background-color: #F0F4F8; /* Um tom de azul-cinza muito claro para o container */
             border-radius: 1.5rem;
             padding: 1.5rem;
             max-width: 800px;
             width: 100%;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Sombra mais suave para fundo claro */
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
         }
         h1 {
-            color: #fdd835; /* Gold/Platinum color */
+            color: #367C9C; /* Azul mais escuro para títulos */
             text-align: center;
             font-weight: 700;
             margin-bottom: 1.5rem;
@@ -44,7 +44,7 @@
             line-height: 1.2;
         }
         h2 {
-            color: #fdd835;
+            color: #367C9C; /* Azul mais escuro para subtítulos */
             font-weight: 600;
             font-size: 1.5rem;
             margin-bottom: 1rem;
@@ -53,7 +53,7 @@
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 500;
-            color: #d1d5db;
+            color: #4A4A4A; /* Cinza escuro para etiquetas para melhor legibilidade */
         }
         input[type="text"],
         input[type="date"],
@@ -61,20 +61,20 @@
         textarea {
             width: 100%;
             padding: 0.75rem;
-            border: 1px solid #4a4a6e;
+            border: 1px solid #A8D1E2; /* Borda azul clara */
             border-radius: 0.75rem;
-            background-color: #3a3a5e;
-            color: #e0e0e0;
+            background-color: #FFFFFF; /* Fundo branco para campos de input */
+            color: #333333; /* Texto escuro para campos de input */
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
-            -webkit-appearance: none; /* For consistent styling on iOS */
+            -webkit-appearance: none;
         }
         input[type="text"]:focus,
         input[type="date"]:focus,
         input[type="time"]:focus,
         textarea:focus {
-            border-color: #fdd835;
-            box-shadow: 0 0 0 2px rgba(253, 216, 53, 0.3);
+            border-color: #367C9C; /* Azul mais escuro ao focar */
+            box-shadow: 0 0 0 2px rgba(54, 124, 156, 0.3); /* Sombra azul ao focar */
         }
         textarea {
             min-height: 80px;
@@ -104,15 +104,15 @@
             cursor: not-allowed;
         }
         .btn-primary {
-            background-image: linear-gradient(to right, #fdd835, #ffeb3b);
-            color: #1a1a2e;
-            box-shadow: 0 4px 10px rgba(253, 216, 53, 0.4);
+            background-image: linear-gradient(to right, #5B8FB9, #87CEEB); /* Gradiente de azul para o botão principal */
+            color: #FFFFFF; /* Texto branco no botão azul */
+            box-shadow: 0 4px 10px rgba(91, 143, 185, 0.4);
         }
         .btn-primary:hover:not(:disabled) {
-            background-image: linear-gradient(to right, #ffeb3b, #fdd835);
+            background-image: linear-gradient(to right, #87CEEB, #5B8FB9);
         }
         .btn-whatsapp {
-            background-color: #25d366;
+            background-color: #25d366; /* Cor verde original do WhatsApp */
             color: white;
             box-shadow: 0 4px 10px rgba(37, 211, 102, 0.4);
         }
@@ -120,14 +120,15 @@
             background-color: #1da851;
         }
         .scheduled-visits-list {
-            background-color: #3a3a5e;
+            background-color: #FFFFFF; /* Fundo branco para a lista de visitas */
             border-radius: 0.75rem;
             padding: 1rem;
             min-height: 100px;
-            color: #e0e0e0;
+            color: #333333; /* Texto escuro para melhor legibilidade */
+            border: 1px solid #E0E0E0; /* Borda suave */
         }
         .scheduled-visit-item {
-            background-color: #4a4a6e;
+            background-color: #E0F2F7; /* Azul bebê muito claro para cada item da visita */
             border-radius: 0.5rem;
             padding: 0.75rem;
             margin-bottom: 0.75rem;
@@ -135,13 +136,14 @@
             flex-direction: column;
             gap: 0.25rem;
             position: relative;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra mais suave */
+            color: #333333; /* Texto escuro para os itens */
         }
         .scheduled-visit-item:last-child {
             margin-bottom: 0;
         }
         .scheduled-visit-item strong {
-            color: #fdd835;
+            color: #367C9C; /* Azul mais escuro para o texto forte nos itens */
         }
         .item-action-buttons {
             position: absolute;
@@ -151,7 +153,7 @@
             gap: 0.5rem;
         }
         .remove-visit-btn, .edit-visit-btn {
-            background-color: #ef4444; /* Red for delete */
+            background-color: #ef4444; /* Vermelho para deletar */
             color: white;
             border: none;
             border-radius: 50%;
@@ -165,25 +167,25 @@
             transition: background-color 0.2s;
         }
         .edit-visit-btn {
-            background-color: #fdd835; /* Gold for edit */
-            color: #1a1a2e; /* Dark text on gold */
+            background-color: #5B8FB9; /* Azul para editar */
+            color: #FFFFFF; /* Texto branco no botão de editar */
         }
         .remove-visit-btn:hover {
             background-color: #dc2626;
         }
         .edit-visit-btn:hover {
-            background-color: #ffeb3b;
+            background-color: #367C9C;
         }
         .loading-indicator {
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 1rem;
-            color: #fdd835;
+            color: #367C9C; /* Azul para o indicador de carregamento */
         }
         .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #fdd835;
+            border: 4px solid rgba(135, 206, 235, 0.3); /* Base clara do spinner */
+            border-top: 4px solid #367C9C; /* Azul mais escuro para o topo do spinner */
             border-radius: 50%;
             width: 30px;
             height: 30px;
@@ -199,11 +201,11 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: #3a3a5e;
-            color: #e0e0e0;
+            background-color: #F0F4F8; /* Fundo claro para a caixa de mensagem */
+            color: #333333; /* Texto escuro para a caixa de mensagem */
             padding: 1.5rem;
             border-radius: 1rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             z-index: 1000;
             text-align: center;
             max-width: 90%;
@@ -216,15 +218,15 @@
             margin-bottom: 0;
         }
         .message-box.error {
-            border-color: #ef4444;
+            border-color: #EF4444; /* Borda vermelha para erro */
         }
         .message-box.success {
-            border-color: #25d366;
+            border-color: #25D366; /* Borda verde para sucesso */
         }
         .message-box-close {
             background: none;
             border: none;
-            color: #fdd835;
+            color: #367C9C; /* Azul mais escuro para o botão de fechar */
             font-size: 1.5rem;
             position: absolute;
             top: 0.5rem;
@@ -235,7 +237,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Mini Agendador de Visitas <br> <span class="text-xl font-normal text-gray-400">Organize suas visitas rapidamente</span></h1>
+        <h1>Mini Agendador de Visitas <br> <span class="text-xl font-normal text-gray-600">Organize suas visitas rapidamente</span></h1>
 
         <div class="input-section grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="form-group col-span-1">
@@ -589,4 +591,3 @@
     </script>
 </body>
 </html>
-
