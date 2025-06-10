@@ -6,6 +6,25 @@
     <title>Gerador de Argumentos e Quebra de Objeções</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Configuração do Tailwind para estender as cores
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        // Adicionando cores personalizadas para tons de azul bebê, se necessário
+                        // No entanto, as classes 'sky' e 'blue' do Tailwind já são bastante úteis.
+                        // 'baby-blue-light': '#E0F2F7', // Muito claro
+                        // 'baby-blue-medium': '#ADD8E6', // Azul bebê clássico
+                        // 'baby-blue-dark': '#89CFF0', // Um pouco mais escuro
+                    },
+                }
+            }
+        }
+    </script>
     <!-- Google Fonts - Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome CDN for icons -->
@@ -13,129 +32,37 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #1a1a2e; /* Dark background for 'Black Premium Platinum' */
-            color: #e0e0e0; /* Light gray text */
+            background-color: white; /* Fundo branco */
+            color: theme('colors.gray.800'); /* Texto cinza escuro para contraste */
             display: flex;
             justify-content: center;
-            align-items: flex-start;
+            align-items: flex-start; /* Alinha no topo */
             min-height: 100vh;
             padding: 1rem;
             box-sizing: border-box;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
-        .container {
-            background-color: #2a2a4a; /* Slightly lighter dark background */
-            border-radius: 1.5rem;
-            padding: 1.5rem;
-            max-width: 800px;
-            width: 100%;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
+        /* Animação do spinner */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-        h1 {
-            color: #fdd835; /* Gold/Platinum color */
-            text-align: center;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            font-size: 2.5rem;
-            line-height: 1.2;
+        .spinner {
+            border: 4px solid rgba(173, 216, 230, 0.5); /* Azul bebê claro com transparência */
+            border-top: 4px solid theme('colors.blue.600'); /* Azul mais escuro */
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
         }
-        h2 {
-            color: #fdd835;
-            font-weight: 600;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #d1d5db;
-        }
-        input[type="text"],
-        input[type="number"],
-        textarea,
-        select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #4a4a6e;
-            border-radius: 0.75rem;
-            background-color: #3a3a5e;
-            color: #e0e0e0;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            -webkit-appearance: none; /* For consistent styling on iOS */
-        }
-        input[type="text"]:focus,
-        input[type="number"]:focus,
-        textarea:focus,
-        select:focus {
-            border-color: #fdd835;
-            box-shadow: 0 0 0 2px rgba(253, 216, 53, 0.3);
-        }
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        button {
-            width: 100%;
-            padding: 0.85rem 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            -webkit-tap-highlight-color: transparent;
-        }
-        button:hover:not(:disabled) {
-            transform: translateY(-2px);
-        }
-        button:active:not(:disabled) {
-            transform: translateY(0);
-        }
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        .btn-primary {
-            background-image: linear-gradient(to right, #fdd835, #ffeb3b);
-            color: #1a1a2e;
-            box-shadow: 0 4px 10px rgba(253, 216, 53, 0.4);
-        }
-        .btn-primary:hover:not(:disabled) {
-            background-image: linear-gradient(to right, #ffeb3b, #fdd835);
-        }
-        .btn-whatsapp { /* Style for WhatsApp button */
-            background-color: #25d366;
-            color: white;
-            box-shadow: 0 4px 10px rgba(37, 211, 102, 0.4);
-        }
-        .btn-whatsapp:hover:not(:disabled) {
-            background-color: #1da851;
-        }
-        .output-area {
-            background-color: #3a3a5e;
-            border-radius: 0.75rem;
-            padding: 1rem;
-            min-height: 150px;
-            white-space: pre-wrap; /* Preserve whitespace and line breaks */
-            word-wrap: break-word; /* Break long words */
-            font-size: 1rem;
-            color: #e0e0e0;
-            position: relative; /* For copy button positioning */
-        }
+        /* Estilo para o botão de copiar */
         .copy-btn {
             position: absolute;
             top: 0.75rem;
             right: 0.75rem;
-            background-color: #4a4a6e;
-            color: #e0e0e0;
+            background-color: theme('colors.blue.200'); /* Azul bebê claro */
+            color: theme('colors.blue.800'); /* Azul escuro */
             padding: 0.5rem 0.75rem;
             border-radius: 0.5rem;
             font-size: 0.8rem;
@@ -143,38 +70,19 @@
             transition: background-color 0.2s;
         }
         .copy-btn:hover {
-            background-color: #5a5a7e;
+            background-color: theme('colors.blue.300'); /* Um pouco mais escuro ao passar o mouse */
         }
-        .loading-indicator {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 1rem;
-            color: #fdd835;
-        }
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #fdd835;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        /* Custom Message Box Styles */
+        /* Estilo para o message box */
         .message-box {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: #3a3a5e;
-            color: #e0e0e0;
+            background-color: white; /* Fundo branco para o message box */
+            color: theme('colors.gray.800');
             padding: 1.5rem;
             border-radius: 1rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Sombra mais suave */
             z-index: 1000;
             text-align: center;
             max-width: 90%;
@@ -184,50 +92,59 @@
             font-size: 0.95rem;
         }
         .message-box p {
-            margin-bottom: 0; /* Remove default paragraph margin */
+            margin-bottom: 0;
         }
         .message-box.error {
-            border-color: #ef4444;
+            border-color: theme('colors.red.500'); /* Vermelho para erros */
+            color: theme('colors.red.700'); /* Texto vermelho escuro para erros */
         }
         .message-box.success {
-            border-color: #25d366;
+            border-color: theme('colors.green.500'); /* Verde para sucesso */
+            color: theme('colors.green.700'); /* Texto verde escuro para sucesso */
         }
         .message-box-close {
             background: none;
             border: none;
-            color: #fdd835;
+            color: theme('colors.gray.500'); /* Cinza para o botão de fechar */
             font-size: 1.5rem;
             position: absolute;
             top: 0.5rem;
             right: 0.75rem;
             cursor: pointer;
         }
+        .message-box-close:hover {
+            color: theme('colors.gray.700');
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Gerador de Argumentos e Quebra de Objeções <br> <span class="text-xl font-normal text-gray-400">Potencializado por IA Gemini</span></h1>
+    <!-- Contêiner principal com fundo azul bebê claro -->
+    <div class="container bg-blue-50 rounded-2xl p-6 sm:p-10 max-w-2xl w-full shadow-lg flex flex-col gap-6">
+        <h1 class="text-3xl sm:text-4xl font-bold text-blue-700 text-center mb-4">
+            Gerador de Argumentos e Quebra de Objeções <br>
+            <span class="text-xl font-normal text-blue-500">Potencializado por IA Gemini</span>
+        </h1>
 
         <div class="input-section grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="form-group col-span-2">
-                <label for="situationType">Tipo de Situação</label>
-                <select id="situationType" class="w-full">
+                <label for="situationType" class="block mb-2 font-medium text-gray-700">Tipo de Situação</label>
+                <select id="situationType" class="w-full p-3 border border-blue-200 rounded-xl bg-white text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all duration-200">
                     <option value="Objeção do Cliente">Objeção do Cliente</option>
                     <option value="Argumento de Venda de Característica">Argumento de Venda de Característica</option>
                     <option value="Pergunta para Cliente">Pergunta para Aprofundar/Entender Cliente</option>
                 </select>
             </div>
             <div class="form-group col-span-2">
-                <label for="inputDetails">Detalhes da Situação (Objeção, Característica, etc.)</label>
-                <textarea id="inputDetails" placeholder="Ex: 'O preço está muito alto para o meu orçamento.' ou 'O imóvel tem uma cozinha compacta.'"></textarea>
+                <label for="inputDetails" class="block mb-2 font-medium text-gray-700">Detalhes da Situação (Objeção, Característica, etc.)</label>
+                <textarea id="inputDetails" placeholder="Ex: 'O preço está muito alto para o meu orçamento.' ou 'O imóvel tem uma cozinha compacta.'" class="w-full p-3 border border-blue-200 rounded-xl bg-white text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all duration-200 min-h-[100px] resize-y"></textarea>
             </div>
             <div class="form-group col-span-2">
-                <label for="propertyContext">Contexto do Imóvel (opcional)</label>
-                <textarea id="propertyContext" placeholder="Ex: Apartamento de 2 quartos no bairro X, ideal para jovens casais, com academia no prédio."></textarea>
+                <label for="propertyContext" class="block mb-2 font-medium text-gray-700">Contexto do Imóvel (opcional)</label>
+                <textarea id="propertyContext" placeholder="Ex: Apartamento de 2 quartos no bairro X, ideal para jovens casais, com academia no prédio." class="w-full p-3 border border-blue-200 rounded-xl bg-white text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all duration-200 min-h-[100px] resize-y"></textarea>
             </div>
             <div class="form-group col-span-1">
-                <label for="tone">Tom da Resposta/Argumento</label>
-                <select id="tone" class="w-full">
+                <label for="tone" class="block mb-2 font-medium text-gray-700">Tom da Resposta/Argumento</label>
+                <select id="tone" class="w-full p-3 border border-blue-200 rounded-xl bg-white text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all duration-200">
                     <option value="Empático e Persuasivo">Empático e Persuasivo</option>
                     <option value="Direto e Objetivo">Direto e Objetivo</option>
                     <option value="Focado em Benefícios">Focado em Benefícios</option>
@@ -235,8 +152,8 @@
                 </select>
             </div>
             <div class="form-group col-span-1">
-                <label for="responseFormat">Formato da Resposta</label>
-                <select id="responseFormat" class="w-full">
+                <label for="responseFormat" class="block mb-2 font-medium text-gray-700">Formato da Resposta</label>
+                <select id="responseFormat" class="w-full p-3 border border-blue-200 rounded-xl bg-white text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all duration-200">
                     <option value="Texto Corrido">Texto Corrido</option>
                     <option value="Lista de Tópicos">Lista de Tópicos</option>
                     <option value="Roteiro de Abordagem">Roteiro de Abordagem</option>
@@ -244,28 +161,32 @@
             </div>
         </div>
 
-        <button id="generateBtn" class="btn-primary mt-4">
+        <button id="generateBtn" class="w-full py-3 px-6 rounded-xl font-semibold cursor-pointer transition-all duration-200 flex items-center justify-center gap-2
+            bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-md hover:from-blue-500 hover:to-blue-700 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed">
             <i class="fas fa-comment-dots"></i> Gerar Resposta/Argumento
         </button>
 
-        <div id="loadingIndicator" class="loading-indicator hidden">
+        <div id="loadingIndicator" class="loading-indicator hidden flex justify-center items-center py-4 text-blue-600">
             <div class="spinner"></div>
             <span class="ml-3">Gerando conteúdo, por favor aguarde...</span>
         </div>
 
         <div class="output-section mt-4">
-            <h2>Conteúdo Gerado:</h2>
-            <div id="generatedText" class="output-area">
+            <h2 class="text-xl font-semibold text-blue-700 mb-3">Conteúdo Gerado:</h2>
+            <div id="generatedText" class="output-area relative bg-blue-100 rounded-xl p-4 min-h-[150px] text-gray-800 whitespace-pre-wrap break-words">
                 Seu argumento ou resposta gerado aparecerá aqui.
-                <button id="copyBtn" class="copy-btn hidden"><i class="fas fa-copy"></i> Copiar</button>
+                <button id="copyBtn" class="copy-btn hidden">
+                    <i class="fas fa-copy"></i> Copiar
+                </button>
             </div>
             
-            <div class="form-group mt-4">
-                <label for="clientWhatsappNumber">WhatsApp (Com código do país e DDD)</label>
-                <input type="text" id="clientWhatsappNumber" placeholder="Ex: +5547997082022">
+            <div class="form-group mt-6">
+                <label for="clientWhatsappNumber" class="block mb-2 font-medium text-gray-700">WhatsApp (Com código do país e DDD)</label>
+                <input type="text" id="clientWhatsappNumber" placeholder="Ex: +5547997082022" class="w-full p-3 border border-blue-200 rounded-xl bg-white text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all duration-200">
             </div>
 
-            <button id="sendWhatsappBtn" class="btn-whatsapp mt-4" disabled>
+            <button id="sendWhatsappBtn" class="w-full py-3 px-6 rounded-xl font-semibold cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 mt-4
+                bg-green-500 text-white shadow-md hover:bg-green-600 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed">
                 <i class="fab fa-whatsapp"></i> Salvar conteúdo enviando via WhatsApp
             </button>
         </div>
@@ -324,7 +245,7 @@
             textarea.value = text;
             document.body.appendChild(textarea);
             textarea.select();
-            document.execCommand('copy');
+            document.execCommand('copy'); // Usando execCommand para compatibilidade com iframe
             document.body.removeChild(textarea);
             showMessage('Texto copiado para a área de transferência!', 'success');
         }
@@ -480,4 +401,3 @@
     </script>
 </body>
 </html>
-
