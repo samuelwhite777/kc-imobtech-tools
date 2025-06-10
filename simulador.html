@@ -20,56 +20,55 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #1a1a2e; /* Dark background for 'Black Premium Platinum' */
-            color: #e0e0e0; /* Light gray text */
+            background-color: #FFFFFF; /* Fundo branco */
+            color: #87CEEB; /* Texto azul bebê (para elementos que usam a cor do body diretamente) */
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Align items to the start to optimize vertical space */
+            align-items: flex-start;
             min-height: 100vh;
-            padding: 0.5rem; /* Reduced padding around the body for more space */
+            padding: 0.5rem;
             box-sizing: border-box;
-            /* Melhorias para renderização de fonte em dispositivos Apple/macOS */
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
         .container {
-            background-color: #2a2a4a; /* Slightly lighter dark background for container */
-            border-radius: 1.5rem; /* More rounded corners */
-            padding: 1rem; /* Reduced padding for container */
+            background-color: #F0F4F8; /* Um tom de azul-cinza muito claro para o container */
+            border-radius: 1.5rem;
+            padding: 1rem;
             max-width: 700px;
             width: 100%;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Sombra mais suave para fundo claro */
             display: flex;
             flex-direction: column;
-            gap: 1rem; /* Reduced gap between sections */
+            gap: 1rem;
         }
         h1 {
-            color: #fdd835; /* Gold/Platinum color for headings */
+            color: #367C9C; /* Azul mais escuro para títulos */
             text-align: center;
             font-weight: 700;
-            margin-bottom: 1rem; /* Reduced margin */
-            font-size: 2.25rem; /* Adjusted base font size for mobile */
+            margin-bottom: 1rem;
+            font-size: 2.25rem;
             line-height: 1.2;
         }
         @media (min-width: 640px) {
             h1 {
-                font-size: 3rem; /* Adjusted font size for larger screens */
+                font-size: 3rem;
             }
         }
         h1 span.subtitle {
             display: block;
             font-size: 0.5em;
             font-weight: 500;
-            color: #d1d5db;
-            margin-top: 0.25rem; /* Reduced margin */
+            color: #6B7280; /* Cinza mais escuro para subtítulos em fundo claro */
+            margin-top: 0.25rem;
         }
-        h2 { /* Style for new chart titles */
-            color: #fdd835;
+        h2 {
+            color: #367C9C; /* Azul mais escuro para subtítulos */
             text-align: center;
             font-weight: 600;
-            font-size: 1.25rem; /* Adjusted for smaller screens */
-            margin-top: 1.5rem; /* Reduced margin */
-            margin-bottom: 0.75rem; /* Reduced margin */
+            font-size: 1.25rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
         }
         @media (min-width: 640px) {
             h2 {
@@ -78,10 +77,10 @@
         }
         label {
             display: block;
-            margin-bottom: 0.25rem; /* Reduced margin */
+            margin-bottom: 0.25rem;
             font-weight: 500;
-            color: #d1d5db;
-            font-size: 0.85rem; /* Slightly smaller label font size */
+            color: #4A4A4A; /* Cinza escuro para etiquetas para melhor legibilidade */
+            font-size: 0.85rem;
         }
         @media (min-width: 640px) {
             label {
@@ -94,36 +93,36 @@
             gap: 0.5rem;
         }
         .info-icon {
-            color: #fdd835; /* Gold icon color */
+            color: #5B8FB9; /* Azul médio para o ícone de informação */
             cursor: pointer;
-            font-size: 0.9em; /* Slightly smaller than label text */
+            font-size: 0.9em;
             transition: color 0.2s;
         }
         .info-icon:hover {
-            color: #ffeb3b; /* Lighter gold on hover */
+            color: #367C9C; /* Azul mais escuro no hover */
         }
 
         input[type="number"],
         input[type="text"] {
             width: 100%;
-            padding: 0.6rem; /* Slightly reduced padding */
-            border: 1px solid #4a4a6e;
+            padding: 0.6rem;
+            border: 1px solid #A8D1E2; /* Borda azul clara */
             border-radius: 0.75rem;
-            background-color: #3a3a5e;
-            color: #e0e0e0;
+            background-color: #FFFFFF; /* Fundo branco para campos de input */
+            color: #333333; /* Texto escuro para campos de input */
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
-            font-size: 0.95rem; /* Slightly smaller input font size */
+            font-size: 0.95rem;
             -webkit-appearance: none;
         }
         input[type="number"]:focus,
         input[type="text"]:focus {
-            border-color: #fdd835;
-            box-shadow: 0 0 0 2px rgba(253, 216, 53, 0.3);
+            border-color: #367C9C; /* Azul mais escuro ao focar */
+            box-shadow: 0 0 0 2px rgba(54, 124, 156, 0.3); /* Sombra azul ao focar */
         }
         input[type="number"]:disabled {
-            background-color: #2a2a4a;
-            color: #a0a0a0;
+            background-color: #E0E0E0; /* Fundo mais claro para campos desabilitados */
+            color: #888888; /* Texto mais escuro para campos desabilitados */
             cursor: not-allowed;
         }
         /* Style for the range input (slider) */
@@ -131,10 +130,10 @@
             width: 100%;
             -webkit-appearance: none;
             height: 8px;
-            background: #4a4a6e;
+            background: #A8D1E2; /* Azul claro para a trilha do slider */
             border-radius: 5px;
             outline: none;
-            opacity: 0.7;
+            opacity: 0.9;
             transition: opacity .2s;
         }
 
@@ -147,23 +146,23 @@
             appearance: none;
             width: 20px;
             height: 20px;
-            background: #fdd835;
+            background: #5B8FB9; /* Azul médio para o polegar do slider */
             border-radius: 50%;
             cursor: grab;
-            box-shadow: 0 0 5px rgba(253, 216, 53, 0.5);
+            box-shadow: 0 0 5px rgba(91, 143, 185, 0.5);
             margin-top: -6px;
         }
 
         input[type="range"]::-moz-range-thumb {
             width: 20px;
             height: 20px;
-            background: #fdd835;
+            background: #5B8FB9; /* Azul médio para o polegar do slider */
             border-radius: 50%;
             cursor: grab;
-            box-shadow: 0 0 5px rgba(253, 216, 53, 0.5);
+            box-shadow: 0 0 5px rgba(91, 143, 185, 0.5);
         }
 
-        /* Base button styles - apply to fab-button too */
+        /* Base button styles */
         button {
             border-radius: 0.75rem;
             font-weight: 600;
@@ -188,16 +187,16 @@
         }
 
         /* Specific color styles for buttons */
-        .btn-primary { /* This style is now unused if simularBtn is removed */
-            background-image: linear-gradient(to right, #fdd835, #ffeb3b);
-            color: #1a1a2e;
-            box-shadow: 0 4px 10px rgba(253, 216, 53, 0.4);
+        .btn-primary { /* Este estilo não está sendo usado diretamente no HTML, mas mantido para consistência */
+            background-image: linear-gradient(to right, #5B8FB9, #87CEEB);
+            color: #FFFFFF;
+            box-shadow: 0 4px 10px rgba(91, 143, 185, 0.4);
         }
         .btn-primary:hover:not(:disabled) {
-            background-image: linear-gradient(to right, #ffeb3b, #fdd835);
+            background-image: linear-gradient(to right, #87CEEB, #5B8FB9);
         }
         .btn-whatsapp {
-            background-color: #25d366;
+            background-color: #25d366; /* Cor verde original do WhatsApp */
             color: white;
             box-shadow: 0 4px 10px rgba(37, 211, 102, 0.4);
         }
@@ -205,7 +204,7 @@
             background-color: #1da851;
         }
         .btn-whatsapp-kev-costa {
-            background-color: #075E54;
+            background-color: #075E54; /* Um tom de verde mais escuro para a Kevillen Costa */
             color: white;
             box-shadow: 0 4px 10px rgba(7, 94, 84, 0.4);
         }
@@ -213,24 +212,24 @@
             background-color: #054a42;
         }
         .btn-download-charts {
-            background-color: #3f51b5;
+            background-color: #5B8FB9; /* Azul médio para botões de download */
             color: white;
-            box-shadow: 0 4px 10px rgba(63, 81, 181, 0.4);
+            box-shadow: 0 4px 10px rgba(91, 143, 185, 0.4);
         }
         .btn-download-charts:hover:not(:disabled) {
-            background-color: #303f9f;
+            background-color: #367C9C; /* Azul mais escuro no hover */
         }
 
         .result-panel {
-            background-color: #3a3a5e;
+            background-color: #E0F2F7; /* Azul bebê muito claro para o painel de resultados */
             border-radius: 1rem;
             padding: 1.25rem;
             text-align: center;
             font-size: 1.1rem;
             font-weight: 600;
-            color: #fdd835;
+            color: #367C9C; /* Azul mais escuro para o texto no painel de resultados */
             margin-top: 1rem;
-            box-shadow: inset 0 0 10px rgba(253, 216, 53, 0.3);
+            box-shadow: inset 0 0 10px rgba(54, 124, 156, 0.2); /* Sombra azul suave */
         }
         @media (min-width: 640px) {
             .result-panel {
@@ -241,9 +240,10 @@
             position: relative;
             height: 250px;
             width: 100%;
-            background-color: #F0F0F0; /* Light grey background for charts */
+            background-color: #FFFFFF; /* Fundo branco para os gráficos */
             border-radius: 1rem;
             padding: 0.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); /* Sombra suave para os gráficos */
         }
         @media (min-width: 640px) {
             .chart-container {
@@ -258,11 +258,11 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: #3a3a5e;
-            color: #e0e0e0;
+            background-color: #F0F4F8; /* Fundo claro para a caixa de mensagem */
+            color: #333333; /* Texto escuro para a caixa de mensagem */
             padding: 1.5rem;
             border-radius: 1rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             z-index: 1000;
             text-align: center;
             max-width: 90%;
@@ -272,7 +272,7 @@
             font-size: 0.95rem;
         }
         .message-box p {
-            margin-bottom: 0; /* Remove default paragraph margin */
+            margin-bottom: 0;
         }
         @media (min-width: 640px) {
             .message-box {
@@ -281,15 +281,15 @@
             }
         }
         .message-box.error {
-            border-color: #ef4444;
+            border-color: #EF4444; /* Borda vermelha para erro */
         }
         .message-box.success {
-            border-color: #25d366;
+            border-color: #25D366; /* Borda verde para sucesso */
         }
         .message-box-close {
             background: none;
             border: none;
-            color: #fdd835;
+            color: #367C9C; /* Azul mais escuro para o botão de fechar */
             font-size: 1.5rem;
             position: absolute;
             top: 0.5rem;
@@ -300,58 +300,58 @@
         /* Floating Action Buttons Container */
         .floating-buttons-container {
             position: fixed;
-            top: 50%; /* Center vertically */
-            transform: translateY(-50%); /* Adjust for own height */
-            right: 1rem; /* 16px from right */
+            top: 50%;
+            transform: translateY(-50%);
+            right: 1rem;
             display: flex;
-            flex-direction: column-reverse; /* To have 'Download' button on top */
-            gap: 0.75rem; /* Space between buttons */
-            z-index: 100; /* Ensure it stays on top */
-            align-items: flex-end; /* Align buttons to the right */
+            flex-direction: column-reverse;
+            gap: 0.75rem;
+            z-index: 100;
+            align-items: flex-end;
         }
         .fab-wrapper {
             display: flex;
             align-items: center;
-            justify-content: flex-end; /* Align icon and text to the right */
+            justify-content: flex-end;
             transition: all 0.3s ease;
-            position: relative; /* For text positioning if needed */
+            position: relative;
         }
         .fab-button {
-            width: 50px; /* Fixed width for the circular button */
-            height: 50px; /* Fixed height for the circular button */
-            border-radius: 50%; /* Make it circular */
-            padding: 0; /* Remove default padding */
-            font-size: 1.25rem; /* Icon size */
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            padding: 0;
+            font-size: 1.25rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0; /* Prevent it from shrinking */
+            flex-shrink: 0;
         }
         .fab-text {
-            color: white; /* Text color */
-            background-color: rgba(42, 42, 74, 0.9); /* Dark background for text bubble */
+            color: white;
+            background-color: rgba(91, 143, 185, 0.9); /* Fundo azul médio para o texto do FAB */
             padding: 0.5rem 0.75rem;
             border-radius: 0.5rem;
-            white-space: nowrap; /* Prevent text wrapping */
+            white-space: nowrap;
             opacity: 0;
             visibility: hidden;
-            width: 0; /* Initially hidden */
+            width: 0;
             overflow: hidden;
             transition: all 0.3s ease;
-            margin-right: -0.5rem; /* Pull text into button slightly initially */
+            margin-right: -0.5rem;
             font-size: 0.85rem;
             font-weight: 500;
         }
         .fab-wrapper:hover .fab-text {
             opacity: 1;
             visibility: visible;
-            width: auto; /* Reveal width */
-            margin-right: 0.75rem; /* Space between text and button */
-            margin-left: 0.5rem; /* Space between text and button */
+            width: auto;
+            margin-right: 0.75rem;
+            margin-left: 0.5rem;
         }
         /* Adjusted colors for FABs hover */
-        .fab-button.btn-download-charts { background-color: #3f51b5; }
-        .fab-button.btn-download-charts:hover { background-color: #303f9f; }
+        .fab-button.btn-download-charts { background-color: #5B8FB9; }
+        .fab-button.btn-download-charts:hover { background-color: #367C9C; }
         .fab-button.btn-whatsapp { background-color: #25d366; }
         .fab-button.btn-whatsapp:hover { background-color: #1da851; }
         .fab-button.btn-whatsapp-kev-costa { background-color: #075E54; }
@@ -360,7 +360,6 @@
     </style>
 </head>
 <body>
-    <!-- Adicionado id="container" à div principal para que html2canvas possa capturá-la -->
     <div class="container" id="container">
         <div class="input-section">
             <h1 class="mb-6">Simulador de Valorização Imobiliária <span class="subtitle">por Kevillen Costa - Especialista em Mercado Imobiliário</span></h1>
@@ -538,7 +537,7 @@
                 plugins: {
                     legend: {
                         labels: {
-                            color: '#4a4a6e' // Cor da legenda
+                            color: '#4A4A4A' // Cor da legenda (cinza escuro para contraste no fundo claro)
                         }
                     }
                 },
@@ -547,21 +546,21 @@
                         title: {
                             display: true,
                             text: 'Ano',
-                            color: '#4a4a6e'
+                            color: '#4A4A4A' // Cor do título do eixo X
                         },
                         ticks: {
-                            color: '#4a4a6e' // Cor dos ticks do eixo X
+                            color: '#4A4A4A' // Cor dos ticks do eixo X
                         },
                         grid: {
-                            color: 'rgba(74, 74, 110, 0.2)' // Cor das linhas de grade
+                            color: 'rgba(74, 74, 74, 0.1)' // Cor das linhas de grade suave
                         }
                     },
                     y: {
                         ticks: {
-                            color: '#4a4a6e' // Cor dos ticks do eixo Y
+                            color: '#4A4A4A' // Cor dos ticks do eixo Y
                         },
                         grid: {
-                            color: 'rgba(74, 74, 110, 0.2)'
+                            color: 'rgba(74, 74, 74, 0.1)'
                         }
                     }
                 }
@@ -575,29 +574,29 @@
                     datasets: [{
                         label: 'Imóvel',
                         data: [],
-                        borderColor: '#fdd835', // Gold
-                        backgroundColor: 'rgba(253, 216, 53, 0.2)',
+                        borderColor: '#5B8FB9', // Azul médio
+                        backgroundColor: 'rgba(91, 143, 185, 0.2)',
                         tension: 0.3,
                         fill: true
                     }, {
                         label: 'CDI',
                         data: [],
-                        borderColor: '#03a9f4', // Light Blue
-                        backgroundColor: 'rgba(3, 169, 244, 0.2)',
+                        borderColor: '#87CEEB', // Azul bebê
+                        backgroundColor: 'rgba(135, 206, 235, 0.2)',
                         tension: 0.3,
                         hidden: true // Oculto por padrão
                     }, {
                         label: 'Selic',
                         data: [],
-                        borderColor: '#4caf50', // Green
-                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                        borderColor: '#6B7280', // Cinza médio para Selic
+                        backgroundColor: 'rgba(107, 114, 128, 0.2)',
                         tension: 0.3,
                         hidden: true // Oculto por padrão
                     }, {
                         label: 'IPCA',
                         data: [],
-                        borderColor: '#ff9800', // Orange
-                        backgroundColor: 'rgba(255, 152, 0, 0.2)',
+                        borderColor: '#FCA5A5', // Vermelho claro para IPCA
+                        backgroundColor: 'rgba(252, 165, 165, 0.2)',
                         tension: 0.3,
                         hidden: true // Oculto por padrão
                     }]
@@ -611,7 +610,7 @@
                             title: {
                                 display: true,
                                 text: 'Valor (R$)',
-                                color: '#4a4a6e'
+                                color: '#4A4A4A'
                             },
                             ticks: {
                                 callback: function(value) {
@@ -641,29 +640,29 @@
                     datasets: [{
                         label: 'Imóvel (%)',
                         data: [],
-                        borderColor: '#fdd835', // Gold
-                        backgroundColor: 'rgba(253, 216, 53, 0.2)',
+                        borderColor: '#5B8FB9', // Azul médio
+                        backgroundColor: 'rgba(91, 143, 185, 0.2)',
                         tension: 0.3,
                         fill: true
                     }, {
                         label: 'CDI (%)',
                         data: [],
-                        borderColor: '#03a9f4', // Light Blue
-                        backgroundColor: 'rgba(3, 169, 244, 0.2)',
+                        borderColor: '#87CEEB', // Azul bebê
+                        backgroundColor: 'rgba(135, 206, 235, 0.2)',
                         tension: 0.3,
                         hidden: true // Oculto por padrão
                     }, {
                         label: 'Selic (%)',
                         data: [],
-                        borderColor: '#4caf50', // Green
-                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                        borderColor: '#6B7280', // Cinza médio para Selic
+                        backgroundColor: 'rgba(107, 114, 128, 0.2)',
                         tension: 0.3,
                         hidden: true // Oculto por padrão
                     }, {
                         label: 'IPCA (%)',
                         data: [],
-                        borderColor: '#ff9800', // Orange
-                        backgroundColor: 'rgba(255, 152, 0, 0.2)',
+                        borderColor: '#FCA5A5', // Vermelho claro para IPCA
+                        backgroundColor: 'rgba(252, 165, 165, 0.2)',
                         tension: 0.3,
                         hidden: true // Oculto por padrão
                     }]
@@ -677,7 +676,7 @@
                             title: {
                                 display: true,
                                 text: 'Rentabilidade Acumulada (%)',
-                                color: '#4a4a6e'
+                                color: '#4A4A4A'
                             },
                             ticks: {
                                 callback: function(value) {
@@ -707,8 +706,8 @@
                     datasets: [{
                         label: 'Valor Final',
                         data: [],
-                        backgroundColor: ['#fdd835', '#03a9f4', '#4caf50', '#ff9800'],
-                        borderColor: ['#fdd835', '#03a9f4', '#4caf50', '#ff9800'],
+                        backgroundColor: ['#5B8FB9', '#87CEEB', '#6B7280', '#FCA5A5'], /* Cores atualizadas para as barras */
+                        borderColor: ['#5B8FB9', '#87CEEB', '#6B7280', '#FCA5A5'],
                         borderWidth: 1
                     }]
                 },
@@ -718,7 +717,7 @@
                         x: {
                             ...commonChartOptions.scales.x,
                             grid: {
-                                display: false // Remove grid lines for bar chart X axis
+                                display: false
                             }
                         },
                         y: {
@@ -727,7 +726,7 @@
                             title: {
                                 display: true,
                                 text: 'Valor Final (R$)',
-                                color: '#4a4a6e'
+                                color: '#4A4A4A'
                             },
                             ticks: {
                                 callback: function(value) {
@@ -745,7 +744,7 @@
                             }
                         },
                         legend: {
-                            display: false // No legend for single dataset bar chart
+                            display: false
                         }
                     }
                 }
@@ -765,7 +764,7 @@
             if (isNaN(valorInicial) || valorInicial <= 0) {
                 showMessage('Por favor, insira um Valor Inicial do Imóvel válido e maior que zero.', 'error');
                 valorFinalImovelSpan.textContent = formatCurrency(0);
-                updateCharts([], [], [], [], [], [], [], [], []); // Limpa os gráficos
+                updateCharts([], [], [], [], [], [], [], [], []);
                 whatsappClientBtn.disabled = true;
                 whatsappKevillenBtn.disabled = true;
                 downloadChartsBtn.disabled = true;
@@ -775,7 +774,7 @@
             if (isNaN(taxaValorizacaoImovel) || isNaN(periodo) || isNaN(taxaCDI) || isNaN(taxaSelic) || isNaN(taxaIPCA)) {
                 showMessage('Por favor, preencha todos os campos com valores numéricos válidos.', 'error');
                 valorFinalImovelSpan.textContent = formatCurrency(0);
-                updateCharts([], [], [], [], [], [], [], [], []); // Limpa os gráficos
+                updateCharts([], [], [], [], [], [], [], [], []);
                 whatsappClientBtn.disabled = true;
                 whatsappKevillenBtn.disabled = true;
                 downloadChartsBtn.disabled = true;
@@ -783,7 +782,7 @@
                 return;
             }
 
-            hideMessage(); // Esconde a mensagem se a validação passar
+            hideMessage();
 
             // Atualiza os displays dos sliders
             taxaValorizacaoDisplay.textContent = taxaValorizacaoImovelInput.value;
@@ -841,10 +840,10 @@
             updateCharts(labels, valoresImovel, rentabilidadeImovel, valoresCDI, rentabilidadeCDI, valoresSelic, rentabilidadeSelic, valoresIPCA, rentabilidadeIPCA);
 
             // Habilita os botões de download e WhatsApp
-            whatsappClientBtn.disabled = !whatsappClienteInput.value.trim(); // Habilita se houver número no campo do cliente
+            whatsappClientBtn.disabled = !whatsappClienteInput.value.trim();
             whatsappKevillenBtn.disabled = false;
             downloadChartsBtn.disabled = false;
-            downloadPdfBtn.disabled = false; // Habilita o botão de PDF
+            downloadPdfBtn.disabled = false;
         };
 
         // Função para atualizar os dados dos gráficos
@@ -929,13 +928,13 @@
 
         // Event listener para o botão de WhatsApp do Cliente
         whatsappClientBtn.addEventListener('click', () => {
-            const phoneNumber = whatsappClienteInput.value.replace(/[^0-9+]/g, ''); // Remove caracteres não numéricos, mantendo o '+'
+            const phoneNumber = whatsappClienteInput.value.replace(/[^0-9+]/g, '');
             sendWhatsAppMessage(phoneNumber);
         });
 
         // Event listener para o botão de WhatsApp da Kevillen Costa
         whatsappKevillenBtn.addEventListener('click', () => {
-            sendWhatsAppMessage('', true); // Envia para o número fixo da Kevillen
+            sendWhatsAppMessage('', true);
         });
 
         // Função para baixar os gráficos
@@ -962,7 +961,7 @@
 
         // Função para baixar a página como PDF
         const downloadPdf = async () => {
-            const container = document.getElementById('container'); // Elemento principal a ser capturado
+            const container = document.getElementById('container');
             if (!container) {
                 showMessage('Erro: Elemento principal do simulador não encontrado para gerar o PDF.', 'error');
                 console.error('Element with ID "container" not found.');
@@ -971,94 +970,80 @@
 
             showMessage('Gerando PDF... Isso pode levar alguns segundos. Por favor, não interaja com a página.', 'info');
 
-            // Salva os estilos originais para restaurá-los depois
             const originalBodyOverflow = document.body.style.overflow;
             const originalHtmlOverflow = document.documentElement.style.overflow;
             const originalBodyMinHeight = document.body.style.minHeight;
 
-            // Define um estilo temporário para o body e html para garantir que todo o conteúdo seja renderizado pelo html2canvas
             document.body.style.overflow = 'visible';
             document.documentElement.style.overflow = 'visible';
-            document.body.style.minHeight = 'auto'; // Garante que o body se expanda para todo o conteúdo
+            document.body.style.minHeight = 'auto';
 
-            // Oculta os botões flutuantes e a caixa de mensagem durante a captura
             const floatingButtons = document.querySelector('.floating-buttons-container');
             const messageBoxElement = document.getElementById('messageBox');
 
             if (floatingButtons) floatingButtons.style.display = 'none';
-            // Garante que a caixa de mensagem esteja oculta para não aparecer no PDF
-            if (messageBoxElement) messageBoxElement.style.display = 'none'; 
+            if (messageBoxElement) messageBoxElement.style.display = 'none';
 
             try {
-                // Pequeno atraso para garantir que a renderização esteja completa
-                await new Promise(resolve => setTimeout(resolve, 100)); 
+                await new Promise(resolve => setTimeout(resolve, 100));
 
-                // Captura o conteúdo do container para um canvas
-                const canvas = await html2canvas(container, { 
-                    scale: 2, // Maior escala para melhor resolução no PDF
-                    useCORS: true, // Importante para imagens ou recursos externos (gráficos Chart.js)
-                    backgroundColor: '#2a2a4a', // Define a cor de fundo do container no PDF
-                    logging: true, // Habilita logs no console para depuração
+                const canvas = await html2canvas(container, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#F0F4F8', /* Fundo do container para o PDF */
+                    logging: true,
                 });
 
-                console.log('Canvas dimensions:', canvas.width, 'x', canvas.height); // Log para depuração
+                console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
 
-                const imgData = canvas.toDataURL('image/png'); // Converte o canvas para imagem PNG
-                const { jsPDF } = window.jspdf; // Obtém a instância do jsPDF
-                const pdf = new jsPDF('p', 'mm', 'a4'); // Inicializa PDF A4 em retrato
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
 
-                const pdfWidth = pdf.internal.pageSize.getWidth(); // Largura da página A4 em mm
-                const pdfHeight = pdf.internal.pageSize.getHeight(); // Altura da página A4 em mm
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
 
                 const imgOriginalWidth = canvas.width;
                 const imgOriginalHeight = canvas.height;
 
-                // Calcula as dimensões da imagem para caber na largura do PDF mantendo a proporção
                 let imgRenderWidth = pdfWidth;
                 let imgRenderHeight = (imgOriginalHeight * pdfWidth) / imgOriginalWidth;
 
                 let heightRemaining = imgRenderHeight;
-                let yOffset = 0; // Offset Y para a imagem no PDF
+                let yOffset = 0;
 
-                // Adiciona páginas até que todo o conteúdo seja renderizado
                 while (heightRemaining > 0) {
                     pdf.addImage(imgData, 'PNG', 0, yOffset, imgRenderWidth, imgRenderHeight);
                     heightRemaining -= pdfHeight;
-                    yOffset -= pdfHeight; // Move a imagem para cima para a próxima página
+                    yOffset -= pdfHeight;
                     if (heightRemaining > 0) {
                         pdf.addPage();
                     }
                 }
 
-                pdf.save('simulacao_imobiliaria.pdf'); // Salva o arquivo PDF
+                pdf.save('simulacao_imobiliaria.pdf');
                 showMessage('PDF da página baixado com sucesso!', 'success');
 
             } catch (error) {
                 console.error("Erro ao gerar PDF:", error);
                 showMessage('Ocorreu um erro ao gerar o PDF. Detalhes: ' + error.message + '. Verifique o console para mais informações.', 'error');
             } finally {
-                // Restaura os estilos originais do body e html
                 document.body.style.overflow = originalBodyOverflow;
                 document.documentElement.style.overflow = originalHtmlOverflow;
                 document.body.style.minHeight = originalBodyMinHeight;
 
-                // Restaura a visibilidade dos botões flutuantes
                 if (floatingButtons) floatingButtons.style.display = 'flex';
-                // Garante que a caixa de mensagem esteja oculta após a operação
-                hideMessage(); 
+                hideMessage();
             }
         };
 
-        // Event listener para o novo botão de download de PDF
         downloadPdfBtn.addEventListener('click', downloadPdf);
-
 
         // Chamar a função de inicialização dos gráficos e o cálculo inicial ao carregar a página
         window.onload = () => {
             initCharts();
-            calculateAppreciation(); // Realiza um cálculo inicial com os valores padrão
+            calculateAppreciation();
         };
     </script>
 </body>
 </html>
-
