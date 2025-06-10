@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kevillen Costa | Funil de Vendas Imobiliário</title>
+    <title>Kevillen Costa | Acesso para Parceiros VIP</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -13,13 +13,12 @@
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                     },
-                    colors: {
-                        'netflix-dark': '#141414',
-                        'netflix-card': '#222222',
-                        'netflix-red': '#E50914',
-                        'netflix-light-gray': '#B3B3B3',
-                        'netflix-text': '#E5E7EB',
-                    },
+                    // Não há necessidade de definir cores personalizadas se usarmos as cores existentes do Tailwind.
+                    // Para um "azul bebê" específico, poderíamos adicionar:
+                    // colors: {
+                    //     'baby-blue': '#ADD8E6', // Um tom de azul bebê claro
+                    //     'baby-blue-dark': '#89CFF0', // Um azul bebê um pouco mais escuro
+                    // }
                 }
             }
         }
@@ -27,8 +26,8 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: theme('colors.netflix-dark');
-            color: theme('colors.netflix-text');
+            background-color: white; /* Fundo branco */
+            color: theme('colors.gray.800'); /* Cor de texto mais escura para contraste no fundo branco */
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -39,18 +38,18 @@
 </head>
 <body class="p-4 sm:p-8">
 
-    <div class="bg-netflix-card rounded-xl shadow-lg p-6 sm:p-10 max-w-2xl w-full text-center">
-        <h1 class="text-3xl sm:text-4xl font-bold text-netflix-red mb-4">
-            Funil de Vendas Imobiliário
+    <!-- O contêiner principal agora tem um fundo azul bebê claro (sky-100) e os textos e botões usam tons de azul mais escuros (sky-600) -->
+    <div class="bg-sky-100 rounded-xl shadow-lg p-6 sm:p-10 max-w-2xl w-full text-center">
+        <h1 class="text-3xl sm:text-4xl font-bold text-sky-600 mb-4"> <!-- Título em azul bebê -->
+            ACESSO PARA PARCEIROS VIP
         </h1>
-        <p class="text-netflix-light-gray text-lg mb-6">
-            Visualize e otimize cada etapa do seu processo de vendas, desde a prospecção até o fechamento. Esta ferramenta será implementada em breve!
+        <p class="text-gray-700 text-lg mb-6"> <!-- Texto do parágrafo em cinza escuro para melhor leitura -->
+            (EM CONSTRUÇÃO)
         </p>
-        <a href="index.html" class="inline-block bg-netflix-red text-white font-semibold py-2 px-6 rounded-lg hover:bg-red-700 transition-colors duration-300">
+        <a href="index.html" class="inline-block bg-sky-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-sky-700 transition-colors duration-300"> <!-- Botão em azul bebê -->
             Voltar para as Ferramentas
         </a>
     </div>
 
 </body>
 </html>
-
