@@ -361,4 +361,78 @@
 
                 if (result.candidates && result.candidates.length > 0 &&
                     result.candidates[0].content && result.candidates[0].content.parts &&
-                 
+                    result.candidates[0].content.parts.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                } else {
+                    console.warn('Estrutura de resposta inesperada da IA:', result);
+                    throw new Error('Não foi possível gerar o conteúdo. A resposta da IA estava vazia ou em formato inválido. Tente ser mais específico nos inputs.');
+                }
+            } catch (error) {
+                console.error('Erro ao chamar a API do Gemini:', error);
+                throw new Error(`Falha na comunicação com a IA: ${error.message}.`);
+            }
+        }
+
+        // --- Event Listeners ---
+
+        generateBtn.addEventListener('click', async () => {
+            const prompt = buildPrompt();
+            if (!prompt) return;
+
+            generatedTextOutput.textContent = 'Analisando...';
+            copyBtn.classList.add('hidden');
+            sendWhatsappBtn.disabled = true;
+            loadingIndicator.classList.remove('hidden');
+            generateBtn.disabled = true;
+
+            try {
+                const generatedContent = await generateTextWithGemini(prompt);
+                // Usar innerHTML para renderizar o negrito (strong)
+                generatedTextOutput.innerHTML = generatedContent; 
+                copyBtn.classList.remove('hidden');
+            } catch (error) {
+                generatedTextOutput.textContent = 'Erro ao gerar análise.';
+                showMessage(`Erro: ${error.message}`, 'error'); // Display error message
+            } finally {
+                loadingIndicator.classList.add('hidden');
+                generateBtn.disabled = false;
+                updateWhatsappButtonState(); // Atualiza o estado do botão WhatsApp
+            }
+        });
+
+        copyBtn.addEventListener('click', () => {
+            // Usar innerText para copiar apenas o texto visível, sem tags HTML
+            copyToClipboard(generatedTextOutput.innerText); 
+        });
+
+        // Atualiza o estado do botão WhatsApp sempre que o número de WhatsApp é alterado
+        whatsappNumberInput.addEventListener('input', updateWhatsappButtonState);
+
+        sendWhatsappBtn.addEventListener('click', () => {
+            // Usar innerText para enviar apenas o texto visível, sem tags HTML
+            const message = generatedTextOutput.innerText; 
+            const whatsappNumber = whatsappNumberInput.value.trim();
+
+            if (!message || message === 'A análise do perfil do cliente e sugestões de imóveis/abordagem aparecerão aqui.' || message === 'Analisando...' || message === 'Erro ao gerar análise.') {
+                showMessage('Por favor, gere uma análise antes de enviar via WhatsApp.', 'error');
+                return;
+            }
+
+            if (!isValidWhatsappNumber(whatsappNumber)) {
+                showMessage('O número de WhatsApp não é válido. Por favor, inclua o código do país e DDD (Ex: +5547997082022).', 'error');
+                return;
+            }
+
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        });
+
+        // Initial setup on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            generatedTextOutput.textContent = 'A análise do perfil do cliente e sugestões de imóveis/abordagem aparecerão aqui.';
+            updateWhatsappButtonState(); // Define o estado inicial do botão WhatsApp
+        });
+    </script>
+</body>
+</html>
+
