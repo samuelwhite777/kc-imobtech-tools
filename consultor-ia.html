@@ -3,58 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kevillen Costa | Consultor de IA - Em Construção</title>
-    <!-- Tailwind CSS CDN para estilização rápida e responsiva -->
+    <title>Consultor IA Especialista em Imóveis - Costa Esmeralda</title>
+    <!-- Incluindo Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        // Configuração personalizada do Tailwind CSS, incluindo novas cores para o tema claro
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        'background-light': '#F8F8F8',      /* Fundo branco-quente */
-                        'card-white': '#FFFFFF',             /* Cor de fundo dos cartões */
-                        'accent-blue': '#2196F3',            /* Azul vibrante para destaque */
-                        'text-dark-gray': '#4A4A4A',         /* Cor principal para o texto */
-                        'text-medium-gray': '#757575',       /* Cor para texto secundário */
-                    },
-                }
-            }
-        }
-    </script>
     <style>
-        /* Estilos personalizados para o corpo da página */
         body {
-            font-family: 'Inter', sans-serif; /* Define a fonte principal */
-            background-color: theme('colors.background-light'); /* Usa a nova cor de fundo clara */
-            color: theme('colors.text-dark-gray'); /* Define a nova cor do texto principal */
-            min-height: 100vh; /* Garante que o corpo ocupe toda a altura da viewport */
-            display: flex; /* Habilita o Flexbox para centralizar o conteúdo */
-            flex-direction: column; /* Organiza os itens em coluna */
-            align-items: center; /* Centraliza horizontalmente */
-            justify-content: center; /* Centraliza verticalmente */
+            font-family: 'Inter', sans-serif;
+            background-color: #FFFFFF; /* Fundo branco */
+        }
+        /* Define as cores azul bebê para o texto e detalhes */
+        .text-baby-blue-dark {
+            color: #87CEEB; /* Um azul mais escuro, como Sky Blue, para títulos e destaque */
+        }
+        .text-baby-blue {
+            color: #ADD8E6; /* Azul bebê para textos secundários */
+        }
+        .bg-baby-blue-light {
+            background-color: #E0F2F7; /* Azul mais claro para botões */
+        }
+        .bg-baby-blue-dark-button {
+            background-color: #87CEEB; /* Azul mais escuro para botões de hover/primários */
+        }
+        .bg-baby-blue-dark-button:hover {
+            background-color: #6495ED; /* CornflowerBlue para um hover ainda mais pronunciado */
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #87CEEB;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Estilos para o conteúdo formatado do consultor */
+        #consultantResponse p {
+            margin-bottom: 1rem;
+        }
+        #consultantResponse strong {
+            font-weight: 700;
+            color: #5B92E5; /* Um azul um pouco mais forte para negrito */
+        }
+        #consultantResponse ul {
+            list-style-type: disc;
+            margin-left: 20px;
+            margin-bottom: 1rem;
+        }
+        #consultantResponse li {
+            margin-bottom: 0.5rem;
         }
     </style>
 </head>
-<body class="p-4 sm:p-8">
-    <!-- Contêiner principal do conteúdo -->
-    <div class="bg-card-white rounded-xl shadow-lg p-6 sm:p-10 max-w-2xl w-full text-center">
-        <!-- Título principal da página -->
-        <h1 class="text-3xl sm:text-4xl font-bold text-accent-blue mb-4">
-            Consultor de IA <br> (Em Construção)
+<body class="p-4 sm:p-8 md:p-12 lg:p-16 flex flex-col min-h-screen">
+    <div class="max-w-4xl mx-auto flex-grow bg-white rounded-xl shadow-lg p-6 sm:p-8 md:p-10 lg:p-12">
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-center mb-6 text-baby-blue-dark">
+            Seu Consultor IA Especialista no Mercado Imobiliário da Costa Esmeralda
         </h1>
-        <!-- Parágrafo de descrição do serviço -->
-        <p class="text-text-medium-gray text-lg mb-6">
-            Página em construção. Acesso exclusivo para parceiros VIP.
+        <p class="text-base sm:text-lg md:text-xl text-center mb-8 text-gray-700">
+            Olá, sou seu Consultor IA, um especialista sênior em transações imobiliárias, com foco profundo na vibrante Costa Esmeralda, especialmente em Porto Belo e Itapema. Estou aqui para tirar suas dúvidas, oferecer novas perspectivas, refatorar abordagens e impulsionar sua carreira.
         </p>
-        <!-- Botão para voltar à página de ferramentas -->
-        <a href="index.html" class="inline-block bg-accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300">
-            Voltar para as Ferramentas
+
+        <div class="mb-8 p-4 bg-gray-50 rounded-lg shadow-inner">
+            <h2 class="text-xl sm:text-2xl font-bold mb-4 text-baby-blue-dark">Faça sua Pergunta:</h2>
+            <textarea
+                id="questionInput"
+                rows="5"
+                class="w-full p-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-baby-blue-light resize-y text-gray-800"
+                placeholder="Ex: Qual a melhor abordagem para um cliente investidor em Porto Belo? Como posso otimizar meu anúncio no Instagram para Itapema?"></textarea>
+            <button
+                onclick="askConsultant()"
+                id="askButton"
+                class="mt-4 w-full py-3 px-6 rounded-full bg-baby-blue-dark-button text-white font-semibold text-lg shadow-md hover:shadow-lg transform transition duration-300 hover:scale-105 flex items-center justify-center">
+                <span id="buttonText">Perguntar ao Consultor</span>
+                <div id="loadingSpinner" class="spinner hidden"></div>
+            </button>
+        </div>
+
+        <div id="responseArea" class="p-6 bg-blue-50 rounded-lg shadow-md border border-baby-blue-light text-gray-800 hidden">
+            <h2 class="text-xl sm:text-2xl font-bold mb-3 text-baby-blue-dark">Resposta do Consultor:</h2>
+            <div id="consultantResponse" class="text-gray-700 text-base sm:text-lg">
+                <!-- A resposta do consultor aparecerá aqui -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Botão Voltar -->
+    <div class="mt-8 text-center">
+        <a href="index.html" class="inline-block py-3 px-8 rounded-full bg-baby-blue-dark-button text-white font-semibold text-lg shadow-md hover:shadow-lg transform transition duration-300 hover:scale-105">
+            &#8592; Voltar à Página Principal
         </a>
     </div>
 
+    <script>
+        async function askConsultant() {
+            const questionInput = document.getElementById('questionInput');
+            const consultantResponse = document.getElementById('consultantResponse');
+            const responseArea = document.getElementById('responseArea');
+            const askButton = document.getElementById('askButton');
+            const buttonText = document.getElementById('buttonText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const question = questionInput.value.trim();
+
+            if (question === "") {
+                consultantResponse.innerHTML = "<p>Por favor, digite sua pergunta antes de consultar o especialista.</p>";
+                responseArea.classList.remove('hidden');
+                return;
+            }
+
+            // Exibir loading
+            buttonText.textContent = "Consultando...";
+            loadingSpinner.classList.remove('hidden');
+            askButton.disabled = true; // Desabilita o botão enquanto carrega
+
+            consultantResponse.innerHTML = "<p>Carregando resposta...</p>";
+            responseArea.classList.remove('hidden');
+
+            try {
+                let chatHistory = [];
+                // Modificação do prompt para instruir o Gemini a usar HTML para formatação
+                const fullPrompt = question + " Considerando que sou um corretor de imóveis focado em Porto Belo e Itapema, Costa Esmeralda, SC. Responda como um corretor sênior, dando dicas, métodos de abordagem, melhoria, outro ponto de vista e refatoração de situações. Formate sua resposta usando tags HTML como <p>, <strong>, <ul>, <li> e <br> para melhor legibilidade.";
+                
+                chatHistory.push({ role: "user", parts: [{ text: fullPrompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = "AIzaSyCAdsR2LQb2SCTG1y5JYCrA4XVy0i-96NM"; // Seu API Key fornecido
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    consultantResponse.innerHTML = text; // Usar innerHTML para renderizar o HTML
+                } else {
+                    consultantResponse.innerHTML = "<p>Não foi possível obter uma resposta. Tente novamente ou reformule a pergunta.</p>";
+                    console.error("Estrutura de resposta inesperada:", result);
+                }
+            } catch (error) {
+                console.error("Erro ao chamar a API Gemini:", error);
+                consultantResponse.innerHTML = "<p>Ocorreu um erro ao conectar com o Consultor IA. Por favor, tente novamente mais tarde.</p>";
+            } finally {
+                // Ocultar loading
+                buttonText.textContent = "Perguntar ao Consultor";
+                loadingSpinner.classList.add('hidden');
+                askButton.disabled = false; // Habilita o botão
+                questionInput.value = ""; // Limpa a área de input
+            }
+        }
+    </script>
 </body>
 </html>
+
