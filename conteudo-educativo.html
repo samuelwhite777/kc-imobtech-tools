@@ -3,58 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kevillen Costa | Conteúdo Educativo e Informativo - Em Construção</title>
-    <!-- Tailwind CSS CDN para estilização rápida e responsiva -->
+    <title>Capacitação Corretor de Imóveis - Costa Esmeralda</title>
+    <!-- Incluindo Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        // Configuração personalizada do Tailwind CSS, incluindo cores para o tema claro (azul bebê e branco)
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        'background-light': '#F8F8F8',      /* Fundo branco-quente */
-                        'card-white': '#FFFFFF',             /* Cor de fundo dos cartões */
-                        'accent-blue': '#2196F3',            /* Azul vibrante para destaque */
-                        'text-dark-gray': '#4A4A4A',         /* Cor principal para o texto */
-                        'text-medium-gray': '#757575',       /* Cor para texto secundário */
-                    },
-                }
-            }
-        }
-    </script>
     <style>
-        /* Estilos personalizados para o corpo da página */
         body {
-            font-family: 'Inter', sans-serif; /* Define a fonte principal */
-            background-color: theme('colors.background-light'); /* Usa a nova cor de fundo clara */
-            color: theme('colors.text-dark-gray'); /* Define a nova cor do texto principal */
-            min-height: 100vh; /* Garante que o corpo ocupe toda a altura da viewport */
-            display: flex; /* Habilita o Flexbox para centralizar o conteúdo */
-            flex-direction: column; /* Organiza os itens em coluna */
-            align-items: center; /* Centraliza horizontalmente */
-            justify-content: center; /* Centraliza verticalmente */
+            font-family: 'Inter', sans-serif;
+            background-color: #FFFFFF; /* Fundo branco */
+            color: #ADD8E6; /* Azul bebê */
+        }
+        .text-baby-blue {
+            color: #ADD8E6; /* Azul bebê */
+        }
+        .bg-baby-blue-light {
+            background-color: #E0F2F7; /* Um azul mais claro para botões */
+        }
+        .bg-baby-blue-dark {
+            background-color: #87CEEB; /* Um azul mais escuro para hover */
         }
     </style>
 </head>
-<body class="p-4 sm:p-8">
-
-    <div class="bg-card-white rounded-xl shadow-lg p-6 sm:p-10 max-w-2xl w-full text-center">
-        <!-- Título principal da página -->
-        <h1 class="text-3xl sm:text-4xl font-bold text-accent-blue mb-4">
-            Conteúdo Educativo e Informativo <br> (Em Construção)
+<body class="p-4 sm:p-8 md:p-12 lg:p-16">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 sm:p-8 md:p-10 lg:p-12">
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-center mb-8 text-baby-blue-dark">
+            Capacitação Completa para Corretores de Imóveis
         </h1>
-        <!-- Parágrafo de descrição do serviço -->
-        <p class="text-text-medium-gray text-lg mb-6">
-            Página em construção. Acesso exclusivo para parceiros VIP.
+        <p class="text-lg sm:text-xl md:text-2xl text-center mb-12 text-baby-blue">
+            Desenvolva sua carreira e domine o mercado imobiliário da Costa Esmeralda: Porto Belo e Itapema.
         </p>
-        <!-- Botão para voltar à página de ferramentas -->
-        <a href="index.html" class="inline-block bg-accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300">
-            Voltar para as Ferramentas
-        </a>
-    </div>
 
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
+            <!-- Dicas de Abordagem -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-md flex flex-col justify-between transform transition duration-300 hover:scale-105">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold mb-3 text-baby-blue-dark">Dicas de Abordagem</h2>
+                    <p class="text-gray-700 text-sm sm:text-base mb-4">
+                        Aprenda as melhores estratégias para iniciar uma conversa e conquistar a confiança do seu cliente.
+                    </p>
+                </div>
+                <a href="abordagem_cliente.html" class="block w-full py-2 px-4 text-center rounded-full bg-baby-blue-light text-baby-blue-dark font-semibold text-lg hover:bg-baby-blue-dark hover:text-white transition duration-300">
+                    Acessar Conteúdo
+                </a>
+            </div>
+
+            <!-- Argumentos de Venda Irresistíveis -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-md flex flex-col justify-between transform transition duration-300 hover:scale-105">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold mb-3 text-baby-blue-dark">Argumentos de Venda Irresistíveis</h2>
+                    <p class="text-gray-700 text-sm sm:text-base mb-4">
+                        Descubra como apresentar os diferenciais de Porto Belo e Itapema para seus clientes.
+                    </p>
+                </div>
+                <a href="argumentos_venda.html" class="block w-full py-2 px-4 text-center rounded-full bg-baby-blue-light text-baby-blue-dark font-semibold text-lg hover:bg-baby-blue-dark hover:text-white transition duration-300">
+                    Acessar Conteúdo
+                </a>
+            </div>
+
+            <!-- Investimento Imobiliário Inteligente -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-md flex flex-col justify-between transform transition duration-300 hover:scale-105">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold mb-3 text-baby-blue-dark">Investimento Imobiliário Inteligente</h2>
+                    <p class="text-gray-700 text-sm sm:text-base mb-4">
+                        Guia completo sobre as melhores oportunidades de investimento na região.
+                    </p>
+                </div>
+                <a href="investimento_imobiliario.html" class="block w-full py-2 px-4 text-center rounded-full bg-baby-blue-light text-baby-blue-dark font-semibold text-lg hover:bg-baby-blue-dark hover:text-white transition duration-300">
+                    Acessar Conteúdo
+                </a>
+            </div>
+
+            <!-- Rentabilidade com Airbnb na Costa Esmeralda -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-md flex flex-col justify-between transform transition duration-300 hover:scale-105">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold mb-3 text-baby-blue-dark">Rentabilidade com Airbnb na Costa Esmeralda</h2>
+                    <p class="text-gray-700 text-sm sm:text-base mb-4">
+                        Maximize os ganhos de seus clientes com estratégias de locação por temporada.
+                    </p>
+                </div>
+                <a href="airbnb_rentabilidade.html" class="block w-full py-2 px-4 text-center rounded-full bg-baby-blue-light text-baby-blue-dark font-semibold text-lg hover:bg-baby-blue-dark hover:text-white transition duration-300">
+                    Acessar Conteúdo
+                </a>
+            </div>
+
+            <!-- Técnicas de Negociação Eficazes -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-md flex flex-col justify-between transform transition duration-300 hover:scale-105">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold mb-3 text-baby-blue-dark">Técnicas de Negociação Eficazes</h2>
+                    <p class="text-gray-700 text-sm sm:text-base mb-4">
+                        Domine a arte da negociação e feche mais negócios com sucesso.
+                    </p>
+                </div>
+                <a href="negociacao_eficaz.html" class="block w-full py-2 px-4 text-center rounded-full bg-baby-blue-light text-baby-blue-dark font-semibold text-lg hover:bg-baby-blue-dark hover:text-white transition duration-300">
+                    Acessar Conteúdo
+                </a>
+            </div>
+
+            <!-- Prospecção Ativa de Clientes -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-md flex flex-col justify-between transform transition duration-300 hover:scale-105">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold mb-3 text-baby-blue-dark">Prospecção Ativa de Clientes</h2>
+                    <p class="text-gray-700 text-sm sm:text-base mb-4">
+                        Estratégias para encontrar e qualificar seus futuros compradores e vendedores.
+                    </p>
+                </div>
+                <a href="prospeccao_ativa.html" class="block w-full py-2 px-4 text-center rounded-full bg-baby-blue-light text-baby-blue-dark font-semibold text-lg hover:bg-baby-blue-dark hover:text-white transition duration-300">
+                    Acessar Conteúdo
+                </a>
+            </div>
+
+            <!-- Marketing e Posicionamento nas Redes Sociais -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-md flex flex-col justify-between transform transition duration-300 hover:scale-105">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold mb-3 text-baby-blue-dark">Marketing e Posicionamento nas Redes Sociais</h2>
+                    <p class="text-gray-700 text-sm sm:text-base mb-4">
+                        Crie uma presença online forte e atraia leads qualificados.
+                    </p>
+                </div>
+                <a href="marketing_redes_sociais.html" class="block w-full py-2 px-4 text-center rounded-full bg-baby-blue-light text-baby-blue-dark font-semibold text-lg hover:bg-baby-blue-dark hover:text-white transition duration-300">
+                    Acessar Conteúdo
+                </a>
+            </div>
+
+            <!-- Anúncios e Plataformas Essenciais -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-md flex flex-col justify-between transform transition duration-300 hover:scale-105">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold mb-3 text-baby-blue-dark">Anúncios e Plataformas Essenciais</h2>
+                    <p class="text-gray-700 text-sm sm:text-base mb-4">
+                        Domine as ferramentas certas para divulgar seus imóveis e alcançar mais clientes.
+                    </p>
+                </div>
+                <a href="anuncios_plataformas.html" class="block w-full py-2 px-4 text-center rounded-full bg-baby-blue-light text-baby-blue-dark font-semibold text-lg hover:bg-baby-blue-dark hover:text-white transition duration-300">
+                    Acessar Conteúdo
+                </a>
+            </div>
+
+            <!-- Fidelização de Clientes e Geração de Indicações -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-md flex flex-col justify-between transform transition duration-300 hover:scale-105">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold mb-3 text-baby-blue-dark">Fidelização de Clientes e Geração de Indicações</h2>
+                    <p class="text-gray-700 text-sm sm:text-base mb-4">
+                        Transforme clientes satisfeitos em embaixadores da sua marca.
+                    </p>
+                </div>
+                <a href="fidelizacao_indicacoes.html" class="block w-full py-2 px-4 text-center rounded-full bg-baby-blue-light text-baby-blue-dark font-semibold text-lg hover:bg-baby-blue-dark hover:text-white transition duration-300">
+                    Acessar Conteúdo
+                </a>
+            </div>
+
+            <!-- Gerando Urgência nas Propostas -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-md flex flex-col justify-between transform transition duration-300 hover:scale-105">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold mb-3 text-baby-blue-dark">Gerando Urgência nas Propostas</h2>
+                    <p class="text-gray-700 text-sm sm:text-base mb-4">
+                        Técnicas para acelerar a decisão do cliente e fechar negócios mais rapidamente.
+                    </p>
+                </div>
+                <a href="urgencia_propostas.html" class="block w-full py-2 px-4 text-center rounded-full bg-baby-blue-light text-baby-blue-dark font-semibold text-lg hover:bg-baby-blue-dark hover:text-white transition duration-300">
+                    Acessar Conteúdo
+                </a>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
+
