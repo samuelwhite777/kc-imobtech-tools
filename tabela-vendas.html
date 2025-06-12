@@ -1,1 +1,100 @@
-Teste
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download de Tabelas de Vendas - Médio Padrão para Investimento</title>
+    <!-- Incluindo Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FFFFFF; /* Fundo branco */
+        }
+        .text-baby-blue-dark {
+            color: #87CEEB; /* Azul mais escuro para títulos e destaque */
+        }
+        .text-baby-blue {
+            color: #ADD8E6; /* Azul bebê para textos secundários */
+        }
+        .bg-baby-blue-dark-button {
+            background-color: #87CEEB; /* Azul mais escuro para botões */
+        }
+        .bg-baby-blue-dark-button:hover {
+            background-color: #6495ED; /* Azul mais intenso para hover */
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8 md:p-12 lg:p-16 flex flex-col min-h-screen">
+    <div class="max-w-4xl mx-auto flex-grow bg-white rounded-xl shadow-lg p-6 sm:p-8 md:p-10 lg:p-12 text-center">
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-6 text-baby-blue-dark">
+            Tabelas de Vendas Atualizadas por Empreendimento
+        </h1>
+        <p class="text-base sm:text-lg md:text-xl mb-8 text-gray-700">
+            Acesse e baixe as tabelas de vendas mais recentes para os empreendimentos de **médio padrão com alto potencial de investimento** na Costa Esmeralda.
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 mt-8">
+            <!-- Tabela Morata -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-md flex flex-col justify-between transform transition duration-300 hover:scale-105">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold mb-3 text-baby-blue-dark">Morata</h2>
+                    <p class="text-gray-700 text-sm sm:text-base mb-4">
+                        Tabela de vendas detalhada para o empreendimento Morata, ideal para investidores.
+                    </p>
+                </div>
+                <button onclick="alert('Download da tabela do Morata iniciado!')" class="w-full py-2 px-4 rounded-full bg-baby-blue-dark-button text-white font-semibold text-lg hover:bg-baby-blue-dark-button-hover transition duration-300">
+                    Baixar Tabela
+                </button>
+            </div>
+
+            <!-- Tabela Vivere in Pace -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-md flex flex-col justify-between transform transition duration-300 hover:scale-105">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold mb-3 text-baby-blue-dark">Vivere in Pace</h2>
+                    <p class="text-gray-700 text-sm sm:text-base mb-4">
+                        Tabela de vendas atualizada para o empreendimento Vivere in Pace.
+                    </p>
+                </div>
+                <button onclick="alert('Download da tabela do Vivere in Pace iniciado!')" class="w-full py-2 px-4 rounded-full bg-baby-blue-dark-button text-white font-semibold text-lg hover:bg-baby-blue-dark-button-hover transition duration-300">
+                    Baixar Tabela
+                </button>
+            </div>
+
+            <!-- Tabela Neo Edge -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-md flex flex-col justify-between transform transition duration-300 hover:scale-105">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold mb-3 text-baby-blue-dark">Neo Edge</h2>
+                    <p class="text-gray-700 text-sm sm:text-base mb-4">
+                        Tabela de vendas completa do empreendimento Neo Edge, foco em investimento.
+                    </p>
+                </div>
+                <button onclick="alert('Download da tabela do Neo Edge iniciado!')" class="w-full py-2 px-4 rounded-full bg-baby-blue-dark-button text-white font-semibold text-lg hover:bg-baby-blue-dark-button-hover transition duration-300">
+                    Baixar Tabela
+                </button>
+            </div>
+
+            <!-- Tabela Zenith Bay -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-md flex flex-col justify-between transform transition duration-300 hover:scale-105">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold mb-3 text-baby-blue-dark">Zenith Bay</h2>
+                    <p class="text-gray-700 text-sm sm:text-base mb-4">
+                        Tabela de vendas detalhada para o empreendimento Zenith Bay.
+                    </p>
+                </div>
+                <button onclick="alert('Download da tabela do Zenith Bay iniciado!')" class="w-full py-2 px-4 rounded-full bg-baby-blue-dark-button text-white font-semibold text-lg hover:bg-baby-blue-dark-button-hover transition duration-300">
+                    Baixar Tabela
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botão Voltar -->
+    <div class="mt-8 text-center">
+        <a href="index.html" class="inline-block py-3 px-8 rounded-full bg-baby-blue-dark-button text-white font-semibold text-lg shadow-md hover:shadow-lg transform transition duration-300 hover:scale-105">
+            &#8592; Voltar à Página Principal
+        </a>
+    </div>
+</body>
+</html>
+
